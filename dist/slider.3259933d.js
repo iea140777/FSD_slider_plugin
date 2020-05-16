@@ -147,7 +147,28 @@ function () {
         }
       }
 
+      view.input.value = model.currentValue[0];
       return model.currentValue;
+    };
+
+    this.getCurrentPosition = function (model, view, newValue) {
+      if (newValue <= model.minValue) {
+        view.handlers[0].style.left = 0 - view.sliderBorder + 'px';
+        view.handlersPosition[0].x = view.minPosition;
+        model.currentValue[0] = model.minValue;
+      } else if (newValue >= model.maxValue) {
+        view.handlers[0].style.left = view.positionRange + 'px';
+        view.handlersPosition[0].x = view.maxPosition;
+        model.currentValue[0] = model.maxValue;
+      } else {
+        view.handlers[0].style.left = Math.abs((newValue - model.minValue) * model.positionValueRate) + 'px';
+        view.handlersPosition[0].x = Math.abs((newValue - model.minValue) * model.positionValueRate + view.minPosition);
+        model.currentValue[0] = newValue;
+      }
+
+      if (model.icon) {
+        view.icons[0].innerHTML = model.currentValue[0];
+      }
     };
 
     this.model = new Model(options);
@@ -162,6 +183,10 @@ function () {
       _this.handlersPosition = newHandlersPosition;
 
       _this.getCurrentValue(_this.model, _this.view);
+    };
+
+    this.view.notifyChangedInputValue = function (newInputValue) {
+      _this.getCurrentPosition(_this.model, _this.view, newInputValue);
     };
   }
 
@@ -235,6 +260,7 @@ function () {
       };
 
       document.onmouseup = function () {
+        handler.classList.remove('slider__handler_active');
         document.onmousemove = null;
       };
     };
@@ -247,10 +273,27 @@ function () {
       _this.notifyChangedHandlerPosition(newHandlersPosition);
     };
 
+    this.addInputListeners = function () {
+      _this.input.onclick = function () {
+        _this.input.value = '';
+      };
+
+      _this.input.oninput = function (e) {
+        _this.newInputValue();
+      };
+    };
+
+    this.newInputValue = function () {
+      var newInputValue = +_this.input.value;
+
+      _this.notifyChangedInputValue(newInputValue);
+    };
+
     this.createSlider(options, sliderContainer);
     this.getSliderData();
     this.getInitialPosition();
     this.addHandlerListeners();
+    this.addInputListeners();
   }
 
   View.prototype.createSlider = function (options, sliderContainer) {
@@ -425,7 +468,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49975" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "61719" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

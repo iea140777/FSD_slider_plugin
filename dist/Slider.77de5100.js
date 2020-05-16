@@ -121,9 +121,10 @@ parcelRequire = (function (modules, cache, entry, globalName) {
 'use strict';
 
 $('.slider__container').slider({
+  minValue: -200,
   maxValue: 100,
   icon: true,
-  handlersAmount: 1
+  handlersAmount: 2
 });
 $('.slider__container1').slider({
   maxValue: 100,
@@ -161,7 +162,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49975" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "61719" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

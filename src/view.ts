@@ -10,6 +10,7 @@ export class View implements IView {
         this.getSliderData();
         this.getInitialPosition();
         this.addHandlerListeners();
+        this.addInputListeners(); 
     }
 
     createSlider(options, sliderContainer){
@@ -68,18 +69,35 @@ export class View implements IView {
             this.writeNewPosition(handler, num);
         }
         document.onmouseup = () => {
+            handler.classList.remove('slider__handler_active');
             document.onmousemove = null;
           };
     }
     
-    notifyChangedHandlerPosition;
-
     writeNewPosition = (handler, num) => {
         let newPosition = handler.getBoundingClientRect();
         this.handlersPosition[num] = newPosition;
         let newHandlersPosition = this.handlersPosition;
         this.notifyChangedHandlerPosition(newHandlersPosition);
-    }    
+    }
+
+    notifyChangedHandlerPosition;
+
+    addInputListeners = () => {
+        this.input.onclick = () => {this.input.value = '';}
+        this.input.oninput = (e) => {
+            this.newInputValue();
+        }
+    }
+
+    newInputValue = () => {
+        let newInputValue = +this.input.value;
+        this.notifyChangedInputValue(newInputValue);
+    }
+
+    notifyChangedInputValue;
+
+    
 }
    
 
