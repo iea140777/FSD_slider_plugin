@@ -2,9 +2,9 @@
   "name": "slider",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "slider.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "keywords": [],
   "author": "",
@@ -20,6 +20,8 @@
     "typescript": "^3.8.3"
   },
   "dependencies": {
+    "jquery": "^3.5.1",
+    "model": "^6.0.1",
     "view": "^1.1.1",
     "view.js": "^4.1.0"
   }

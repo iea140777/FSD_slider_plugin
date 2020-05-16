@@ -1,4 +1,4 @@
-.slider__container{
+.slider__container, .slider__container1, .slider__container2 {
     margin: 40px;
     padding: 0;
     height: 100px;
@@ -34,10 +34,12 @@
     bottom: -3px;
     z-index: 100;
     cursor: pointer;
+    /* transition-property: left;
+    transition-duration: 1ms; */
 }
 
 .slider__handler:nth-of-type(1){
-    left: 0;
+    left: -1;
 }
 
 .slider__handler_active{

@@ -117,212 +117,287 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   }
 
   return newRequire;
-})({"src/slider.js":[function(require,module,exports) {
-'use strict'; //  Model block 
+})({"src/presenter.ts":[function(require,module,exports) {
+"use strict";
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
 
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+var Presenter =
+/** @class */
+function () {
+  function Presenter(Model, View, options, sliderContainer) {
+    var _this = this;
 
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+    this.getCurrentValue = function (model, view) {
+      for (var i = 0; i < view.handlers.length; i++) {
+        var computedValue = model.minValue + (_this.handlersPosition[i].x - view.minPosition) / model.positionValueRate;
 
-var defaults = {
-  minValue: -200,
-  maxValue: -100,
-  step: 5,
-  range: false,
-  tulip: true,
-  handlersAmount: 1,
-  icon: true,
-  input: true
-};
-
-var SliderModel = /*#__PURE__*/function () {
-  function SliderModel() {
-    _classCallCheck(this, SliderModel);
-
-    this.minValue = defaults.minValue, this.maxValue = defaults.maxValue, this.step = defaults.step, this.range = defaults.range, this.tulip = defaults.tulip, this.handlersAmount = defaults.handlersAmount, this.icon = defaults.icon, this.input = defaults.input, this.sliderContainer = {}, this.slider = {}, this.sliderPosition = {}, this.handlers = [], this.icons = {}, this.inputs = {}, this.currentPosition = [], this.currentValue = [], this.handlesrData = [], this.sliderBorder, this.minPosition, this.maxPosition, this.positionRange, this.valueRange, this.positionValueRate;
-  } //получаем данные об элементах созданного экз слайдера
-
-
-  _createClass(SliderModel, [{
-    key: "getSliderData",
-    value: function getSliderData() {
-      this.sliderContainer = newSlider, this.slider = this.sliderContainer.querySelector('.slider__slider'), this.sliderPosition = this.slider.getBoundingClientRect(), this.handlers = this.slider.querySelectorAll('.slider__handler'), this.icons = this.slider.querySelectorAll('.slider__icon'), this.inputs = this.sliderContainer.querySelector('.slider__input'); // this.handler = this.newSlider.querySelector('.slider__handler'),
-      // this.handlersData = Array.from(this.handlers);
-
-      console.log(this.handlers[0].offsetWidth);
-    } //получаем расчетные данные по созданному экз слайдера
-
-  }, {
-    key: "getPositionAndValueData",
-    value: function getPositionAndValueData() {
-      this.sliderBorder = parseFloat(getComputedStyle(this.slider).borderLeftWidth);
-      this.minPosition = this.sliderPosition.x;
-      this.maxPosition = this.minPosition + this.sliderPosition.width - this.handlers[0].offsetWidth;
-      this.positionRange = this.maxPosition - this.minPosition + this.sliderBorder;
-      this.valueRange = Math.abs(this.maxValue - this.minValue);
-      this.positionValueRate = this.positionRange / this.valueRange;
-    } // метод для получения данных о значении каждого бегунка
-
-  }, {
-    key: "getCurrentValue",
-    value: function getCurrentValue() {
-      for (var i = 0; i < this.handlers.length; i++) {
-        this.currentPosition[i] = this.handlers[i].getBoundingClientRect();
-        var computedValue = this.minValue + (this.currentPosition[i].x - this.minPosition) / this.positionValueRate;
-
-        if (this.currentPosition[i].x === this.minPosition) {
-          this.currentValue[i] = this.minValue;
-        } else if (this.currentPosition[i].x === this.maxPosition) {
-          this.currentValue[i] = this.maxValue;
+        if (_this.handlersPosition[i].x === view.minPosition) {
+          model.currentValue[i] = model.minValue;
+        } else if (_this.handlersPosition[i].x === view.maxPosition) {
+          model.currentValue[i] = model.maxValue;
         } else {
-          this.currentValue[i] = Math.round(computedValue / this.step) * this.step;
+          model.currentValue[i] = Math.round(computedValue / model.step) * model.step;
         }
 
-        if (this.icon) {
-          this.icons[i].innerHTML = this.currentValue[i];
-        }
-      }
-    }
-  }]);
-
-  return SliderModel;
-}(); //  Presenter block 
-
-
-var newSlider = document.querySelector('.slider__container');
-
-if (newSlider && newSlider != null) {
-  var slider1 = new SliderModel();
-  createSlider(slider1);
-  slider1.getSliderData();
-  slider1.getPositionAndValueData();
-  slider1.getCurrentValue();
-  moveByMouse(slider1);
-  changePosition(slider1);
-} // Перемещение бегунка при перетаскивании мышью
-
-
-function moveByMouse(slider) {
-  slider.handlers.forEach(function (item) {
-    item.addEventListener('mousedown', function (event) {
-      event.preventDefault();
-      var currentPosition = item.getBoundingClientRect();
-      var shiftX = event.clientX - currentPosition.x;
-      item.classList.add('slider__handler_active');
-      slider.inputs.value = '';
-      document.addEventListener('mousemove', onMouseMove);
-
-      function onMouseMove(event) {
-        // console.log(this);
-        var newLeft = event.clientX - shiftX - slider.sliderPosition.x;
-
-        if (newLeft < -slider.sliderBorder) {
-          newLeft = -slider.sliderBorder;
-        }
-
-        if (newLeft > slider.positionRange) {
-          newLeft = slider.positionRange;
-        }
-
-        item.style.left = newLeft + 'px';
-        slider.getCurrentValue();
-
-        if (slider.input && slider.handlers.length === 1) {
-          slider.inputs.value = slider.currentValue[0];
+        if (model.icon) {
+          view.icons[i].innerHTML = model.currentValue[i];
         }
       }
 
-      document.addEventListener('mouseup', onMouseUp);
-
-      function onMouseUp() {
-        document.removeEventListener('mouseup', onMouseUp);
-        document.removeEventListener('mousemove', onMouseMove);
-        item.classList.remove('slider__handler_active');
-        slider.getCurrentValue();
-      }
-    });
-
-    item.ondragstart = function () {
-      return false;
+      return model.currentValue;
     };
-  });
-} // метод для получения значения позиции бегунка в соответствии со значением в input
 
+    this.model = new Model(options);
+    this.view = new View(options, sliderContainer);
+    this.handlersPosition = this.view.handlersPosition;
+    this.model.positionValueRate = this.view.positionRange / this.model.valueRange;
+    this.model.currentValue = this.getCurrentValue(this.model, this.view);
+    console.log(this.view);
+    console.log(this.model);
 
-function getCurrentPosition() {
-  var newValue = +this.inputs.value;
+    this.view.notifyChangedHandlerPosition = function (newHandlersPosition) {
+      _this.handlersPosition = newHandlersPosition;
 
-  if (newValue <= this.minValue) {
-    this.handlers[0].style.left = 0 - this.sliderBorder + 'px';
-    this.currentPosition[0].x = this.minPosition;
-    this.currentValue[0] = this.minValue;
-  } else if (newValue >= this.maxValue) {
-    this.handlers[0].style.left = this.positionRange + 'px';
-    this.currentPosition[0].x = this.maxPosition;
-    this.currentValue[0] = this.maxValue;
-  } else {
-    this.handlers[0].style.left = Math.abs((newValue - this.minValue) * this.positionValueRate) + 'px';
-    this.currentPosition[0].x = Math.abs((newValue - this.minValue) * this.positionValueRate + this.minPosition);
-    this.getCurrentValue();
+      _this.getCurrentValue(_this.model, _this.view);
+    };
   }
 
-  if (this.icon) {
-    this.icons[0].innerHTML = this.currentValue[0];
+  return Presenter;
+}();
+
+exports.Presenter = Presenter;
+},{}],"src/model.ts":[function(require,module,exports) {
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var Model =
+/** @class */
+function () {
+  function Model(options) {
+    this.minValue = options.minValue, this.maxValue = options.maxValue, this.step = options.step, this.range = options.range, this.handlersAmount = options.handlersAmount, this.icon = options.icon, this.input = options.input, this.valueRange = Math.abs(this.maxValue - this.minValue), this.positionValueRate, this.currentValue = [];
   }
-} // меняем положение бегунка при введении значения в поле ввода
 
+  return Model;
+}();
 
-function changePosition(slider) {
-  if (slider.input && slider.handlers.length === 1) {
-    slider.inputs.addEventListener('input', function (e) {
+exports.default = Model;
+},{}],"src/view.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var View =
+/** @class */
+function () {
+  function View(options, sliderContainer) {
+    var _this = this;
+
+    this.addHandlerListeners = function () {
+      _this.handlers[0].onmousedown = function (e) {
+        _this.handlerMouseDown(e, _this.handlers[0], 0);
+      };
+
+      if (_this.handlers[1]) {
+        _this.handlers[1].onmousedown = function (e) {
+          _this.handlerMouseDown(e, _this.handlers[1], 1);
+        };
+      }
+    };
+
+    this.handlerMouseDown = function (e, handler, num) {
       e.preventDefault();
-      var changePosition = getCurrentPosition.bind(slider);
-      setTimeout(changePosition, 500);
-      slider.getCurrentValue();
-      console.log(slider);
-    });
+      var handlerPosition = handler.getBoundingClientRect();
+      var shiftX = e.clientX - handlerPosition.x;
+      handler.classList.add('slider__handler_active');
+
+      document.onmousemove = function (e) {
+        var newLeft = e.clientX - shiftX - _this.sliderPosition.x;
+
+        if (newLeft < -_this.sliderBorder) {
+          newLeft = -_this.sliderBorder;
+        }
+
+        if (newLeft > _this.positionRange) {
+          newLeft = _this.positionRange;
+        }
+
+        handler.style.left = newLeft + 'px';
+
+        _this.writeNewPosition(handler, num);
+      };
+
+      document.onmouseup = function () {
+        document.onmousemove = null;
+      };
+    };
+
+    this.writeNewPosition = function (handler, num) {
+      var newPosition = handler.getBoundingClientRect();
+      _this.handlersPosition[num] = newPosition;
+      var newHandlersPosition = _this.handlersPosition;
+
+      _this.notifyChangedHandlerPosition(newHandlersPosition);
+    };
+
+    this.createSlider(options, sliderContainer);
+    this.getSliderData();
+    this.getInitialPosition();
+    this.addHandlerListeners();
   }
-} //  View block 
 
+  View.prototype.createSlider = function (options, sliderContainer) {
+    this.sliderContainer = sliderContainer;
+    new SubViewSliderLine().createSliderLine(sliderContainer);
+    this.slider = sliderContainer.querySelector('.slider__slider');
+    new SubViewHandlers().createHandlers(options, this.slider);
+    this.handlers = sliderContainer.querySelectorAll('.slider__handler');
+    new SubViewInput().createInput(options, sliderContainer);
+    this.input = sliderContainer.querySelector('.slider__input');
+    new SubViewIcons().createIcons(options, this.handlers);
+    this.icons = sliderContainer.querySelectorAll('.slider__icon');
+  };
 
-function createSlider(slider) {
-  var sliderLine = document.createElement('div');
-  sliderLine.classList.add('slider__slider');
-  newSlider.append(sliderLine);
+  View.prototype.getSliderData = function () {
+    this.sliderPosition = this.slider.getBoundingClientRect();
+    this.sliderBorder = parseFloat(getComputedStyle(this.slider).borderLeftWidth);
+    this.minPosition = this.sliderPosition.x;
+    this.maxPosition = this.minPosition + this.sliderPosition.width - this.handlers[0].offsetWidth;
+    this.positionRange = this.maxPosition - this.minPosition + this.sliderBorder;
+    this.handlersPosition = [];
+  };
 
-  function createHandlers(handlersAmount) {
-    for (var i = 1; i <= handlersAmount; i++) {
+  View.prototype.getInitialPosition = function () {
+    for (var i = 0; i < this.handlers.length; i++) {
+      var handlerPosition = this.handlers[i].getBoundingClientRect();
+      this.handlersPosition[i] = handlerPosition;
+    }
+  };
+
+  return View;
+}();
+
+exports.View = View;
+
+var SubViewSliderLine =
+/** @class */
+function () {
+  function SubViewSliderLine() {}
+
+  SubViewSliderLine.prototype.createSliderLine = function (sliderContainer) {
+    var sliderLine = document.createElement('div');
+    sliderLine.classList.add('slider__slider');
+    sliderContainer.append(sliderLine);
+  };
+
+  return SubViewSliderLine;
+}();
+
+var SubViewHandlers =
+/** @class */
+function () {
+  function SubViewHandlers() {}
+
+  SubViewHandlers.prototype.createHandlers = function (options, slider) {
+    for (var i = 0; i < options.handlersAmount; i++) {
       var handler = document.createElement('div');
       handler.classList.add('slider__handler');
-      sliderLine.append(handler);
+      slider.append(handler);
+    }
+  };
 
-      if (slider.icon) {
+  return SubViewHandlers;
+}();
+
+var SubViewIcons =
+/** @class */
+function () {
+  function SubViewIcons() {}
+
+  SubViewIcons.prototype.createIcons = function (options, handlers) {
+    if (options.icon) {
+      for (var i = 0; i < handlers.length; i++) {
         var icon = document.createElement('div');
         icon.classList.add('slider__icon');
-        handler.append(icon);
+        handlers[i].append(icon);
       }
     }
-  }
+  };
 
-  function createInput(slider) {
-    if (slider.input) {
+  return SubViewIcons;
+}();
+
+var SubViewInput =
+/** @class */
+function () {
+  function SubViewInput() {}
+
+  SubViewInput.prototype.createInput = function (options, sliderContainer) {
+    if (options.input) {
       var sliderInput = document.createElement('input');
       sliderInput.setAttribute('type', 'text');
       sliderInput.classList.add('slider__input');
-      newSlider.append(sliderInput);
+      sliderContainer.append(sliderInput);
     }
-  }
+  };
 
-  createHandlers(slider.handlersAmount);
-  createInput(slider);
-}
-},{}],"index.js":[function(require,module,exports) {
+  return SubViewInput;
+}(); // changeCurrentPosition(){
+//     for (let i = 0; i < this.handlers.length; i++){
+//         this.handlers[i].addEventListener('transitionend', function(event){
+//             if(this.handlers[i].getBoundingClientRect().x == this.currentPosition[i].x){return}
+//             else{this.currentPosition[i].x = this.handlers[i].getBoundingClientRect().x}
+//         })
+//     }
+// }
+},{}],"src/slider.ts":[function(require,module,exports) {
 'use strict';
 
-require("/src/slider");
-},{"/src/slider":"src/slider.js"}],"../../Users/alexi/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+var __importDefault = this && this.__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var presenter_1 = require("./presenter");
+
+var model_1 = __importDefault(require("./model"));
+
+var view_1 = require("./view"); // var jQuery = require("jQuery");
+
+
+(function ($) {
+  jQuery.fn.slider = function (options) {
+    options = $.extend({
+      minValue: 0,
+      maxValue: 100,
+      step: 5,
+      range: false,
+      handlersAmount: 2,
+      icon: true,
+      input: true
+    }, options);
+
+    var init = function init() {
+      this.sliderContainer = this;
+      this.presenter = new presenter_1.Presenter(model_1.default, view_1.View, options, this.sliderContainer);
+    };
+
+    return this.each(init);
+  };
+})(jQuery);
+},{"./presenter":"src/presenter.ts","./model":"src/model.ts","./view":"src/view.ts"}],"../../Users/alexi/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -350,7 +425,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49886" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49975" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
@@ -526,5 +601,5 @@ function hmrAcceptRun(bundle, id) {
     return true;
   }
 }
-},{}]},{},["../../Users/alexi/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js","index.js"], null)
-//# sourceMappingURL=/Slider.e31bb0bc.js.map
+},{}]},{},["../../Users/alexi/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js","src/slider.ts"], null)
+//# sourceMappingURL=/slider.3259933d.js.map
