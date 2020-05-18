@@ -9,6 +9,7 @@ import {View} from './view';
         options = $.extend ({
             minValue: 0,
             maxValue: 100,
+            vertical:false,
             step: 5,
             range: false,
             handlersAmount: 2,

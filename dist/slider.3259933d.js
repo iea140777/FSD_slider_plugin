@@ -132,11 +132,17 @@ function () {
 
     this.getCurrentValue = function (model, view) {
       for (var i = 0; i < view.handlers.length; i++) {
-        var computedValue = model.minValue + (_this.handlersPosition[i].x - view.minPosition) / model.positionValueRate;
+        var computedValue = void 0;
 
-        if (_this.handlersPosition[i].x === view.minPosition) {
+        if (_this.options.vertical) {
+          computedValue = model.minValue + (view.minPosition - _this.handlersPosition[i]) / model.positionValueRate;
+        } else {
+          computedValue = model.minValue + (_this.handlersPosition[i] - view.minPosition) / model.positionValueRate;
+        }
+
+        if (_this.handlersPosition[i] === view.minPosition) {
           model.currentValue[i] = model.minValue;
-        } else if (_this.handlersPosition[i].x === view.maxPosition) {
+        } else if (_this.handlersPosition[i] === view.maxPosition) {
           model.currentValue[i] = model.maxValue;
         } else {
           model.currentValue[i] = Math.round(computedValue / model.step) * model.step;
@@ -147,23 +153,41 @@ function () {
         }
       }
 
-      view.input.value = model.currentValue[0];
+      view.input.value = model.currentValue[0] + ", " + model.currentValue[1];
       return model.currentValue;
     };
 
     this.getCurrentPosition = function (model, view, newValue) {
       if (newValue <= model.minValue) {
-        view.handlers[0].style.left = 0 - view.sliderBorder + 'px';
-        view.handlersPosition[0].x = view.minPosition;
-        model.currentValue[0] = model.minValue;
+        if (_this.options.vertical) {
+          view.handlers[0].style.top = view.positionRange + 'px';
+          view.handlersPosition[0] = view.minPosition;
+          model.currentValue[0] = model.minValue;
+        } else {
+          view.handlers[0].style.left = 0 - view.sliderBorder + 'px';
+          view.handlersPosition[0] = view.minPosition;
+          model.currentValue[0] = model.minValue;
+        }
       } else if (newValue >= model.maxValue) {
-        view.handlers[0].style.left = view.positionRange + 'px';
-        view.handlersPosition[0].x = view.maxPosition;
-        model.currentValue[0] = model.maxValue;
+        if (_this.options.vertical) {
+          view.handlers[0].style.top = 0 - view.sliderBorder + 'px';
+          view.handlersPosition[0] = view.maxPosition;
+          model.currentValue[0] = model.maxValue;
+        } else {
+          view.handlers[0].style.left = view.positionRange + 'px';
+          view.handlersPosition[0] = view.maxPosition;
+          model.currentValue[0] = model.maxValue;
+        }
       } else {
-        view.handlers[0].style.left = Math.abs((newValue - model.minValue) * model.positionValueRate) + 'px';
-        view.handlersPosition[0].x = Math.abs((newValue - model.minValue) * model.positionValueRate + view.minPosition);
-        model.currentValue[0] = newValue;
+        if (_this.options.vertical) {
+          view.handlers[0].style.top = Math.abs((newValue - model.maxValue) * model.positionValueRate) + 'px';
+          view.handlersPosition[0] = view.handlers[0].getBoundingClientRect().y + pageYOffset;
+          model.currentValue[0] = newValue;
+        } else {
+          view.handlers[0].style.left = Math.abs((newValue - model.minValue) * model.positionValueRate) + 'px';
+          view.handlersPosition[0] = view.handlers[0].getBoundingClientRect().x + pageXOffset;
+          model.currentValue[0] = newValue;
+        }
       }
 
       if (model.icon) {
@@ -171,6 +195,7 @@ function () {
       }
     };
 
+    this.options = options;
     this.model = new Model(options);
     this.view = new View(options, sliderContainer);
     this.handlersPosition = this.view.handlersPosition;
@@ -213,7 +238,7 @@ function () {
 
 exports.default = Model;
 },{}],"src/view.ts":[function(require,module,exports) {
-"use strict";
+'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -224,6 +249,50 @@ var View =
 function () {
   function View(options, sliderContainer) {
     var _this = this;
+
+    this.createSlider = function (options, sliderContainer) {
+      _this.sliderContainer = sliderContainer;
+      new SubViewSliderLine().createSliderLine(sliderContainer, options);
+      _this.slider = sliderContainer.querySelector('.slider__slider');
+      new SubViewHandlers().createHandlers(options, _this.slider);
+      _this.handlers = sliderContainer.querySelectorAll('.slider__handler');
+      new SubViewInput().createInput(options, _this.slider);
+      _this.input = sliderContainer.querySelector('.slider__input');
+      new SubViewIcons().createIcons(options, _this.handlers);
+      _this.icons = sliderContainer.querySelectorAll('.slider__icon');
+    };
+
+    this.getSliderData = function () {
+      if (_this.options.vertical) {
+        _this.sliderPosition = _this.slider.getBoundingClientRect().y + pageYOffset;
+        _this.sliderBorder = parseFloat(getComputedStyle(_this.slider).borderLeftWidth);
+        _this.maxPosition = _this.sliderPosition;
+        _this.minPosition = _this.maxPosition + _this.slider.getBoundingClientRect().height - _this.handlers[0].offsetHeight;
+        _this.positionRange = _this.minPosition - _this.maxPosition + _this.sliderBorder;
+        _this.handlersPosition = [];
+      } else {
+        _this.sliderPosition = _this.slider.getBoundingClientRect().x + pageXOffset;
+        _this.sliderBorder = parseFloat(getComputedStyle(_this.slider).borderLeftWidth);
+        _this.minPosition = _this.sliderPosition;
+        _this.maxPosition = _this.minPosition + _this.slider.getBoundingClientRect().width - _this.handlers[0].offsetWidth;
+        _this.positionRange = _this.maxPosition - _this.minPosition + _this.sliderBorder;
+        _this.handlersPosition = [];
+      }
+    };
+
+    this.getInitialHandlersPosition = function () {
+      for (var i = 0; i < _this.handlers.length; i++) {
+        if (_this.options.vertical) {
+          var handlerPosition = _this.handlers[i].getBoundingClientRect().y;
+
+          _this.handlersPosition[i] = handlerPosition;
+        } else {
+          var handlerPosition = _this.handlers[i].getBoundingClientRect().x;
+
+          _this.handlersPosition[i] = handlerPosition;
+        }
+      }
+    };
 
     this.addHandlerListeners = function () {
       _this.handlers[0].onmousedown = function (e) {
@@ -238,25 +307,51 @@ function () {
     };
 
     this.handlerMouseDown = function (e, handler, num) {
-      e.preventDefault();
-      var handlerPosition = handler.getBoundingClientRect();
-      var shiftX = e.clientX - handlerPosition.x;
+      e.preventDefault(); // this.getSliderData();
+
+      var shiftX;
+
+      if (_this.options.vertical) {
+        shiftX = e.clientY - _this.handlersPosition[num];
+      } else {
+        shiftX = e.clientX - _this.handlersPosition[num];
+      }
+
       handler.classList.add('slider__handler_active');
 
       document.onmousemove = function (e) {
-        var newLeft = e.clientX - shiftX - _this.sliderPosition.x;
+        if (_this.options.vertical) {
+          // console.log(`shifty = ${shiftX}`);
+          // console.log(`e.clientY = ${e.clientY}; handler = ${this.handlersPosition[num]}`);
+          // console.log(this.handlersPosition[num]);
+          var newTop = e.clientY - shiftX - _this.sliderPosition;
 
-        if (newLeft < -_this.sliderBorder) {
-          newLeft = -_this.sliderBorder;
+          if (newTop < -_this.sliderBorder) {
+            newTop = -_this.sliderBorder;
+          }
+
+          if (newTop > _this.positionRange) {
+            newTop = _this.positionRange;
+          }
+
+          handler.style.top = newTop + 'px';
+
+          _this.writeNewPosition(handler, num);
+        } else {
+          var newLeft = e.clientX - shiftX - _this.sliderPosition;
+
+          if (newLeft < -_this.sliderBorder) {
+            newLeft = -_this.sliderBorder;
+          }
+
+          if (newLeft > _this.positionRange) {
+            newLeft = _this.positionRange;
+          }
+
+          handler.style.left = newLeft + 'px';
+
+          _this.writeNewPosition(handler, num);
         }
-
-        if (newLeft > _this.positionRange) {
-          newLeft = _this.positionRange;
-        }
-
-        handler.style.left = newLeft + 'px';
-
-        _this.writeNewPosition(handler, num);
       };
 
       document.onmouseup = function () {
@@ -266,7 +361,14 @@ function () {
     };
 
     this.writeNewPosition = function (handler, num) {
-      var newPosition = handler.getBoundingClientRect();
+      var newPosition;
+
+      if (_this.options.vertical) {
+        newPosition = handler.getBoundingClientRect().y + pageYOffset;
+      } else {
+        newPosition = handler.getBoundingClientRect().x + pageXOffset;
+      }
+
       _this.handlersPosition[num] = newPosition;
       var newHandlersPosition = _this.handlersPosition;
 
@@ -289,40 +391,14 @@ function () {
       _this.notifyChangedInputValue(newInputValue);
     };
 
+    this.options = options;
     this.createSlider(options, sliderContainer);
+    this.handlersPosition = [];
     this.getSliderData();
-    this.getInitialPosition();
+    this.getInitialHandlersPosition();
     this.addHandlerListeners();
     this.addInputListeners();
   }
-
-  View.prototype.createSlider = function (options, sliderContainer) {
-    this.sliderContainer = sliderContainer;
-    new SubViewSliderLine().createSliderLine(sliderContainer);
-    this.slider = sliderContainer.querySelector('.slider__slider');
-    new SubViewHandlers().createHandlers(options, this.slider);
-    this.handlers = sliderContainer.querySelectorAll('.slider__handler');
-    new SubViewInput().createInput(options, sliderContainer);
-    this.input = sliderContainer.querySelector('.slider__input');
-    new SubViewIcons().createIcons(options, this.handlers);
-    this.icons = sliderContainer.querySelectorAll('.slider__icon');
-  };
-
-  View.prototype.getSliderData = function () {
-    this.sliderPosition = this.slider.getBoundingClientRect();
-    this.sliderBorder = parseFloat(getComputedStyle(this.slider).borderLeftWidth);
-    this.minPosition = this.sliderPosition.x;
-    this.maxPosition = this.minPosition + this.sliderPosition.width - this.handlers[0].offsetWidth;
-    this.positionRange = this.maxPosition - this.minPosition + this.sliderBorder;
-    this.handlersPosition = [];
-  };
-
-  View.prototype.getInitialPosition = function () {
-    for (var i = 0; i < this.handlers.length; i++) {
-      var handlerPosition = this.handlers[i].getBoundingClientRect();
-      this.handlersPosition[i] = handlerPosition;
-    }
-  };
 
   return View;
 }();
@@ -334,9 +410,14 @@ var SubViewSliderLine =
 function () {
   function SubViewSliderLine() {}
 
-  SubViewSliderLine.prototype.createSliderLine = function (sliderContainer) {
+  SubViewSliderLine.prototype.createSliderLine = function (sliderContainer, options) {
     var sliderLine = document.createElement('div');
     sliderLine.classList.add('slider__slider');
+
+    if (options.vertical) {
+      sliderLine.classList.add('slider__slider_vertical');
+    }
+
     sliderContainer.append(sliderLine);
   };
 
@@ -352,6 +433,13 @@ function () {
     for (var i = 0; i < options.handlersAmount; i++) {
       var handler = document.createElement('div');
       handler.classList.add('slider__handler');
+
+      if (options.vertical) {
+        handler.classList.add('slider__handler_vertical');
+      } else {
+        handler.classList.add('slider__handler_horisontal');
+      }
+
       slider.append(handler);
     }
   };
@@ -369,6 +457,13 @@ function () {
       for (var i = 0; i < handlers.length; i++) {
         var icon = document.createElement('div');
         icon.classList.add('slider__icon');
+
+        if (options.vertical) {
+          icon.classList.add('slider__icon_vertical');
+        } else {
+          icon.classList.add('slider__icon_horisontal');
+        }
+
         handlers[i].append(icon);
       }
     }
@@ -382,24 +477,24 @@ var SubViewInput =
 function () {
   function SubViewInput() {}
 
-  SubViewInput.prototype.createInput = function (options, sliderContainer) {
+  SubViewInput.prototype.createInput = function (options, slider) {
     if (options.input) {
       var sliderInput = document.createElement('input');
       sliderInput.setAttribute('type', 'text');
       sliderInput.classList.add('slider__input');
-      sliderContainer.append(sliderInput);
+
+      if (options.vertical) {
+        sliderInput.classList.add('slider__input_vertical');
+      } else {
+        sliderInput.classList.add('slider__input_horisontal');
+      }
+
+      slider.append(sliderInput);
     }
   };
 
   return SubViewInput;
-}(); // changeCurrentPosition(){
-//     for (let i = 0; i < this.handlers.length; i++){
-//         this.handlers[i].addEventListener('transitionend', function(event){
-//             if(this.handlers[i].getBoundingClientRect().x == this.currentPosition[i].x){return}
-//             else{this.currentPosition[i].x = this.handlers[i].getBoundingClientRect().x}
-//         })
-//     }
-// }
+}();
 },{}],"src/slider.ts":[function(require,module,exports) {
 'use strict';
 
@@ -425,6 +520,7 @@ var view_1 = require("./view"); // var jQuery = require("jQuery");
     options = $.extend({
       minValue: 0,
       maxValue: 100,
+      vertical: false,
       step: 5,
       range: false,
       handlersAmount: 2,
