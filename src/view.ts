@@ -1,4 +1,8 @@
 'use strict';
+import SubViewSliderLine from './subView/subViewSliderLine';
+import SubViewHandlers from './subView/subViewHandlers';
+import SubViewIcons from './subView/subViewIcons';
+import SubViewInput from './subView/subViewInput';
 interface IView {
     // constructor(options:object, sliderContainer:HTMLDivElement): object
 
@@ -8,24 +12,26 @@ export class View implements IView {
     
     constructor (options, sliderContainer){
         this.options = options;
+        this.subViewSliderLine = new SubViewSliderLine;
+        this.subViewHandlers = new SubViewHandlers;
+        this.subViewIcons = new SubViewIcons;
+        this.subViewInput = new SubViewInput;
         this.createSlider(options, sliderContainer);
-        this.handlersPosition = [];
         this.getSliderData();
-        this.getInitialHandlersPosition();
-        this.addHandlerListeners();
-        this.addInputListeners(); 
+        this.subViewHandlers.handlerMouseDown = (e, handler, num) => {
+            this.mouseDown(e, handler, num);
+        }
+        this.subViewInput.newInputValue = (newInputValue) => {
+            this.notifyChangedInputValue(newInputValue);
+        }
     }
 
-    createSlider = (options, sliderContainer) =>{
+    createSlider = (options, sliderContainer) => {
         this.sliderContainer = sliderContainer;
-        new SubViewSliderLine().createSliderLine(sliderContainer, options);
-        this.slider = sliderContainer.querySelector('.slider__slider');
-        new SubViewHandlers().createHandlers(options, this.slider);
-        this.handlers = sliderContainer.querySelectorAll('.slider__handler');
-        new SubViewInput().createInput(options,  this.slider);
-        this.input = sliderContainer.querySelector('.slider__input');
-        new SubViewIcons().createIcons(options, this.handlers);
-        this.icons = sliderContainer.querySelectorAll('.slider__icon');
+        this.slider = this.subViewSliderLine.createSliderLine(sliderContainer, options);
+        this.handlers = this.subViewHandlers.createHandlers(options, this.slider);
+        this.icons = this.subViewIcons.createIcons(options, this.handlers, this.slider);
+        this.input = this.subViewInput.createInput(options,  this.slider);        
     }
 
     getSliderData = () => {
@@ -35,43 +41,19 @@ export class View implements IView {
             this.maxPosition = this.sliderPosition;
             this.minPosition = this.maxPosition + this.slider.getBoundingClientRect().height - this.handlers[0].offsetHeight;
             this.positionRange = (this.minPosition -this.maxPosition) + this.sliderBorder;
-            this.handlersPosition = [];
+            this.handlersPosition = new SubViewHandlers().getInitialHandlersPosition(this.handlers, options);
         } else {
             this.sliderPosition = this.slider.getBoundingClientRect().x + pageXOffset;
             this.sliderBorder = parseFloat(getComputedStyle(this.slider).borderLeftWidth);
             this.minPosition = this.sliderPosition;
             this.maxPosition = this.minPosition + this.slider.getBoundingClientRect().width - this.handlers[0].offsetWidth;
             this.positionRange = (this.maxPosition - this.minPosition) + this.sliderBorder;
-            this.handlersPosition = [];
+            this.handlersPosition = new SubViewHandlers().getInitialHandlersPosition(this.handlers, options);
         }
     }
-
-    getInitialHandlersPosition = () => {
-        for (let i = 0; i < this.handlers.length; i++){
-            if(this.options.vertical){
-                let handlerPosition = this.handlers[i].getBoundingClientRect().y;
-                this.handlersPosition[i] = handlerPosition;
-            } else {
-                let handlerPosition = this.handlers[i].getBoundingClientRect().x;
-                this.handlersPosition[i] = handlerPosition;
-            }
-        }
-    }
-
-    addHandlerListeners = () => {
-        this.handlers[0].onmousedown = (e) => {
-            this.handlerMouseDown(e, this.handlers[0], 0);
-        }
-        if(this.handlers[1]){
-            this.handlers[1].onmousedown = (e) => { 
-                this.handlerMouseDown(e, this.handlers[1], 1);
-            }
-        }
-    }
-
-    handlerMouseDown = (e, handler, num) => {
+  
+    mouseDown = (e, handler, num) => {
         e.preventDefault();
-        // this.getSliderData();
         const shiftX;
         if(this.options.vertical){
             shiftX = e.clientY - this.handlersPosition[num];
@@ -135,81 +117,13 @@ export class View implements IView {
         }
     }
 
-    newInputValue = () => {
-        let newInputValue = +this.input.value;
-        this.notifyChangedInputValue(newInputValue);
-    }
-
     notifyChangedInputValue; 
 }
    
 
 
-class SubViewSliderLine  {
-    createSliderLine(sliderContainer, options){
-        const sliderLine = document.createElement('div');
-        sliderLine.classList.add('slider__slider');
-        if (options.vertical) {
-            sliderLine.classList.add('slider__slider_vertical');
-        }
-        sliderContainer.append(sliderLine);
-    }
-} 
+
     
-class SubViewHandlers  {
-    createHandlers(options, slider){
-        for (let i = 0; i < options.handlersAmount; i++){
-            const handler = document.createElement('div');
-            handler.classList.add('slider__handler');
-            if (options.vertical) {
-                handler.classList.add('slider__handler_vertical');
-            } else{
-                handler.classList.add('slider__handler_horisontal');
-            }
-            slider.append(handler);
-        }
-    }
-}   
-
-class SubViewIcons  {
-    createIcons(options, handlers){
-        if(options.icon){
-            for (let i = 0; i < handlers.length; i++){
-                const icon = document.createElement('div');
-                icon.classList.add('slider__icon');
-                if (options.vertical) {
-                    icon.classList.add('slider__icon_vertical');
-                } else{
-                    icon.classList.add('slider__icon_horisontal');
-                }
-                handlers[i].append(icon);
-            }     
-        }
-    } 
-}   
-
-class SubViewInput  {
-    createInput (options, slider){
-        if (options.input){
-            const sliderInput = document.createElement('input');
-            sliderInput.setAttribute('type', 'text')
-            sliderInput.classList.add('slider__input');
-            if (options.vertical) {
-                sliderInput.classList.add('slider__input_vertical');
-            } else{
-                sliderInput.classList.add('slider__input_horisontal');
-            }
-            slider.append(sliderInput);
-        }
-    }
-}
 
 
-// changeCurrentPosition(){
-//     for (let i = 0; i < this.handlers.length; i++){
-//         this.handlers[i].addEventListener('transitionend', function(event){
-//             if(this.handlers[i].getBoundingClientRect().x == this.currentPosition[i].x){return}
-//             else{this.currentPosition[i].x = this.handlers[i].getBoundingClientRect().x}
-//         })
-//     }
-// }
+

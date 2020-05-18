@@ -237,12 +237,220 @@ function () {
 }();
 
 exports.default = Model;
-},{}],"src/view.ts":[function(require,module,exports) {
-'use strict';
+},{}],"src/subView/subViewSliderLine.ts":[function(require,module,exports) {
+"use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+
+var SubViewSliderLine =
+/** @class */
+function () {
+  function SubViewSliderLine() {}
+
+  SubViewSliderLine.prototype.createSliderLine = function (sliderContainer, options) {
+    var sliderLine = document.createElement('div');
+    sliderLine.classList.add('slider__slider');
+
+    if (options.vertical) {
+      sliderLine.classList.add('slider__slider_vertical');
+    }
+
+    sliderContainer.append(sliderLine);
+    var slider = sliderContainer.querySelector('.slider__slider');
+    return slider;
+  };
+
+  return SubViewSliderLine;
+}();
+
+exports.default = SubViewSliderLine;
+},{}],"src/subView/subViewHandlers.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var SubViewHandlers =
+/** @class */
+function () {
+  function SubViewHandlers() {
+    var _this = this;
+
+    this.getInitialHandlersPosition = function (handlers, options) {
+      var handlersPosition = [];
+
+      for (var i = 0; i < handlers.length; i++) {
+        if (options.vertical) {
+          var handlerPosition = handlers[i].getBoundingClientRect().y;
+          handlersPosition[i] = handlerPosition;
+        } else {
+          var handlerPosition = handlers[i].getBoundingClientRect().x;
+          handlersPosition[i] = handlerPosition;
+        }
+      }
+
+      return handlersPosition;
+    };
+
+    this.addHandlerListeners = function (handlers) {
+      handlers[0].onmousedown = function (e) {
+        _this.handlerMouseDown(e, handlers[0], 0);
+      };
+
+      if (handlers[1]) {
+        handlers[1].onmousedown = function (e) {
+          _this.handlerMouseDown(e, handlers[1], 1);
+        };
+      }
+    };
+
+    this.writeNewPosition = function (handler, num) {
+      var newPosition;
+
+      if (_this.options.vertical) {
+        newPosition = handler.getBoundingClientRect().y + pageYOffset;
+      } else {
+        newPosition = handler.getBoundingClientRect().x + pageXOffset;
+      }
+
+      _this.handlersPosition[num] = newPosition;
+      var newHandlersPosition = _this.handlersPosition;
+
+      _this.notifyChangedHandlerPosition(newHandlersPosition);
+    };
+  }
+
+  SubViewHandlers.prototype.createHandlers = function (options, slider) {
+    for (var i = 0; i < options.handlersAmount; i++) {
+      var handler = document.createElement('div');
+      handler.classList.add('slider__handler');
+
+      if (options.vertical) {
+        handler.classList.add('slider__handler_vertical');
+      } else {
+        handler.classList.add('slider__handler_horisontal');
+      }
+
+      slider.append(handler);
+    }
+
+    var handlers = slider.querySelectorAll('.slider__handler');
+    this.addHandlerListeners(handlers);
+    return handlers;
+  };
+
+  return SubViewHandlers;
+}();
+
+exports.default = SubViewHandlers;
+},{}],"src/subView/subViewIcons.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var SubViewIcons =
+/** @class */
+function () {
+  function SubViewIcons() {}
+
+  SubViewIcons.prototype.createIcons = function (options, handlers, slider) {
+    if (options.icon) {
+      for (var i = 0; i < handlers.length; i++) {
+        var icon = document.createElement('div');
+        icon.classList.add('slider__icon');
+
+        if (options.vertical) {
+          icon.classList.add('slider__icon_vertical');
+        } else {
+          icon.classList.add('slider__icon_horisontal');
+        }
+
+        handlers[i].append(icon);
+      }
+
+      var icons = slider.querySelectorAll('.slider__icon');
+      return icons;
+    }
+  };
+
+  return SubViewIcons;
+}();
+
+exports.default = SubViewIcons;
+},{}],"src/subView/subViewInput.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var SubViewInput =
+/** @class */
+function () {
+  function SubViewInput() {
+    var _this = this;
+
+    this.addInputListeners = function (input) {
+      input.onclick = function () {
+        input.value = '';
+      };
+
+      input.oninput = function (e) {
+        var newInputValue = +input.value;
+
+        _this.newInputValue(newInputValue);
+      };
+    };
+  }
+
+  SubViewInput.prototype.createInput = function (options, slider) {
+    if (options.input) {
+      var sliderInput = document.createElement('input');
+      sliderInput.setAttribute('type', 'text');
+      sliderInput.classList.add('slider__input');
+
+      if (options.vertical) {
+        sliderInput.classList.add('slider__input_vertical');
+      } else {
+        sliderInput.classList.add('slider__input_horisontal');
+      }
+
+      slider.append(sliderInput);
+      var input = slider.querySelector('.slider__input');
+      this.addInputListeners(input);
+      return input;
+    }
+  };
+
+  return SubViewInput;
+}();
+
+exports.default = SubViewInput;
+},{}],"src/view.ts":[function(require,module,exports) {
+'use strict';
+
+var __importDefault = this && this.__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var subViewSliderLine_1 = __importDefault(require("./subView/subViewSliderLine"));
+
+var subViewHandlers_1 = __importDefault(require("./subView/subViewHandlers"));
+
+var subViewIcons_1 = __importDefault(require("./subView/subViewIcons"));
+
+var subViewInput_1 = __importDefault(require("./subView/subViewInput"));
 
 var View =
 /** @class */
@@ -252,14 +460,10 @@ function () {
 
     this.createSlider = function (options, sliderContainer) {
       _this.sliderContainer = sliderContainer;
-      new SubViewSliderLine().createSliderLine(sliderContainer, options);
-      _this.slider = sliderContainer.querySelector('.slider__slider');
-      new SubViewHandlers().createHandlers(options, _this.slider);
-      _this.handlers = sliderContainer.querySelectorAll('.slider__handler');
-      new SubViewInput().createInput(options, _this.slider);
-      _this.input = sliderContainer.querySelector('.slider__input');
-      new SubViewIcons().createIcons(options, _this.handlers);
-      _this.icons = sliderContainer.querySelectorAll('.slider__icon');
+      _this.slider = _this.subViewSliderLine.createSliderLine(sliderContainer, options);
+      _this.handlers = _this.subViewHandlers.createHandlers(options, _this.slider);
+      _this.icons = _this.subViewIcons.createIcons(options, _this.handlers, _this.slider);
+      _this.input = _this.subViewInput.createInput(options, _this.slider);
     };
 
     this.getSliderData = function () {
@@ -269,46 +473,19 @@ function () {
         _this.maxPosition = _this.sliderPosition;
         _this.minPosition = _this.maxPosition + _this.slider.getBoundingClientRect().height - _this.handlers[0].offsetHeight;
         _this.positionRange = _this.minPosition - _this.maxPosition + _this.sliderBorder;
-        _this.handlersPosition = [];
+        _this.handlersPosition = new subViewHandlers_1.default().getInitialHandlersPosition(_this.handlers, options);
       } else {
         _this.sliderPosition = _this.slider.getBoundingClientRect().x + pageXOffset;
         _this.sliderBorder = parseFloat(getComputedStyle(_this.slider).borderLeftWidth);
         _this.minPosition = _this.sliderPosition;
         _this.maxPosition = _this.minPosition + _this.slider.getBoundingClientRect().width - _this.handlers[0].offsetWidth;
         _this.positionRange = _this.maxPosition - _this.minPosition + _this.sliderBorder;
-        _this.handlersPosition = [];
+        _this.handlersPosition = new subViewHandlers_1.default().getInitialHandlersPosition(_this.handlers, options);
       }
     };
 
-    this.getInitialHandlersPosition = function () {
-      for (var i = 0; i < _this.handlers.length; i++) {
-        if (_this.options.vertical) {
-          var handlerPosition = _this.handlers[i].getBoundingClientRect().y;
-
-          _this.handlersPosition[i] = handlerPosition;
-        } else {
-          var handlerPosition = _this.handlers[i].getBoundingClientRect().x;
-
-          _this.handlersPosition[i] = handlerPosition;
-        }
-      }
-    };
-
-    this.addHandlerListeners = function () {
-      _this.handlers[0].onmousedown = function (e) {
-        _this.handlerMouseDown(e, _this.handlers[0], 0);
-      };
-
-      if (_this.handlers[1]) {
-        _this.handlers[1].onmousedown = function (e) {
-          _this.handlerMouseDown(e, _this.handlers[1], 1);
-        };
-      }
-    };
-
-    this.handlerMouseDown = function (e, handler, num) {
-      e.preventDefault(); // this.getSliderData();
-
+    this.mouseDown = function (e, handler, num) {
+      e.preventDefault();
       var shiftX;
 
       if (_this.options.vertical) {
@@ -385,117 +562,28 @@ function () {
       };
     };
 
-    this.newInputValue = function () {
-      var newInputValue = +_this.input.value;
+    this.options = options;
+    this.subViewSliderLine = new subViewSliderLine_1.default();
+    this.subViewHandlers = new subViewHandlers_1.default();
+    this.subViewIcons = new subViewIcons_1.default();
+    this.subViewInput = new subViewInput_1.default();
+    this.createSlider(options, sliderContainer);
+    this.getSliderData();
 
-      _this.notifyChangedInputValue(newInputValue);
+    this.subViewHandlers.handlerMouseDown = function (e, handler, num) {
+      _this.mouseDown(e, handler, num);
     };
 
-    this.options = options;
-    this.createSlider(options, sliderContainer);
-    this.handlersPosition = [];
-    this.getSliderData();
-    this.getInitialHandlersPosition();
-    this.addHandlerListeners();
-    this.addInputListeners();
+    this.subViewInput.newInputValue = function (newInputValue) {
+      _this.notifyChangedInputValue(newInputValue);
+    };
   }
 
   return View;
 }();
 
 exports.View = View;
-
-var SubViewSliderLine =
-/** @class */
-function () {
-  function SubViewSliderLine() {}
-
-  SubViewSliderLine.prototype.createSliderLine = function (sliderContainer, options) {
-    var sliderLine = document.createElement('div');
-    sliderLine.classList.add('slider__slider');
-
-    if (options.vertical) {
-      sliderLine.classList.add('slider__slider_vertical');
-    }
-
-    sliderContainer.append(sliderLine);
-  };
-
-  return SubViewSliderLine;
-}();
-
-var SubViewHandlers =
-/** @class */
-function () {
-  function SubViewHandlers() {}
-
-  SubViewHandlers.prototype.createHandlers = function (options, slider) {
-    for (var i = 0; i < options.handlersAmount; i++) {
-      var handler = document.createElement('div');
-      handler.classList.add('slider__handler');
-
-      if (options.vertical) {
-        handler.classList.add('slider__handler_vertical');
-      } else {
-        handler.classList.add('slider__handler_horisontal');
-      }
-
-      slider.append(handler);
-    }
-  };
-
-  return SubViewHandlers;
-}();
-
-var SubViewIcons =
-/** @class */
-function () {
-  function SubViewIcons() {}
-
-  SubViewIcons.prototype.createIcons = function (options, handlers) {
-    if (options.icon) {
-      for (var i = 0; i < handlers.length; i++) {
-        var icon = document.createElement('div');
-        icon.classList.add('slider__icon');
-
-        if (options.vertical) {
-          icon.classList.add('slider__icon_vertical');
-        } else {
-          icon.classList.add('slider__icon_horisontal');
-        }
-
-        handlers[i].append(icon);
-      }
-    }
-  };
-
-  return SubViewIcons;
-}();
-
-var SubViewInput =
-/** @class */
-function () {
-  function SubViewInput() {}
-
-  SubViewInput.prototype.createInput = function (options, slider) {
-    if (options.input) {
-      var sliderInput = document.createElement('input');
-      sliderInput.setAttribute('type', 'text');
-      sliderInput.classList.add('slider__input');
-
-      if (options.vertical) {
-        sliderInput.classList.add('slider__input_vertical');
-      } else {
-        sliderInput.classList.add('slider__input_horisontal');
-      }
-
-      slider.append(sliderInput);
-    }
-  };
-
-  return SubViewInput;
-}();
-},{}],"src/slider.ts":[function(require,module,exports) {
+},{"./subView/subViewSliderLine":"src/subView/subViewSliderLine.ts","./subView/subViewHandlers":"src/subView/subViewHandlers.ts","./subView/subViewIcons":"src/subView/subViewIcons.ts","./subView/subViewInput":"src/subView/subViewInput.ts"}],"src/slider.ts":[function(require,module,exports) {
 'use strict';
 
 var __importDefault = this && this.__importDefault || function (mod) {
@@ -564,7 +652,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "61719" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "51687" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
