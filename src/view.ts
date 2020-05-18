@@ -18,6 +18,7 @@ export class View implements IView {
         this.subViewInput = new SubViewInput;
         this.createSlider(options, sliderContainer);
         this.getSliderData();
+        // this.showRange(options);
         this.subViewHandlers.handlerMouseDown = (e, handler, num) => {
             this.mouseDown(e, handler, num);
         }
@@ -42,6 +43,7 @@ export class View implements IView {
             this.minPosition = this.maxPosition + this.slider.getBoundingClientRect().height - this.handlers[0].offsetHeight;
             this.positionRange = (this.minPosition -this.maxPosition) + this.sliderBorder;
             this.handlersPosition = new SubViewHandlers().getInitialHandlersPosition(this.handlers, options);
+            this.range = this.showRange(options);
         } else {
             this.sliderPosition = this.slider.getBoundingClientRect().x + pageXOffset;
             this.sliderBorder = parseFloat(getComputedStyle(this.slider).borderLeftWidth);
@@ -49,7 +51,48 @@ export class View implements IView {
             this.maxPosition = this.minPosition + this.slider.getBoundingClientRect().width - this.handlers[0].offsetWidth;
             this.positionRange = (this.maxPosition - this.minPosition) + this.sliderBorder;
             this.handlersPosition = new SubViewHandlers().getInitialHandlersPosition(this.handlers, options);
+            this.range = this.showRange(options);
         }
+    }
+
+    showRange = (options) => {
+        if (options.range){
+           let rangeBlock = document.createElement('div');
+           rangeBlock.classList.add('slider__range');
+           if (options.vertical){
+                rangeBlock.style.width = this.slider.getBoundingClientRect().width + 'px';
+                rangeBlock.style.left = (- this.sliderBorder) + 'px';
+           } 
+           else {
+                rangeBlock.style.height = this.slider.getBoundingClientRect().height + 'px';
+                rangeBlock.style.top = (-this.sliderBorder) + 'px';
+           }
+           this.getSliderRangePosition(options, rangeBlock);
+           this.slider.append(rangeBlock);
+           let range = this.slider.querySelector('.slider__range');
+           return range;
+        }
+    }
+
+    getSliderRangePosition = (options, rangeBlock) => {
+        if (options.vertical){
+            if (this.handlersPosition[0] > this.handlersPosition[1]) {
+                rangeBlock.style.top = this.handlers[1].offsetTop + 'px';
+            }
+            else {
+                rangeBlock.style.top = this.handlers[0].offsetTop + 'px';
+            }
+            rangeBlock.style.height = Math.abs(this.handlersPosition[1] - this.handlersPosition[0]) + 'px';
+       } 
+       else {
+            if (this.handlersPosition[0] > this.handlersPosition[1]) {
+                rangeBlock.style.left = this.handlers[1].offsetLeft + 'px';
+            }
+            else {
+                rangeBlock.style.left = this.handlers[0].offsetLeft + 'px';
+            }
+            rangeBlock.style.width = (Math.abs(this.handlersPosition[1] - this.handlersPosition[0])) + 'px';
+       }
     }
   
     mouseDown = (e, handler, num) => {
@@ -104,18 +147,14 @@ export class View implements IView {
             newPosition = handler.getBoundingClientRect().x + pageXOffset;
         }
         this.handlersPosition[num] = newPosition;
+        if(this.options.range){
+            this.getSliderRangePosition(this.options, this.range);
+        }
         let newHandlersPosition = this.handlersPosition;
         this.notifyChangedHandlerPosition(newHandlersPosition);
     }
 
     notifyChangedHandlerPosition;
-
-    addInputListeners = () => {
-        this.input.onclick = () => {this.input.value = '';}
-        this.input.oninput = (e) => {
-            this.newInputValue();
-        }
-    }
 
     notifyChangedInputValue; 
 }

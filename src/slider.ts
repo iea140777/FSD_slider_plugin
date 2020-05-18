@@ -11,7 +11,7 @@ import {View} from './view';
             maxValue: 100,
             vertical:false,
             step: 5,
-            range: false,
+            range: true,
             handlersAmount: 2,
             icon: true,
             input: true

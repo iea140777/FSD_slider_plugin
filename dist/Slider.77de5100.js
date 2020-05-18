@@ -123,7 +123,7 @@ parcelRequire = (function (modules, cache, entry, globalName) {
 $('.slider__container').slider({
   minValue: -100,
   maxValue: 100,
-  vertical: true,
+  vertical: false,
   icon: true,
   handlersAmount: 2
 });

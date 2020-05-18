@@ -135,12 +135,12 @@ body {
 .slider__range{
     margin: 0;
     padding: 0;
-    height: 8px;
+    /* height: 8px; */
     display: inline-block;
     box-sizing: border-box;
     position: absolute;
-    background-color: rgb(206, 111, 22);
-    top: -1px;
+    background-color: brown;
+    /* top: -1px; */
 }
 
 

@@ -1,5 +1,5 @@
 export default class SubViewSliderLine  {
-    createSliderLine(sliderContainer, options){
+    createSliderLine = (sliderContainer, options) => {
         const sliderLine = document.createElement('div');
         sliderLine.classList.add('slider__slider');
         if (options.vertical) {
@@ -10,3 +10,5 @@ export default class SubViewSliderLine  {
         return slider;
     }
 } 
+
+

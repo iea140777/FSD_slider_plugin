@@ -247,20 +247,20 @@ Object.defineProperty(exports, "__esModule", {
 var SubViewSliderLine =
 /** @class */
 function () {
-  function SubViewSliderLine() {}
+  function SubViewSliderLine() {
+    this.createSliderLine = function (sliderContainer, options) {
+      var sliderLine = document.createElement('div');
+      sliderLine.classList.add('slider__slider');
 
-  SubViewSliderLine.prototype.createSliderLine = function (sliderContainer, options) {
-    var sliderLine = document.createElement('div');
-    sliderLine.classList.add('slider__slider');
+      if (options.vertical) {
+        sliderLine.classList.add('slider__slider_vertical');
+      }
 
-    if (options.vertical) {
-      sliderLine.classList.add('slider__slider_vertical');
-    }
-
-    sliderContainer.append(sliderLine);
-    var slider = sliderContainer.querySelector('.slider__slider');
-    return slider;
-  };
+      sliderContainer.append(sliderLine);
+      var slider = sliderContainer.querySelector('.slider__slider');
+      return slider;
+    };
+  }
 
   return SubViewSliderLine;
 }();
@@ -474,6 +474,7 @@ function () {
         _this.minPosition = _this.maxPosition + _this.slider.getBoundingClientRect().height - _this.handlers[0].offsetHeight;
         _this.positionRange = _this.minPosition - _this.maxPosition + _this.sliderBorder;
         _this.handlersPosition = new subViewHandlers_1.default().getInitialHandlersPosition(_this.handlers, options);
+        _this.range = _this.showRange(options);
       } else {
         _this.sliderPosition = _this.slider.getBoundingClientRect().x + pageXOffset;
         _this.sliderBorder = parseFloat(getComputedStyle(_this.slider).borderLeftWidth);
@@ -481,6 +482,50 @@ function () {
         _this.maxPosition = _this.minPosition + _this.slider.getBoundingClientRect().width - _this.handlers[0].offsetWidth;
         _this.positionRange = _this.maxPosition - _this.minPosition + _this.sliderBorder;
         _this.handlersPosition = new subViewHandlers_1.default().getInitialHandlersPosition(_this.handlers, options);
+        _this.range = _this.showRange(options);
+      }
+    };
+
+    this.showRange = function (options) {
+      if (options.range) {
+        var rangeBlock = document.createElement('div');
+        rangeBlock.classList.add('slider__range');
+
+        if (options.vertical) {
+          rangeBlock.style.width = _this.slider.getBoundingClientRect().width + 'px';
+          rangeBlock.style.left = -_this.sliderBorder + 'px';
+        } else {
+          rangeBlock.style.height = _this.slider.getBoundingClientRect().height + 'px';
+          rangeBlock.style.top = -_this.sliderBorder + 'px';
+        }
+
+        _this.getSliderRangePosition(options, rangeBlock);
+
+        _this.slider.append(rangeBlock);
+
+        var range = _this.slider.querySelector('.slider__range');
+
+        return range;
+      }
+    };
+
+    this.getSliderRangePosition = function (options, rangeBlock) {
+      if (options.vertical) {
+        if (_this.handlersPosition[0] > _this.handlersPosition[1]) {
+          rangeBlock.style.top = _this.handlers[1].offsetTop + 'px';
+        } else {
+          rangeBlock.style.top = _this.handlers[0].offsetTop + 'px';
+        }
+
+        rangeBlock.style.height = Math.abs(_this.handlersPosition[1] - _this.handlersPosition[0]) + 'px';
+      } else {
+        if (_this.handlersPosition[0] > _this.handlersPosition[1]) {
+          rangeBlock.style.left = _this.handlers[1].offsetLeft + 'px';
+        } else {
+          rangeBlock.style.left = _this.handlers[0].offsetLeft + 'px';
+        }
+
+        rangeBlock.style.width = Math.abs(_this.handlersPosition[1] - _this.handlersPosition[0]) + 'px';
       }
     };
 
@@ -547,19 +592,14 @@ function () {
       }
 
       _this.handlersPosition[num] = newPosition;
+
+      if (_this.options.range) {
+        _this.getSliderRangePosition(_this.options, _this.range);
+      }
+
       var newHandlersPosition = _this.handlersPosition;
 
       _this.notifyChangedHandlerPosition(newHandlersPosition);
-    };
-
-    this.addInputListeners = function () {
-      _this.input.onclick = function () {
-        _this.input.value = '';
-      };
-
-      _this.input.oninput = function (e) {
-        _this.newInputValue();
-      };
     };
 
     this.options = options;
@@ -568,7 +608,7 @@ function () {
     this.subViewIcons = new subViewIcons_1.default();
     this.subViewInput = new subViewInput_1.default();
     this.createSlider(options, sliderContainer);
-    this.getSliderData();
+    this.getSliderData(); // this.showRange(options);
 
     this.subViewHandlers.handlerMouseDown = function (e, handler, num) {
       _this.mouseDown(e, handler, num);
@@ -610,7 +650,7 @@ var view_1 = require("./view"); // var jQuery = require("jQuery");
       maxValue: 100,
       vertical: false,
       step: 5,
-      range: false,
+      range: true,
       handlersAmount: 2,
       icon: true,
       input: true
