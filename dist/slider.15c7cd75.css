@@ -2,12 +2,27 @@ body {
     padding: 40px;
 }
 
-.slider__container, .slider__container1, .slider__container2 {
-    /* margin: 40px; */
+.slider1, .slider2, .slider3 {
     padding: 0;
     height: 250px;
     width: 250px;
     display: inline-block;
+}
+
+.slider__container {
+    padding: 0;
+    margin: 0;
+    height: 100%;
+    width: 100%;
+    display: flex;
+}
+
+.slider__container_vertical {
+    flex-direction: row;
+}
+
+.slider__container_horisontal {
+    flex-direction: column;
 }
 
 
@@ -51,27 +66,11 @@ body {
     bottom: -3px;
 }
 
-/* .slider__handler_horisontal:nth-of-type(1){
-    left: -1px;
-}
-
-.slider__handler_horisontal:nth-of-type(2){
-    left: 50%;
-} */
-
-.slider__handler_vertical{
+.slider__handler_vertical {
     left: -3px;
 }
 
-/* .slider__handler_vertical:nth-of-type(1){
-    top: -1px;
-}
-
-.slider__handler_vertical:nth-of-type(2){
-    top: 50%;
-} */
-
-.slider__handler_active{
+.slider__handler_active {
     z-index: 10000000;
 }
 
@@ -93,19 +92,30 @@ body {
     background-color: white;
 }
 
-.slider__icon_horisontal{
+.slider__icon_horisontal {
     top: -35px;
     left: -15px;
 }
 
-.slider__icon_vertical{
+.slider__icon_vertical {
     right: -40px;
     top: -10px;
 }
 
-.slider__input{
-    position: absolute;
+.slider__inputsContainer {
     margin: 0;
+    padding: 5px;
+    display: flex;
+    flex-direction: column;
+    width: auto;
+    height: auto;
+    position: relative;
+}
+
+.slider__input {
+    /* position: absolute; */
+    margin: 0;
+    display: inline-block;
     padding-left: 3px;
     height: 25px;
     width: 60px;
@@ -113,7 +123,6 @@ body {
     border-radius: 3px;
     border: 1px solid brown;
     margin: 5px;
-    display: flex;
     justify-content: center;
     align-items: center;
     font-size: 12px;
@@ -122,25 +131,17 @@ body {
     outline: none; 
 }
 
-.slider__input_horisontal{
-    top: 15px;
-    left: -5px;
-}
+slider__input_value {
 
-.slider__input_vertical {
-    left: -70px;
-    top: -5px;
 }
 
 .slider__range{
     margin: 0;
     padding: 0;
-    /* height: 8px; */
     display: inline-block;
     box-sizing: border-box;
     position: absolute;
     background-color: brown;
-    /* top: -1px; */
 }
 
 

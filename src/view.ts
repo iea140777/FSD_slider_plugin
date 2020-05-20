@@ -10,15 +10,15 @@ interface IView {
 
 export class View implements IView {
     
-    constructor (options, sliderContainer){
+    constructor (options, container){
         this.options = options;
         this.subViewSliderLine = new SubViewSliderLine;
         this.subViewHandlers = new SubViewHandlers;
         this.subViewIcons = new SubViewIcons;
         this.subViewInput = new SubViewInput;
-        this.createSlider(options, sliderContainer);
+        this.createSlider(options, container);
         this.getSliderData();
-        // this.showRange(options);
+        // 
         this.subViewHandlers.handlerMouseDown = (e, handler, num) => {
             this.mouseDown(e, handler, num);
         }
@@ -27,12 +27,30 @@ export class View implements IView {
         }
     }
 
-    createSlider = (options, sliderContainer) => {
-        this.sliderContainer = sliderContainer;
-        this.slider = this.subViewSliderLine.createSliderLine(sliderContainer, options);
+    createSlider = (options, container) => {
+        this.sliderContainer = this.createContainer(options, container);
+        this.slider = this.subViewSliderLine.createSliderLine(this.sliderContainer, options);
         this.handlers = this.subViewHandlers.createHandlers(options, this.slider);
         this.icons = this.subViewIcons.createIcons(options, this.handlers, this.slider);
-        this.input = this.subViewInput.createInput(options,  this.slider);        
+        this.inputsContainer = this.subViewInput.createInputsContainer(options, this.slider, this.sliderContainer);
+        this.rangeInput = this.subViewInput.createRangeInput(options, this.inputsContainer);
+        this.valueInputs = this.subViewInput.createValueInputs(options, this.inputsContainer); 
+        // this.showRange(options);       
+    }
+
+    
+    createContainer = (options, container) => {
+        const cont = document.createElement('div');
+        cont.classList.add('slider__container');
+        if (options.vertical) {
+            cont.classList.add('slider__container_vertical');
+        }
+        else {
+            cont.classList.add('slider__container_horisontal');
+        }
+        container.append(cont);
+        let sliderContainer = container.querySelector('.slider__container');
+        return sliderContainer;
     }
 
     getSliderData = () => {

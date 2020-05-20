@@ -2,13 +2,14 @@ import Model from './model';
 import {View} from './view';
 
 export class Presenter {
-    constructor(Model, View, options, sliderContainer){
+    constructor(Model, View, options, container){
         this.options = options;
         this.model = new Model(options);
-        this.view = new View (options, sliderContainer);
+        this.view = new View (options, container);
+         
         this.model.positionValueRate = this.view.positionRange / this.model.valueRange;
-        this.setInitialHandlersPosition();
-        // this.view.showRange(options);  
+        // this.setInitialHandlersPosition();
+        this.getPositionFromValue();
         this.handlersPosition = this.view.handlersPosition;
         console.log(this.view);
         console.log(this.model);  
@@ -53,13 +54,15 @@ export class Presenter {
             if (model.icon) {
                 view.icons[i].innerHTML = model.currentValue[i];
             }
+        }
+        this.model.getRangeValue(this.options);
+        if (this.options.rangeInput){
+            this.view.rangeInput.value = model.rangeValue;  
+        } 
 
-        }
-        if(this.options.range){
-            view.input.value = `${model.currentValue[0]}  -   ${model.currentValue[1]}`;  
-        }
-        else{
-            view.input.value = `${model.currentValue[0]}; ${model.currentValue[1]}`; 
+        if (this.options.valueInputs) {
+            view.valueInputs[0].value = `${model.currentValue[0]}`;
+            view.valueInputs[1].value = `${model.currentValue[1]}`;  
         } 
         return model.currentValue;
     }
@@ -104,13 +107,14 @@ export class Presenter {
                 this.view.icons[i].innerHTML = this.model.currentValue[i];
             }
         }
-        if(this.options.range){
-            this.view.input.value = `${this.model.currentValue[0]}  -   ${this.model.currentValue[1]}`;  
+        if(this.options.rangeInput){
+            this.view.rangeInput.value =  this.model.rangeValue;  
         }
-        else {
-            this.view.input.value = `${this.model.currentValue[0]}; ${this.model.currentValue[1]}`; 
+
+        if (this.options.valueInputs) {
+            this.view.valueInputs[0].value = `${this.model.currentValue[0]}`; 
+            this.view.valueInputs[1].value = `${this.model.currentValue[1]}`;
         } 
-        
     }   
 }
     

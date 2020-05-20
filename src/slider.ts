@@ -13,13 +13,15 @@ import {View} from './view';
             vertical:false,
             step: 5,
             range: true,
+            rangeInput: true,
+            valueInputs: true,
             handlersAmount: 2,
             icon: true,
             input: true
         }, options);
         var init = function(){
-            this.sliderContainer = this;
-            this.presenter = new Presenter(Model, View, options, this.sliderContainer);
+            this.container = this;
+            this.presenter = new Presenter(Model, View, options, this.container);
             };
     return this.each(init);    
 };

@@ -120,21 +120,21 @@ parcelRequire = (function (modules, cache, entry, globalName) {
 })({"index.ts":[function(require,module,exports) {
 'use strict';
 
-$('.slider__container').slider({
+$('.slider1').slider({
   minValue: 0,
   maxValue: 100,
   vertical: false,
   icon: true,
   handlersAmount: 2
 });
-$('.slider__container1').slider({
+$('.slider2').slider({
   minValue: 0,
   maxValue: 200,
   startingValue: [70, 140],
   icon: true,
   range: false
 });
-$('.slider__container2').slider({
+$('.slider3').slider({
   minValue: -100,
   maxValue: 100,
   startingValue: [-50, 50],
@@ -169,7 +169,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "51687" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "63281" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
