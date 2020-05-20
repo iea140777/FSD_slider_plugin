@@ -125,7 +125,8 @@ $('.slider1').slider({
   maxValue: 100,
   vertical: false,
   icon: true,
-  handlersAmount: 2
+  handlersAmount: 2,
+  valueInputs: true
 });
 $('.slider2').slider({
   minValue: 0,

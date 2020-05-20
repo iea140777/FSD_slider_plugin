@@ -6,10 +6,9 @@ export class Presenter {
         this.options = options;
         this.model = new Model(options);
         this.view = new View (options, container);
-         
         this.model.positionValueRate = this.view.positionRange / this.model.valueRange;
-        // this.setInitialHandlersPosition();
-        this.getPositionFromValue();
+        this.setInitialHandlersPosition();
+        // this.getPositionFromValue();
         this.handlersPosition = this.view.handlersPosition;
         console.log(this.view);
         console.log(this.model);  
@@ -18,23 +17,16 @@ export class Presenter {
             this.handlersPosition = newHandlersPosition;
             this.getValueFromPosition(this.model, this.view);
         }
-        this.view.notifyChangedInputValue = (newInputValue) => {
-            this.model.currentValue[0] = newInputValue;
+        this.view.notifyChangedInputValue = (newInputValue, num) => {
+            this.model.currentValue[num] = newInputValue;
             this.getPositionFromValue();
         }
 
     }
     
     setInitialHandlersPosition = () => {
-        for (let i = 0; i < this.view.handlers.length; i++){
-            this.model.currentValue[i] = this.options.startingValue[i];
-            console.log(this.model.currentValue);
-        }
-        this.getPositionFromValue(); 
-        if (this.options.range){
-            this.view.getSliderRangePosition(this.options, this.view.range);
-        }
-        
+        this.getPositionFromValue();
+        this.model.getRangeValue(this.options); 
     }
 
     getValueFromPosition =  (model, view) => {
@@ -56,8 +48,12 @@ export class Presenter {
             }
         }
         this.model.getRangeValue(this.options);
-        if (this.options.rangeInput){
-            this.view.rangeInput.value = model.rangeValue;  
+        if (this.options.rangeInput && this.options.range){
+            view.rangeInput.value = model.rangeValue;  
+        }
+
+        if (this.options.rangeInput && !this.options.range){
+            view.rangeInput.value = `${model.currentValue[0]}; ${model.currentValue[1]}`;  
         } 
 
         if (this.options.valueInputs) {
@@ -107,10 +103,16 @@ export class Presenter {
                 this.view.icons[i].innerHTML = this.model.currentValue[i];
             }
         }
-        if(this.options.rangeInput){
-            this.view.rangeInput.value =  this.model.rangeValue;  
+
+        if (this.options.rangeInput && this.options.range){
+            this.view.showRange(this.options);
+            this.view.rangeInput.value = this.model.rangeValue;  
         }
 
+        if (this.options.rangeInput && !this.options.range){
+            this.view.rangeInput.value = `${this.model.currentValue[0]}; ${this.model.currentValue[1]}`;  
+        } 
+                
         if (this.options.valueInputs) {
             this.view.valueInputs[0].value = `${this.model.currentValue[0]}`; 
             this.view.valueInputs[1].value = `${this.model.currentValue[1]}`;

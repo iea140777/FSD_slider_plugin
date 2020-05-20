@@ -20,37 +20,54 @@ export  default class SubViewInput  {
             rangeInput.setAttribute('type', 'text')
             rangeInput.classList.add('slider__input', 'slider__input_range');
             inputsContainer.append(rangeInput);
+            let inputLabel = document.createElement('span');
+            inputLabel.classList.add('slider__label');
+            inputLabel.innerText = 'range';
+            rangeInput.before(inputLabel);
             let input = inputsContainer.querySelector('.slider__input_range');
-            // this.addInputListeners(input);
             return input;
         }
     }
 
     createValueInputs (options, inputsContainer){
-        let valueInputs = [],
-        for (let i = 0; i < +options.handlersAmount; i++){
-            let valueInput = document.createElement('input');
-            valueInput.setAttribute('type', 'text')
-            valueInput.classList.add('slider__input', 'slider__input_value');
-            inputsContainer.append(valueInput);
-            
+        if(options.valueInputs){
+            for (let i = 0; i < +options.handlersAmount; i++){
+                let valueInput = document.createElement('input');
+                valueInput.setAttribute('type', 'text')
+                valueInput.classList.add('slider__input', 'slider__input_value');
+                inputsContainer.append(valueInput);
+                let inputLabel = document.createElement('span');
+                inputLabel.classList.add('slider__label');
+                inputLabel.innerText = `value ${i+1}`;
+                valueInput.before(inputLabel);
+            }
+            let inputs = inputsContainer.querySelectorAll('.slider__input_value');
+            // console.log(inputs[0]);
+            this.addInputsListener(inputs);
+            return inputs;
         }
-        let input = inputsContainer.querySelectorAll('.slider__input_value');
-        return input;
-        // valueInputs.forEach(input, this.addInputListeners();
-        // return valueInputs;
     }
 
+    addInputsListener = (inputs) => {
+        inputs.forEach (
+            input => {
+                input.onclick = (e) => {
+                input.value = '';
+                input.addEventListener('keydown',  (e) => {
+                    if (e.code == 'Enter'){
+                        let newInputValue = Number(input.value);
+                        if (e.target == inputs[0]){
+                            this.newInputValue(newInputValue, 0);
+                        }
+                        else{
+                            this.newInputValue(newInputValue, 1);
+                        }
+                    }                
+                })
+            }}
+        )
 
-
-    // addInputListeners = (input) => {
-    //     input.onclick = () => {
-    //         input.value = '';
-    //     }
-    //     input.oninput = (e) => {
-    //         let newInputValue = +input.value;
-    //         this.newInputValue(newInputValue);
-    //     }
-    // }
-    // newInputValue;
+        
+    }
+    newInputValue;
 }

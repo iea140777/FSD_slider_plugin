@@ -131,8 +131,13 @@ body {
     outline: none; 
 }
 
-slider__input_value {
-
+.slider__label {
+    font-size: 12px;
+    font-family: Arial, Helvetica, sans-serif; 
+    color: brown;
+    font-weight: bold ;
+    left: -40px;
+    
 }
 
 .slider__range{

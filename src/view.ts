@@ -18,12 +18,11 @@ export class View implements IView {
         this.subViewInput = new SubViewInput;
         this.createSlider(options, container);
         this.getSliderData();
-        // 
         this.subViewHandlers.handlerMouseDown = (e, handler, num) => {
             this.mouseDown(e, handler, num);
         }
-        this.subViewInput.newInputValue = (newInputValue) => {
-            this.notifyChangedInputValue(newInputValue);
+        this.subViewInput.newInputValue = (newInputValue, num) => {
+            this.notifyChangedInputValue(newInputValue, num);
         }
     }
 
@@ -34,11 +33,9 @@ export class View implements IView {
         this.icons = this.subViewIcons.createIcons(options, this.handlers, this.slider);
         this.inputsContainer = this.subViewInput.createInputsContainer(options, this.slider, this.sliderContainer);
         this.rangeInput = this.subViewInput.createRangeInput(options, this.inputsContainer);
-        this.valueInputs = this.subViewInput.createValueInputs(options, this.inputsContainer); 
-        // this.showRange(options);       
+        this.valueInputs = this.subViewInput.createValueInputs(options, this.inputsContainer);    
     }
 
-    
     createContainer = (options, container) => {
         const cont = document.createElement('div');
         cont.classList.add('slider__container');
@@ -62,6 +59,7 @@ export class View implements IView {
             this.positionRange = (this.minPosition -this.maxPosition) + this.sliderBorder;
             this.handlersPosition = new SubViewHandlers().getInitialHandlersPosition(this.handlers, this.options);
             this.range = this.showRange(this.options);
+            
         } else {
             this.sliderPosition = this.slider.getBoundingClientRect().x + pageXOffset;
             this.sliderBorder = parseFloat(getComputedStyle(this.slider).borderLeftWidth);
@@ -85,9 +83,9 @@ export class View implements IView {
                 rangeBlock.style.height = this.slider.getBoundingClientRect().height + 'px';
                 rangeBlock.style.top = (-this.sliderBorder) + 'px';
            }
-           this.getSliderRangePosition(options, rangeBlock);
            this.slider.append(rangeBlock);
            let range = this.slider.querySelector('.slider__range');
+           this.getSliderRangePosition(options, range);
            return range;
         }
     }

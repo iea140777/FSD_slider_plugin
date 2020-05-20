@@ -131,16 +131,9 @@ function () {
     var _this = this;
 
     this.setInitialHandlersPosition = function () {
-      for (var i = 0; i < _this.view.handlers.length; i++) {
-        _this.model.currentValue[i] = _this.options.startingValue[i];
-        console.log(_this.model.currentValue);
-      }
-
       _this.getPositionFromValue();
 
-      if (_this.options.range) {
-        _this.view.getSliderRangePosition(_this.options, _this.view.range);
-      }
+      _this.model.getRangeValue(_this.options);
     };
 
     this.getValueFromPosition = function (model, view) {
@@ -168,8 +161,12 @@ function () {
 
       _this.model.getRangeValue(_this.options);
 
-      if (_this.options.rangeInput) {
-        _this.view.rangeInput.value = model.rangeValue;
+      if (_this.options.rangeInput && _this.options.range) {
+        view.rangeInput.value = model.rangeValue;
+      }
+
+      if (_this.options.rangeInput && !_this.options.range) {
+        view.rangeInput.value = model.currentValue[0] + "; " + model.currentValue[1];
       }
 
       if (_this.options.valueInputs) {
@@ -217,8 +214,14 @@ function () {
         }
       }
 
-      if (_this.options.rangeInput) {
+      if (_this.options.rangeInput && _this.options.range) {
+        _this.view.showRange(_this.options);
+
         _this.view.rangeInput.value = _this.model.rangeValue;
+      }
+
+      if (_this.options.rangeInput && !_this.options.range) {
+        _this.view.rangeInput.value = _this.model.currentValue[0] + "; " + _this.model.currentValue[1];
       }
 
       if (_this.options.valueInputs) {
@@ -230,9 +233,9 @@ function () {
     this.options = options;
     this.model = new Model(options);
     this.view = new View(options, container);
-    this.model.positionValueRate = this.view.positionRange / this.model.valueRange; // this.setInitialHandlersPosition();
+    this.model.positionValueRate = this.view.positionRange / this.model.valueRange;
+    this.setInitialHandlersPosition(); // this.getPositionFromValue();
 
-    this.getPositionFromValue();
     this.handlersPosition = this.view.handlersPosition;
     console.log(this.view);
     console.log(this.model);
@@ -243,8 +246,8 @@ function () {
       _this.getValueFromPosition(_this.model, _this.view);
     };
 
-    this.view.notifyChangedInputValue = function (newInputValue) {
-      _this.model.currentValue[0] = newInputValue;
+    this.view.notifyChangedInputValue = function (newInputValue, num) {
+      _this.model.currentValue[num] = newInputValue;
 
       _this.getPositionFromValue();
     };
@@ -279,8 +282,7 @@ function () {
       }
     };
 
-    this.minValue = options.minValue, this.maxValue = options.maxValue, this.step = options.step, this.range = options.range, this.handlersAmount = options.handlersAmount, this.icon = options.icon, this.input = options.input, this.valueRange = Math.abs(this.maxValue - this.minValue), this.positionValueRate, this.currentValue = [], this.getInitialCurrentValue(options);
-    this.rangeValue = Math.abs(this.currentValue[1] - this.currentValue[0]), this.getRangeValue(options);
+    this.minValue = options.minValue, this.maxValue = options.maxValue, this.step = options.step, this.range = options.range, this.handlersAmount = options.handlersAmount, this.icon = options.icon, this.input = options.input, this.valueRange = Math.abs(this.maxValue - this.minValue), this.positionValueRate, this.currentValue = [], this.getInitialCurrentValue(options), this.rangeValue = Math.abs(this.currentValue[1] - this.currentValue[0]); // this.getRangeValue(options);
   }
 
   return Model;
@@ -427,11 +429,32 @@ Object.defineProperty(exports, "__esModule", {
 var SubViewInput =
 /** @class */
 function () {
-  function SubViewInput() {} // createInputs(options, slider, sliderContainer){
-  //     this.inputsContainer = this.createInputsContainer(options, slider, sliderContainer);
-  //     this.rangeInput = this.createRangeInput(options, this.inputsContainer);
-  //     this.valueInputs = this.createValueInputs(options, this.inputsContainer);
-  // }
+  function SubViewInput() {
+    // createInputs(options, slider, sliderContainer){
+    //     this.inputsContainer = this.createInputsContainer(options, slider, sliderContainer);
+    //     this.rangeInput = this.createRangeInput(options, this.inputsContainer);
+    //     this.valueInputs = this.createValueInputs(options, this.inputsContainer);
+    var _this = this;
+
+    this.addInputsListener = function (inputs) {
+      inputs.forEach(function (input) {
+        input.onclick = function (e) {
+          input.value = '';
+          input.addEventListener('keydown', function (e) {
+            if (e.code == 'Enter') {
+              var newInputValue = Number(input.value);
+
+              if (e.target == inputs[0]) {
+                _this.newInputValue(newInputValue, 0);
+              } else {
+                _this.newInputValue(newInputValue, 1);
+              }
+            }
+          });
+        };
+      });
+    };
+  } // }
 
 
   SubViewInput.prototype.createInputsContainer = function (options, slider, sliderContainer) {
@@ -450,25 +473,33 @@ function () {
       rangeInput.setAttribute('type', 'text');
       rangeInput.classList.add('slider__input', 'slider__input_range');
       inputsContainer.append(rangeInput);
-      var input = inputsContainer.querySelector('.slider__input_range'); // this.addInputListeners(input);
-
+      var inputLabel = document.createElement('span');
+      inputLabel.classList.add('slider__label');
+      inputLabel.innerText = 'range';
+      rangeInput.before(inputLabel);
+      var input = inputsContainer.querySelector('.slider__input_range');
       return input;
     }
   };
 
   SubViewInput.prototype.createValueInputs = function (options, inputsContainer) {
-    var valueInputs = [];
+    if (options.valueInputs) {
+      for (var i = 0; i < +options.handlersAmount; i++) {
+        var valueInput = document.createElement('input');
+        valueInput.setAttribute('type', 'text');
+        valueInput.classList.add('slider__input', 'slider__input_value');
+        inputsContainer.append(valueInput);
+        var inputLabel = document.createElement('span');
+        inputLabel.classList.add('slider__label');
+        inputLabel.innerText = "value " + (i + 1);
+        valueInput.before(inputLabel);
+      }
 
-    for (var i = 0; i < +options.handlersAmount; i++) {
-      var valueInput = document.createElement('input');
-      valueInput.setAttribute('type', 'text');
-      valueInput.classList.add('slider__input', 'slider__input_value');
-      inputsContainer.append(valueInput);
+      var inputs = inputsContainer.querySelectorAll('.slider__input_value'); // console.log(inputs[0]);
+
+      this.addInputsListener(inputs);
+      return inputs;
     }
-
-    var input = inputsContainer.querySelectorAll('.slider__input_value');
-    return input; // valueInputs.forEach(input, this.addInputListeners();
-    // return valueInputs;
   };
 
   return SubViewInput;
@@ -509,7 +540,7 @@ function () {
       _this.icons = _this.subViewIcons.createIcons(options, _this.handlers, _this.slider);
       _this.inputsContainer = _this.subViewInput.createInputsContainer(options, _this.slider, _this.sliderContainer);
       _this.rangeInput = _this.subViewInput.createRangeInput(options, _this.inputsContainer);
-      _this.valueInputs = _this.subViewInput.createValueInputs(options, _this.inputsContainer); // this.showRange(options);       
+      _this.valueInputs = _this.subViewInput.createValueInputs(options, _this.inputsContainer);
     };
 
     this.createContainer = function (options, container) {
@@ -560,11 +591,11 @@ function () {
           rangeBlock.style.top = -_this.sliderBorder + 'px';
         }
 
-        _this.getSliderRangePosition(options, rangeBlock);
-
         _this.slider.append(rangeBlock);
 
         var range = _this.slider.querySelector('.slider__range');
+
+        _this.getSliderRangePosition(options, range);
 
         return range;
       }
@@ -669,14 +700,14 @@ function () {
     this.subViewIcons = new subViewIcons_1.default();
     this.subViewInput = new subViewInput_1.default();
     this.createSlider(options, container);
-    this.getSliderData(); // 
+    this.getSliderData();
 
     this.subViewHandlers.handlerMouseDown = function (e, handler, num) {
       _this.mouseDown(e, handler, num);
     };
 
-    this.subViewInput.newInputValue = function (newInputValue) {
-      _this.notifyChangedInputValue(newInputValue);
+    this.subViewInput.newInputValue = function (newInputValue, num) {
+      _this.notifyChangedInputValue(newInputValue, num);
     };
   }
 
