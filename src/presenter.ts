@@ -6,23 +6,37 @@ export class Presenter {
         this.options = options;
         this.model = new Model(options);
         this.view = new View (options, sliderContainer);
-        this.handlersPosition = this.view.handlersPosition;
         this.model.positionValueRate = this.view.positionRange / this.model.valueRange;
-        this.model.currentValue = this.getCurrentValue(this.model, this.view);
+        this.setInitialHandlersPosition();
+        // this.view.showRange(options);  
+        this.handlersPosition = this.view.handlersPosition;
         console.log(this.view);
-        console.log(this.model);
-        
+        console.log(this.model);  
+            
         this.view.notifyChangedHandlerPosition = (newHandlersPosition) => {
             this.handlersPosition = newHandlersPosition;
-            this.getCurrentValue(this.model, this.view);
+            this.getValueFromPosition(this.model, this.view);
+        }
+        this.view.notifyChangedInputValue = (newInputValue) => {
+            this.model.currentValue[0] = newInputValue;
+            this.getPositionFromValue();
         }
 
-        this.view.notifyChangedInputValue = (newInputValue) =>{
-            this.getCurrentPosition(this.model, this.view, newInputValue);
-        }
     }
     
-    getCurrentValue =  (model, view) => {
+    setInitialHandlersPosition = () => {
+        for (let i = 0; i < this.view.handlers.length; i++){
+            this.model.currentValue[i] = this.options.startingValue[i];
+            console.log(this.model.currentValue);
+        }
+        this.getPositionFromValue(); 
+        if (this.options.range){
+            this.view.getSliderRangePosition(this.options, this.view.range);
+        }
+        
+    }
+
+    getValueFromPosition =  (model, view) => {
         for (let i = 0; i < view.handlers.length; i++){
             let computedValue;
             if(this.options.vertical) {
@@ -41,50 +55,62 @@ export class Presenter {
             }
 
         }
-        view.input.value = `${model.currentValue[0]}, ${model.currentValue[1]}`;  
+        if(this.options.range){
+            view.input.value = `${model.currentValue[0]}  -   ${model.currentValue[1]}`;  
+        }
+        else{
+            view.input.value = `${model.currentValue[0]}; ${model.currentValue[1]}`; 
+        } 
         return model.currentValue;
     }
     
-     getCurrentPosition = (model, view, newValue) => {
-        if (newValue <= model.minValue){
-            if (this.options.vertical){
-                view.handlers[0].style.top = view.positionRange +  'px';
-                view.handlersPosition[0]  = view.minPosition;
-                model.currentValue[0] = model.minValue
-            } 
+     getPositionFromValue = () => {
+        for (let i = 0; i < this.view.handlers.length; i++){
+            if (this.model.currentValue[i] <= this.model.minValue){
+                if (this.options.vertical){
+                    this.view.handlers[i].style.top = this.view.positionRange +  'px';
+                    this.view.handlersPosition[i]  = this.view.minPosition;
+                    this.model.currentValue[i] = this.model.minValue;
+                } 
+                else {
+                    this.view.handlers[i].style.left = (0 - this.view.sliderBorder) + 'px';
+                    this.view.handlersPosition[i]  = this.view.minPosition;
+                    this.model.currentValue[i] = this.model.minValue
+                }
+            }
+            else if (this.model.currentValue[i] >= this.model.maxValue){
+                if (this.options.vertical){
+                    this.view.handlers[i].style.top = (0 - this.view.sliderBorder) + 'px';
+                    this.view.handlersPosition[i]  = this.view.maxPosition;
+                    this.model.currentValue[i] = this.model.maxValue
+                } 
+                else {
+                    this.view.handlers[i].style.left = this.view.positionRange + 'px';
+                    this.view.handlersPosition[i]  = this.view.maxPosition;
+                    this.model.currentValue[i] = this.model.maxValue
+                }
+            }
             else {
-                view.handlers[0].style.left = (0 - view.sliderBorder) + 'px';
-                view.handlersPosition[0]  = view.minPosition;
-                model.currentValue[0] = model.minValue
+                if (this.options.vertical){
+                    this.view.handlers[i].style.top = Math.abs((this.model.currentValue[i] - this.model.maxValue) * this.model.positionValueRate) + 'px'; 
+                    this.view.handlersPosition[i] = this.view.handlers[i].getBoundingClientRect().y + pageYOffset;
+                }
+                else {
+                    this.view.handlers[i].style.left = Math.abs((this.model.currentValue[i] - this.model.minValue) * this.model.positionValueRate) + 'px'; 
+                    this.view.handlersPosition[i] = this.view.handlers[i].getBoundingClientRect().x + pageXOffset;
+                }
+            }
+            if (this.model.icon) {
+                this.view.icons[i].innerHTML = this.model.currentValue[i];
             }
         }
-        else if (newValue >= model.maxValue){
-            if (this.options.vertical){
-                view.handlers[0].style.top = (0 - view.sliderBorder) + 'px';
-                view.handlersPosition[0]  = view.maxPosition;
-                model.currentValue[0] = model.maxValue
-            } 
-            else {
-                view.handlers[0].style.left = view.positionRange + 'px';
-                view.handlersPosition[0]  = view.maxPosition;
-                model.currentValue[0] = model.maxValue
-            }
+        if(this.options.range){
+            this.view.input.value = `${this.model.currentValue[0]}  -   ${this.model.currentValue[1]}`;  
         }
         else {
-            if (this.options.vertical){
-                view.handlers[0].style.top = Math.abs((newValue - model.maxValue) * model.positionValueRate) + 'px'; 
-                view.handlersPosition[0] = view.handlers[0].getBoundingClientRect().y + pageYOffset;
-                model.currentValue[0] = newValue;
-            }
-            else {
-                view.handlers[0].style.left = Math.abs((newValue - model.minValue) * model.positionValueRate) + 'px'; 
-                view.handlersPosition[0] = view.handlers[0].getBoundingClientRect().x + pageXOffset;
-                model.currentValue[0] = newValue;
-            }
-        }
-        if (model.icon) {
-            view.icons[0].innerHTML = model.currentValue[0];
-        }
+            this.view.input.value = `${this.model.currentValue[0]}; ${this.model.currentValue[1]}`; 
+        } 
+        
     }   
 }
     

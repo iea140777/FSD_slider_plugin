@@ -51,25 +51,25 @@ body {
     bottom: -3px;
 }
 
-.slider__handler_horisontal:nth-of-type(1){
+/* .slider__handler_horisontal:nth-of-type(1){
     left: -1px;
 }
 
 .slider__handler_horisontal:nth-of-type(2){
     left: 50%;
-}
+} */
 
 .slider__handler_vertical{
     left: -3px;
 }
 
-.slider__handler_vertical:nth-of-type(1){
+/* .slider__handler_vertical:nth-of-type(1){
     top: -1px;
 }
 
 .slider__handler_vertical:nth-of-type(2){
     top: 50%;
-}
+} */
 
 .slider__handler_active{
     z-index: 10000000;

@@ -42,19 +42,4 @@ export default class SubViewHandlers  {
 
     handlerMouseDown;
     
-    writeNewPosition = (handler, num) => {
-        let newPosition;
-        if(this.options.vertical){
-            newPosition = handler.getBoundingClientRect().y + pageYOffset;
-        }
-        else {
-            newPosition = handler.getBoundingClientRect().x + pageXOffset;
-        }
-        this.handlersPosition[num] = newPosition;
-        let newHandlersPosition = this.handlersPosition;
-        this.notifyChangedHandlerPosition(newHandlersPosition);
-    }
-
-    notifyChangedHandlerPosition;
-
 }   

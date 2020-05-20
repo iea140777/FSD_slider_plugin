@@ -130,7 +130,20 @@ function () {
   function Presenter(Model, View, options, sliderContainer) {
     var _this = this;
 
-    this.getCurrentValue = function (model, view) {
+    this.setInitialHandlersPosition = function () {
+      for (var i = 0; i < _this.view.handlers.length; i++) {
+        _this.model.currentValue[i] = _this.options.startingValue[i];
+        console.log(_this.model.currentValue);
+      }
+
+      _this.getPositionFromValue();
+
+      if (_this.options.range) {
+        _this.view.getSliderRangePosition(_this.options, _this.view.range);
+      }
+    };
+
+    this.getValueFromPosition = function (model, view) {
       for (var i = 0; i < view.handlers.length; i++) {
         var computedValue = void 0;
 
@@ -153,65 +166,79 @@ function () {
         }
       }
 
-      view.input.value = model.currentValue[0] + ", " + model.currentValue[1];
+      if (_this.options.range) {
+        view.input.value = model.currentValue[0] + "  -   " + model.currentValue[1];
+      } else {
+        view.input.value = model.currentValue[0] + "; " + model.currentValue[1];
+      }
+
       return model.currentValue;
     };
 
-    this.getCurrentPosition = function (model, view, newValue) {
-      if (newValue <= model.minValue) {
-        if (_this.options.vertical) {
-          view.handlers[0].style.top = view.positionRange + 'px';
-          view.handlersPosition[0] = view.minPosition;
-          model.currentValue[0] = model.minValue;
+    this.getPositionFromValue = function () {
+      for (var i = 0; i < _this.view.handlers.length; i++) {
+        if (_this.model.currentValue[i] <= _this.model.minValue) {
+          if (_this.options.vertical) {
+            _this.view.handlers[i].style.top = _this.view.positionRange + 'px';
+            _this.view.handlersPosition[i] = _this.view.minPosition;
+            _this.model.currentValue[i] = _this.model.minValue;
+          } else {
+            _this.view.handlers[i].style.left = 0 - _this.view.sliderBorder + 'px';
+            _this.view.handlersPosition[i] = _this.view.minPosition;
+            _this.model.currentValue[i] = _this.model.minValue;
+          }
+        } else if (_this.model.currentValue[i] >= _this.model.maxValue) {
+          if (_this.options.vertical) {
+            _this.view.handlers[i].style.top = 0 - _this.view.sliderBorder + 'px';
+            _this.view.handlersPosition[i] = _this.view.maxPosition;
+            _this.model.currentValue[i] = _this.model.maxValue;
+          } else {
+            _this.view.handlers[i].style.left = _this.view.positionRange + 'px';
+            _this.view.handlersPosition[i] = _this.view.maxPosition;
+            _this.model.currentValue[i] = _this.model.maxValue;
+          }
         } else {
-          view.handlers[0].style.left = 0 - view.sliderBorder + 'px';
-          view.handlersPosition[0] = view.minPosition;
-          model.currentValue[0] = model.minValue;
+          if (_this.options.vertical) {
+            _this.view.handlers[i].style.top = Math.abs((_this.model.currentValue[i] - _this.model.maxValue) * _this.model.positionValueRate) + 'px';
+            _this.view.handlersPosition[i] = _this.view.handlers[i].getBoundingClientRect().y + pageYOffset;
+          } else {
+            _this.view.handlers[i].style.left = Math.abs((_this.model.currentValue[i] - _this.model.minValue) * _this.model.positionValueRate) + 'px';
+            _this.view.handlersPosition[i] = _this.view.handlers[i].getBoundingClientRect().x + pageXOffset;
+          }
         }
-      } else if (newValue >= model.maxValue) {
-        if (_this.options.vertical) {
-          view.handlers[0].style.top = 0 - view.sliderBorder + 'px';
-          view.handlersPosition[0] = view.maxPosition;
-          model.currentValue[0] = model.maxValue;
-        } else {
-          view.handlers[0].style.left = view.positionRange + 'px';
-          view.handlersPosition[0] = view.maxPosition;
-          model.currentValue[0] = model.maxValue;
-        }
-      } else {
-        if (_this.options.vertical) {
-          view.handlers[0].style.top = Math.abs((newValue - model.maxValue) * model.positionValueRate) + 'px';
-          view.handlersPosition[0] = view.handlers[0].getBoundingClientRect().y + pageYOffset;
-          model.currentValue[0] = newValue;
-        } else {
-          view.handlers[0].style.left = Math.abs((newValue - model.minValue) * model.positionValueRate) + 'px';
-          view.handlersPosition[0] = view.handlers[0].getBoundingClientRect().x + pageXOffset;
-          model.currentValue[0] = newValue;
+
+        if (_this.model.icon) {
+          _this.view.icons[i].innerHTML = _this.model.currentValue[i];
         }
       }
 
-      if (model.icon) {
-        view.icons[0].innerHTML = model.currentValue[0];
+      if (_this.options.range) {
+        _this.view.input.value = _this.model.currentValue[0] + "  -   " + _this.model.currentValue[1];
+      } else {
+        _this.view.input.value = _this.model.currentValue[0] + "; " + _this.model.currentValue[1];
       }
     };
 
     this.options = options;
     this.model = new Model(options);
     this.view = new View(options, sliderContainer);
-    this.handlersPosition = this.view.handlersPosition;
     this.model.positionValueRate = this.view.positionRange / this.model.valueRange;
-    this.model.currentValue = this.getCurrentValue(this.model, this.view);
+    this.setInitialHandlersPosition(); // this.view.showRange(options);  
+
+    this.handlersPosition = this.view.handlersPosition;
     console.log(this.view);
     console.log(this.model);
 
     this.view.notifyChangedHandlerPosition = function (newHandlersPosition) {
       _this.handlersPosition = newHandlersPosition;
 
-      _this.getCurrentValue(_this.model, _this.view);
+      _this.getValueFromPosition(_this.model, _this.view);
     };
 
     this.view.notifyChangedInputValue = function (newInputValue) {
-      _this.getCurrentPosition(_this.model, _this.view, newInputValue);
+      _this.model.currentValue[0] = newInputValue;
+
+      _this.getPositionFromValue();
     };
   }
 
@@ -230,7 +257,7 @@ var Model =
 /** @class */
 function () {
   function Model(options) {
-    this.minValue = options.minValue, this.maxValue = options.maxValue, this.step = options.step, this.range = options.range, this.handlersAmount = options.handlersAmount, this.icon = options.icon, this.input = options.input, this.valueRange = Math.abs(this.maxValue - this.minValue), this.positionValueRate, this.currentValue = [];
+    this.minValue = options.minValue, this.maxValue = options.maxValue, this.step = options.step, this.range = options.range, this.handlersAmount = options.handlersAmount, this.icon = options.icon, this.input = options.input, this.valueRange = Math.abs(this.maxValue - this.minValue), this.positionValueRate, this.currentValue = [], this.rangeValue;
   }
 
   return Model;
@@ -305,21 +332,6 @@ function () {
           _this.handlerMouseDown(e, handlers[1], 1);
         };
       }
-    };
-
-    this.writeNewPosition = function (handler, num) {
-      var newPosition;
-
-      if (_this.options.vertical) {
-        newPosition = handler.getBoundingClientRect().y + pageYOffset;
-      } else {
-        newPosition = handler.getBoundingClientRect().x + pageXOffset;
-      }
-
-      _this.handlersPosition[num] = newPosition;
-      var newHandlersPosition = _this.handlersPosition;
-
-      _this.notifyChangedHandlerPosition(newHandlersPosition);
     };
   }
 
@@ -473,21 +485,21 @@ function () {
         _this.maxPosition = _this.sliderPosition;
         _this.minPosition = _this.maxPosition + _this.slider.getBoundingClientRect().height - _this.handlers[0].offsetHeight;
         _this.positionRange = _this.minPosition - _this.maxPosition + _this.sliderBorder;
-        _this.handlersPosition = new subViewHandlers_1.default().getInitialHandlersPosition(_this.handlers, options);
-        _this.range = _this.showRange(options);
+        _this.handlersPosition = new subViewHandlers_1.default().getInitialHandlersPosition(_this.handlers, _this.options);
+        _this.range = _this.showRange(_this.options);
       } else {
         _this.sliderPosition = _this.slider.getBoundingClientRect().x + pageXOffset;
         _this.sliderBorder = parseFloat(getComputedStyle(_this.slider).borderLeftWidth);
         _this.minPosition = _this.sliderPosition;
         _this.maxPosition = _this.minPosition + _this.slider.getBoundingClientRect().width - _this.handlers[0].offsetWidth;
         _this.positionRange = _this.maxPosition - _this.minPosition + _this.sliderBorder;
-        _this.handlersPosition = new subViewHandlers_1.default().getInitialHandlersPosition(_this.handlers, options);
-        _this.range = _this.showRange(options);
+        _this.handlersPosition = new subViewHandlers_1.default().getInitialHandlersPosition(_this.handlers, _this.options);
+        _this.range = _this.showRange(_this.options);
       }
     };
 
     this.showRange = function (options) {
-      if (options.range) {
+      if (_this.options.range) {
         var rangeBlock = document.createElement('div');
         rangeBlock.classList.add('slider__range');
 
@@ -512,17 +524,17 @@ function () {
     this.getSliderRangePosition = function (options, rangeBlock) {
       if (options.vertical) {
         if (_this.handlersPosition[0] > _this.handlersPosition[1]) {
-          rangeBlock.style.top = _this.handlers[1].offsetTop + 'px';
+          rangeBlock.style.top = _this.handlers[1].offsetTop + _this.handlers[1].offsetHeight / 2 + 'px';
         } else {
-          rangeBlock.style.top = _this.handlers[0].offsetTop + 'px';
+          rangeBlock.style.top = _this.handlers[0].offsetTop + _this.handlers[0].offsetHeight / 2 + 'px';
         }
 
         rangeBlock.style.height = Math.abs(_this.handlersPosition[1] - _this.handlersPosition[0]) + 'px';
       } else {
         if (_this.handlersPosition[0] > _this.handlersPosition[1]) {
-          rangeBlock.style.left = _this.handlers[1].offsetLeft + 'px';
+          rangeBlock.style.left = _this.handlers[1].offsetLeft + _this.handlers[1].offsetWidth / 2 + 'px';
         } else {
-          rangeBlock.style.left = _this.handlers[0].offsetLeft + 'px';
+          rangeBlock.style.left = _this.handlers[0].offsetLeft + _this.handlers[0].offsetWidth / 2 + 'px';
         }
 
         rangeBlock.style.width = Math.abs(_this.handlersPosition[1] - _this.handlersPosition[0]) + 'px';
@@ -648,6 +660,7 @@ var view_1 = require("./view"); // var jQuery = require("jQuery");
     options = $.extend({
       minValue: 0,
       maxValue: 100,
+      startingValue: [20, 60],
       vertical: false,
       step: 5,
       range: true,

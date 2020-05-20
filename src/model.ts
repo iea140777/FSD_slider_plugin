@@ -12,8 +12,8 @@ export default class Model {
     this.input = options.input,
     this.valueRange = Math.abs(this.maxValue - this.minValue),
     this.positionValueRate,
-    this.currentValue = []
+    this.currentValue = [],
+    this.rangeValue;
     }
     
-   
 }
