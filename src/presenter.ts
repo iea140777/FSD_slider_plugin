@@ -1,67 +1,80 @@
-import Model from './model';
-import {View} from './view';
+import Model from "./model";
+import {View} from  "./view";
+
+export interface IOptions{
+    minValue: number;
+    maxValue: number;
+    startingValue: [number, number];
+    vertical:boolean;
+    step: number;
+    range: boolean;
+    rangeInput: boolean;
+    valueInputs: boolean;
+    handlersAmount: number;
+    icon: boolean;
+    input: boolean;
+}
 
 export class Presenter {
-    constructor(Model, View, options, container){
+    options:IOptions;
+    model: Model;
+    view: View;
+
+    constructor(Model, View, options:IOptions, container:HTMLElement){
         this.options = options;
-        this.model = new Model(options);
-        this.view = new View (options, container);
+        this.model = new Model(this.options);
+        this.view = new View (this.options, container);
         this.model.positionValueRate = this.view.positionRange / this.model.valueRange;
         this.setInitialHandlersPosition();
-        // this.getPositionFromValue();
-        this.handlersPosition = this.view.handlersPosition;
         console.log(this.view);
         console.log(this.model);  
-            
-        this.view.notifyChangedHandlerPosition = (newHandlersPosition) => {
-            this.handlersPosition = newHandlersPosition;
-            this.getValueFromPosition(this.model, this.view);
+        this.view.notifyChangedHandlerPosition = ():void => {
+            this.getValueFromPosition();
         }
-        this.view.notifyChangedInputValue = (newInputValue, num) => {
+        this.view.notifyChangedInputValue = (newInputValue:number, num: number) => {
             this.model.currentValue[num] = newInputValue;
             this.getPositionFromValue();
         }
-
     }
     
-    setInitialHandlersPosition = () => {
+    setInitialHandlersPosition = ():void => {
         this.getPositionFromValue();
         this.model.getRangeValue(this.options); 
     }
 
-    getValueFromPosition =  (model, view) => {
-        for (let i = 0; i < view.handlers.length; i++){
-            let computedValue;
+    getValueFromPosition =  ():number[] => {
+        for (let i = 0; i < this.view.handlers.length; i++){
+            let computedValue:number;
             if(this.options.vertical) {
-                computedValue = model.minValue + ((view.minPosition - this.handlersPosition[i]) / model.positionValueRate);
+                computedValue = this.model.minValue + ((this.view.minPosition - this.view.handlersPosition[i]) / this.model.positionValueRate);
             }
             else {
-                computedValue = model.minValue + ((this.handlersPosition[i] - view.minPosition) / model.positionValueRate);
+                computedValue = this.model.minValue + ((this.view.handlersPosition[i] - this.view.minPosition) / this.model.positionValueRate);
             }
-            if (this.handlersPosition[i]  === view.minPosition){model.currentValue[i] = model.minValue;}
-            else if(this.handlersPosition[i] === view.maxPosition){model.currentValue[i] = model.maxValue;}
+            if (this.view.handlersPosition[i]  === this.view.minPosition){this.model.currentValue[i] = this.model.minValue;}
+            else if(this.view.handlersPosition[i] === this.view.maxPosition){this.model.currentValue[i] = this.model.maxValue;}
             else {
-                model.currentValue[i] = (Math.round(computedValue / model.step)) * model.step;
+                this.model.currentValue[i] = (Math.round(computedValue / this.model.step)) * this.model.step;
             }
-            if (model.icon) {
-                view.icons[i].innerHTML = model.currentValue[i];
+            if (this.options.icon) {
+                this.view.icons[i].innerHTML = String(this.model.currentValue[i]);
             }
         }
         this.model.getRangeValue(this.options);
         if (this.options.rangeInput && this.options.range && this.options.handlersAmount > 1){
-            view.rangeInput.value = model.rangeValue;  
+            this.view.rangeInput.value = String(this.model.rangeValue);  
         }
 
         if (this.options.rangeInput && !this.options.range && this.options.handlersAmount > 1){
-            view.rangeInput.value = `${model.currentValue[0]}; ${model.currentValue[1]}`;  
+            this.view.rangeInput.value = `${this.model.currentValue[0]}; ${this.model.currentValue[1]}`;  
         } 
 
         if (this.options.valueInputs) {
             for (let i = 0; i < this.options.handlersAmount; i++){
-                view.valueInputs[i].value = `${model.currentValue[i]}`;
+                this.view.valueInputs[i].value = `${this.model.currentValue[i]}`;
             }
         } 
-        return model.currentValue;
+        return this.model.currentValue;
     }
     
      getPositionFromValue = () => {
@@ -101,13 +114,13 @@ export class Presenter {
                 }
             }
             if (this.model.icon) {
-                this.view.icons[i].innerHTML = this.model.currentValue[i];
+                this.view.icons[i].innerHTML = String(this.model.currentValue[i]);
             }
         }
 
         if (this.options.rangeInput && this.options.range && this.options.handlersAmount > 1){
             this.view.showRange(this.options);
-            this.view.rangeInput.value = this.model.rangeValue;  
+            this.view.rangeInput.value = String(this.model.rangeValue);  
         }
 
         if (this.options.rangeInput && !this.options.range && this.options.handlersAmount > 1){

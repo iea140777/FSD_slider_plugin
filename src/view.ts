@@ -3,14 +3,31 @@ import SubViewSliderLine from './subView/subViewSliderLine';
 import SubViewHandlers from './subView/subViewHandlers';
 import SubViewIcons from './subView/subViewIcons';
 import SubViewInput from './subView/subViewInput';
-interface IView {
-    // constructor(options:object, sliderContainer:HTMLDivElement): object
+import {IOptions} from './presenter';
 
-} 
+export class View {
+    options: IOptions;
+    subViewSliderLine: SubViewSliderLine;
+    subViewHandlers: SubViewHandlers;
+    subViewIcons: SubViewIcons;
+    subViewInput: SubViewInput;
+    sliderContainer:HTMLDivElement;
+    slider: HTMLDivElement;
+    handlers: NodeListOf<HTMLDivElement>;
+    icons: NodeListOf<HTMLDivElement>;
+    inputsContainer: HTMLDivElement;
+    rangeInput:HTMLInputElement;
+    valueInputs: NodeListOf<HTMLInputElement>;
+    sliderPosition: number;
+    sliderBorder: number;
+    maxPosition: number;
+    minPosition: number;
+    positionRange: number;
+    handlersPosition: number[];
+    range: HTMLDivElement;
 
-export class View implements IView {
-    
-    constructor (options, container){
+
+    constructor (options:IOptions, container:HTMLDivElement){
         this.options = options;
         this.subViewSliderLine = new SubViewSliderLine;
         this.subViewHandlers = new SubViewHandlers;
@@ -18,39 +35,45 @@ export class View implements IView {
         this.subViewInput = new SubViewInput;
         this.createSlider(options, container);
         this.getSliderData();
-        this.subViewHandlers.handlerMouseDown = (e, handler, num) => {
+        this.subViewHandlers.handlerMouseDown = (e:MouseEvent, handler:HTMLDivElement, num:number):void => {
             this.mouseDown(e, handler, num);
         }
-        this.subViewInput.newInputValue = (newInputValue, num) => {
+        this.subViewInput.newInputValue = (newInputValue:number, num:number):void => {
             this.notifyChangedInputValue(newInputValue, num);
         }
     }
 
-    createSlider = (options, container) => {
+    createSlider = (options:IOptions, container:HTMLDivElement):void => {
         this.sliderContainer = this.createContainer(options, container);
         this.slider = this.subViewSliderLine.createSliderLine(this.sliderContainer, options);
         this.handlers = this.subViewHandlers.createHandlers(options, this.slider);
         this.icons = this.subViewIcons.createIcons(options, this.handlers, this.slider);
-        this.inputsContainer = this.subViewInput.createInputsContainer(options, this.slider, this.sliderContainer);
-        this.rangeInput = this.subViewInput.createRangeInput(options, this.inputsContainer);
-        this.valueInputs = this.subViewInput.createValueInputs(options, this.inputsContainer);    
+        if(this.options.rangeInput || this.options.valueInputs){
+            this.inputsContainer = this.subViewInput.createInputsContainer(options, this.slider, this.sliderContainer);
+            if (this.options.rangeInput && this.options.handlersAmount > 1){
+                this.rangeInput = this.subViewInput.createRangeInput(options, this.inputsContainer);
+            }       
+            if(this.options.valueInputs){
+            this.valueInputs = this.subViewInput.createValueInputs(options, this.inputsContainer);
+            }
+        }    
     }
 
-    createContainer = (options, container) => {
-        const cont = document.createElement('div');
-        cont.classList.add('slider__container');
+    createContainer = (options:IOptions, container:HTMLElement):HTMLDivElement => {
+        const _cont:HTMLDivElement = document.createElement('div');
+        _cont.classList.add('slider__container');
         if (options.vertical) {
-            cont.classList.add('slider__container_vertical');
+            _cont.classList.add('slider__container_vertical');
         }
         else {
-            cont.classList.add('slider__container_horisontal');
+            _cont.classList.add('slider__container_horisontal');
         }
-        container.append(cont);
-        let sliderContainer = container.querySelector('.slider__container');
+        container.append(_cont);
+        let sliderContainer:HTMLDivElement = container.querySelector('.slider__container');
         return sliderContainer;
     }
 
-    getSliderData = () => {
+    getSliderData = ():void => {
         if (this.options.vertical){
             this.sliderPosition = this.slider.getBoundingClientRect().y + pageYOffset;
             this.sliderBorder = parseFloat(getComputedStyle(this.slider).borderLeftWidth);
@@ -71,9 +94,9 @@ export class View implements IView {
         }
     }
 
-    showRange = (options) => {
+    showRange = (options:IOptions):HTMLDivElement => {
         if (this.options.range){
-           let rangeBlock = document.createElement('div');
+           let rangeBlock:HTMLDivElement = document.createElement('div');
            rangeBlock.classList.add('slider__range');
            if (options.vertical){
                 rangeBlock.style.width = this.slider.getBoundingClientRect().width + 'px';
@@ -84,13 +107,13 @@ export class View implements IView {
                 rangeBlock.style.top = (-this.sliderBorder) + 'px';
            }
            this.slider.append(rangeBlock);
-           let range = this.slider.querySelector('.slider__range');
+           let range:HTMLDivElement = this.slider.querySelector('.slider__range');
            this.getSliderRangePosition(options, range);
            return range;
         }
     }
 
-    getSliderRangePosition = (options, rangeBlock) => {
+    getSliderRangePosition = (options:IOptions, rangeBlock:HTMLDivElement):void => {
         if (options.vertical){
             if (this.handlersPosition[0] > this.handlersPosition[1]) {
                 rangeBlock.style.top = this.handlers[1].offsetTop + this.handlers[1].offsetHeight/2 + 'px';
@@ -111,9 +134,9 @@ export class View implements IView {
        }
     }
   
-    mouseDown = (e, handler, num) => {
+    mouseDown = (e:MouseEvent, handler:HTMLDivElement, num:number): void => {
         e.preventDefault();
-        let shiftX;
+        let shiftX:number;
         if(this.options.vertical){
             shiftX = e.clientY - this.handlersPosition[num];
         }
@@ -121,12 +144,9 @@ export class View implements IView {
             shiftX = e.clientX - this.handlersPosition[num];
         }
         handler.classList.add('slider__handler_active');
-        document.onmousemove = (e) => {
+        document.onmousemove = (e:MouseEvent):void => {
             if(this.options.vertical){
-                // console.log(`shifty = ${shiftX}`);
-                // console.log(`e.clientY = ${e.clientY}; handler = ${this.handlersPosition[num]}`);
-                // console.log(this.handlersPosition[num]);
-                let newTop = e.clientY - shiftX - this.sliderPosition;
+                let newTop: number = e.clientY - shiftX - this.sliderPosition;
                 if (newTop < -this.sliderBorder) {
                     newTop = -this.sliderBorder;
                 }
@@ -148,14 +168,14 @@ export class View implements IView {
                 this.writeNewPosition(handler, num);
             }
         }
-        document.onmouseup = () => {
+        document.onmouseup = ():void => {
             handler.classList.remove('slider__handler_active');
             document.onmousemove = null;
           };
     }
     
-    writeNewPosition = (handler, num) => {
-        let newPosition;
+    writeNewPosition = (handler:HTMLDivElement, num: number):void => {
+        let newPosition: number;
         if(this.options.vertical){
             newPosition = handler.getBoundingClientRect().y + pageYOffset;
         }
@@ -166,13 +186,12 @@ export class View implements IView {
         if(this.options.range){
             this.getSliderRangePosition(this.options, this.range);
         }
-        let newHandlersPosition = this.handlersPosition;
-        this.notifyChangedHandlerPosition(newHandlersPosition);
+        this.notifyChangedHandlerPosition();
     }
 
-    notifyChangedHandlerPosition;
+    notifyChangedHandlerPosition: any;
 
-    notifyChangedInputValue; 
+    notifyChangedInputValue: any; 
 }
    
 

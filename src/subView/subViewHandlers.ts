@@ -1,7 +1,9 @@
+import { IOptions } from "../presenter";
+
 export default class SubViewHandlers  {
-    createHandlers(options, slider){
+    createHandlers(options:IOptions, slider:HTMLDivElement):NodeListOf<HTMLDivElement> {
         for (let i = 0; i < options.handlersAmount; i++){
-            const handler = document.createElement('div');
+            const handler:HTMLDivElement = document.createElement('div');
             handler.classList.add('slider__handler');
             if (options.vertical) {
                 handler.classList.add('slider__handler_vertical');
@@ -10,36 +12,36 @@ export default class SubViewHandlers  {
             }
             slider.append(handler);
         }
-        let handlers = slider.querySelectorAll('.slider__handler');
+        let handlers:NodeListOf<HTMLDivElement> = slider.querySelectorAll('.slider__handler');
         this.addHandlerListeners(handlers);
         return handlers;
     }
 
-    getInitialHandlersPosition = (handlers, options) => {
-        let handlersPosition = [];
+    getInitialHandlersPosition = (handlers:NodeListOf<HTMLDivElement>, options:IOptions):number[] => {
+        let handlersPosition:number[] = [];
         for (let i = 0; i < handlers.length; i++){
             if(options.vertical){
-                let handlerPosition = handlers[i].getBoundingClientRect().y;
+                let handlerPosition:number = handlers[i].getBoundingClientRect().y;
                 handlersPosition[i] = handlerPosition;
             } else {
-                let handlerPosition = handlers[i].getBoundingClientRect().x;
+                let handlerPosition:number = handlers[i].getBoundingClientRect().x;
                 handlersPosition[i] = handlerPosition;
             }
         }
         return handlersPosition;
     }
 
-    addHandlerListeners = (handlers) => {
-        handlers[0].onmousedown = (e) => {
+    addHandlerListeners = (handlers:NodeListOf<HTMLDivElement>):void => {
+        handlers[0].onmousedown = (e):void => {
             this.handlerMouseDown(e, handlers[0], 0);
         }
         if(handlers[1]){
-            handlers[1].onmousedown = (e) => { 
+            handlers[1].onmousedown = (e):void => { 
                 this.handlerMouseDown(e, handlers[1], 1);
             }
         }
     }
 
-    handlerMouseDown;
+    handlerMouseDown: any;
     
 }   

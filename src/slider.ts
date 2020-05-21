@@ -2,10 +2,12 @@
 import {Presenter} from './presenter';
 import Model from './model';
 import {View} from './view';
+import{IOptions} from './presenter';
 // var jQuery = require("jQuery");
 
+
 (function($){
-    jQuery.fn.slider = function(options){
+    jQuery.fn.slider = function(options:IOptions){
         options = $.extend ({
             minValue: 0,
             maxValue: 100,

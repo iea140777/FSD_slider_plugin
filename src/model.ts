@@ -1,8 +1,20 @@
 'use strict';
+import{IOptions} from './presenter';
 
-export default class Model {
-    
-    constructor (options) {
+export default class Model  {
+    minValue: number;
+    maxValue: number;
+    step: number;
+    range: boolean;
+    handlersAmount: number;
+    icon: boolean;
+    input: boolean;
+    valueRange: number;
+    positionValueRate: number;
+    currentValue: number[];
+    rangeValue: number;
+
+    constructor (options:IOptions) {
     this.minValue = options.minValue,
     this.maxValue = options.maxValue,
     this.step = options.step,
@@ -10,21 +22,20 @@ export default class Model {
     this.handlersAmount = options.handlersAmount,
     this.icon = options.icon,
     this.input = options.input,
-    this.valueRange = Math.abs(this.maxValue - this.minValue),
+    this.valueRange = Math.abs(options.maxValue - options.minValue),
     this.positionValueRate,
     this.currentValue = [],
     this.getInitialCurrentValue(options),
     this.rangeValue = Math.abs(this.currentValue[1] - this.currentValue[0]);
-    // this.getRangeValue(options);
     }
 
-    getInitialCurrentValue = (options) => {
+    getInitialCurrentValue = (options:IOptions):void => {
         for (let i = 0; i < options.handlersAmount; i++){
             this.currentValue[i] = options.startingValue[i];
         }
     }
 
-    getRangeValue = (options) => {
+    getRangeValue = (options:IOptions):void => {
         if (options.range){
             this.rangeValue = Math.abs(this.currentValue[1] - this.currentValue[0]);
         }

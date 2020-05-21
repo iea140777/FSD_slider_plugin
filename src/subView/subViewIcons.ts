@@ -1,8 +1,10 @@
+import { IOptions } from "../presenter";
+
 export default class SubViewIcons  {
-    createIcons(options, handlers, slider){
+    createIcons(options:IOptions, handlers:NodeListOf<HTMLDivElement>, slider:HTMLDivElement):NodeListOf<HTMLDivElement> {
         if(options.icon){
             for (let i = 0; i < handlers.length; i++){
-                const icon = document.createElement('div');
+                const icon:HTMLDivElement = document.createElement('div');
                 icon.classList.add('slider__icon');
                 if (options.vertical) {
                     icon.classList.add('slider__icon_vertical');
@@ -11,7 +13,7 @@ export default class SubViewIcons  {
                 }
                 handlers[i].append(icon);
             }
-            let icons = slider.querySelectorAll('.slider__icon'); 
+            let icons:NodeListOf<HTMLDivElement> = slider.querySelectorAll('.slider__icon'); 
             return icons;     
         }
     } 

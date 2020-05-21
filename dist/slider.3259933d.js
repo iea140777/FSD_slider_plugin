@@ -136,46 +136,46 @@ function () {
       _this.model.getRangeValue(_this.options);
     };
 
-    this.getValueFromPosition = function (model, view) {
-      for (var i = 0; i < view.handlers.length; i++) {
+    this.getValueFromPosition = function () {
+      for (var i = 0; i < _this.view.handlers.length; i++) {
         var computedValue = void 0;
 
         if (_this.options.vertical) {
-          computedValue = model.minValue + (view.minPosition - _this.handlersPosition[i]) / model.positionValueRate;
+          computedValue = _this.model.minValue + (_this.view.minPosition - _this.view.handlersPosition[i]) / _this.model.positionValueRate;
         } else {
-          computedValue = model.minValue + (_this.handlersPosition[i] - view.minPosition) / model.positionValueRate;
+          computedValue = _this.model.minValue + (_this.view.handlersPosition[i] - _this.view.minPosition) / _this.model.positionValueRate;
         }
 
-        if (_this.handlersPosition[i] === view.minPosition) {
-          model.currentValue[i] = model.minValue;
-        } else if (_this.handlersPosition[i] === view.maxPosition) {
-          model.currentValue[i] = model.maxValue;
+        if (_this.view.handlersPosition[i] === _this.view.minPosition) {
+          _this.model.currentValue[i] = _this.model.minValue;
+        } else if (_this.view.handlersPosition[i] === _this.view.maxPosition) {
+          _this.model.currentValue[i] = _this.model.maxValue;
         } else {
-          model.currentValue[i] = Math.round(computedValue / model.step) * model.step;
+          _this.model.currentValue[i] = Math.round(computedValue / _this.model.step) * _this.model.step;
         }
 
-        if (model.icon) {
-          view.icons[i].innerHTML = model.currentValue[i];
+        if (_this.options.icon) {
+          _this.view.icons[i].innerHTML = String(_this.model.currentValue[i]);
         }
       }
 
       _this.model.getRangeValue(_this.options);
 
       if (_this.options.rangeInput && _this.options.range && _this.options.handlersAmount > 1) {
-        view.rangeInput.value = model.rangeValue;
+        _this.view.rangeInput.value = String(_this.model.rangeValue);
       }
 
       if (_this.options.rangeInput && !_this.options.range && _this.options.handlersAmount > 1) {
-        view.rangeInput.value = model.currentValue[0] + "; " + model.currentValue[1];
+        _this.view.rangeInput.value = _this.model.currentValue[0] + "; " + _this.model.currentValue[1];
       }
 
       if (_this.options.valueInputs) {
         for (var i = 0; i < _this.options.handlersAmount; i++) {
-          view.valueInputs[i].value = "" + model.currentValue[i];
+          _this.view.valueInputs[i].value = "" + _this.model.currentValue[i];
         }
       }
 
-      return model.currentValue;
+      return _this.model.currentValue;
     };
 
     this.getPositionFromValue = function () {
@@ -211,14 +211,14 @@ function () {
         }
 
         if (_this.model.icon) {
-          _this.view.icons[i].innerHTML = _this.model.currentValue[i];
+          _this.view.icons[i].innerHTML = String(_this.model.currentValue[i]);
         }
       }
 
       if (_this.options.rangeInput && _this.options.range && _this.options.handlersAmount > 1) {
         _this.view.showRange(_this.options);
 
-        _this.view.rangeInput.value = _this.model.rangeValue;
+        _this.view.rangeInput.value = String(_this.model.rangeValue);
       }
 
       if (_this.options.rangeInput && !_this.options.range && _this.options.handlersAmount > 1) {
@@ -233,19 +233,15 @@ function () {
     };
 
     this.options = options;
-    this.model = new Model(options);
-    this.view = new View(options, container);
+    this.model = new Model(this.options);
+    this.view = new View(this.options, container);
     this.model.positionValueRate = this.view.positionRange / this.model.valueRange;
-    this.setInitialHandlersPosition(); // this.getPositionFromValue();
-
-    this.handlersPosition = this.view.handlersPosition;
+    this.setInitialHandlersPosition();
     console.log(this.view);
     console.log(this.model);
 
-    this.view.notifyChangedHandlerPosition = function (newHandlersPosition) {
-      _this.handlersPosition = newHandlersPosition;
-
-      _this.getValueFromPosition(_this.model, _this.view);
+    this.view.notifyChangedHandlerPosition = function () {
+      _this.getValueFromPosition();
     };
 
     this.view.notifyChangedInputValue = function (newInputValue, num) {
@@ -284,7 +280,7 @@ function () {
       }
     };
 
-    this.minValue = options.minValue, this.maxValue = options.maxValue, this.step = options.step, this.range = options.range, this.handlersAmount = options.handlersAmount, this.icon = options.icon, this.input = options.input, this.valueRange = Math.abs(this.maxValue - this.minValue), this.positionValueRate, this.currentValue = [], this.getInitialCurrentValue(options), this.rangeValue = Math.abs(this.currentValue[1] - this.currentValue[0]); // this.getRangeValue(options);
+    this.minValue = options.minValue, this.maxValue = options.maxValue, this.step = options.step, this.range = options.range, this.handlersAmount = options.handlersAmount, this.icon = options.icon, this.input = options.input, this.valueRange = Math.abs(options.maxValue - options.minValue), this.positionValueRate, this.currentValue = [], this.getInitialCurrentValue(options), this.rangeValue = Math.abs(this.currentValue[1] - this.currentValue[0]);
   }
 
   return Model;
@@ -432,15 +428,11 @@ var SubViewInput =
 /** @class */
 function () {
   function SubViewInput() {
-    // createInputs(options, slider, sliderContainer){
-    //     this.inputsContainer = this.createInputsContainer(options, slider, sliderContainer);
-    //     this.rangeInput = this.createRangeInput(options, this.inputsContainer);
-    //     this.valueInputs = this.createValueInputs(options, this.inputsContainer);
     var _this = this;
 
     this.addInputsListener = function (inputs) {
       inputs.forEach(function (input) {
-        input.onclick = function (e) {
+        input.onclick = function () {
           input.value = '';
           input.addEventListener('keydown', function (e) {
             if (e.code == 'Enter') {
@@ -456,8 +448,7 @@ function () {
         };
       });
     };
-  } // }
-
+  }
 
   SubViewInput.prototype.createInputsContainer = function (options, slider, sliderContainer) {
     var _container = document.createElement('div');
@@ -470,18 +461,16 @@ function () {
   };
 
   SubViewInput.prototype.createRangeInput = function (options, inputsContainer) {
-    if (options.rangeInput && options.handlersAmount > 1) {
-      var rangeInput = document.createElement('input');
-      rangeInput.setAttribute('type', 'text');
-      rangeInput.classList.add('slider__input', 'slider__input_range');
-      inputsContainer.append(rangeInput);
-      var inputLabel = document.createElement('span');
-      inputLabel.classList.add('slider__label');
-      inputLabel.innerText = 'range';
-      rangeInput.before(inputLabel);
-      var input = inputsContainer.querySelector('.slider__input_range');
-      return input;
-    }
+    var rangeInput = document.createElement('input');
+    rangeInput.setAttribute('type', 'text');
+    rangeInput.classList.add('slider__input', 'slider__input_range');
+    inputsContainer.append(rangeInput);
+    var inputLabel = document.createElement('span');
+    inputLabel.classList.add('slider__label');
+    inputLabel.innerText = 'range';
+    rangeInput.before(inputLabel);
+    var input = inputsContainer.querySelector('.slider__input_range');
+    return input;
   };
 
   SubViewInput.prototype.createValueInputs = function (options, inputsContainer) {
@@ -497,8 +486,7 @@ function () {
         valueInput.before(inputLabel);
       }
 
-      var inputs = inputsContainer.querySelectorAll('.slider__input_value'); // console.log(inputs[0]);
-
+      var inputs = inputsContainer.querySelectorAll('.slider__input_value');
       this.addInputsListener(inputs);
       return inputs;
     }
@@ -540,22 +528,32 @@ function () {
       _this.slider = _this.subViewSliderLine.createSliderLine(_this.sliderContainer, options);
       _this.handlers = _this.subViewHandlers.createHandlers(options, _this.slider);
       _this.icons = _this.subViewIcons.createIcons(options, _this.handlers, _this.slider);
-      _this.inputsContainer = _this.subViewInput.createInputsContainer(options, _this.slider, _this.sliderContainer);
-      _this.rangeInput = _this.subViewInput.createRangeInput(options, _this.inputsContainer);
-      _this.valueInputs = _this.subViewInput.createValueInputs(options, _this.inputsContainer);
+
+      if (_this.options.rangeInput || _this.options.valueInputs) {
+        _this.inputsContainer = _this.subViewInput.createInputsContainer(options, _this.slider, _this.sliderContainer);
+
+        if (_this.options.rangeInput && _this.options.handlersAmount > 1) {
+          _this.rangeInput = _this.subViewInput.createRangeInput(options, _this.inputsContainer);
+        }
+
+        if (_this.options.valueInputs) {
+          _this.valueInputs = _this.subViewInput.createValueInputs(options, _this.inputsContainer);
+        }
+      }
     };
 
     this.createContainer = function (options, container) {
-      var cont = document.createElement('div');
-      cont.classList.add('slider__container');
+      var _cont = document.createElement('div');
+
+      _cont.classList.add('slider__container');
 
       if (options.vertical) {
-        cont.classList.add('slider__container_vertical');
+        _cont.classList.add('slider__container_vertical');
       } else {
-        cont.classList.add('slider__container_horisontal');
+        _cont.classList.add('slider__container_horisontal');
       }
 
-      container.append(cont);
+      container.append(_cont);
       var sliderContainer = container.querySelector('.slider__container');
       return sliderContainer;
     };
@@ -637,9 +635,6 @@ function () {
 
       document.onmousemove = function (e) {
         if (_this.options.vertical) {
-          // console.log(`shifty = ${shiftX}`);
-          // console.log(`e.clientY = ${e.clientY}; handler = ${this.handlersPosition[num]}`);
-          // console.log(this.handlersPosition[num]);
           var newTop = e.clientY - shiftX - _this.sliderPosition;
 
           if (newTop < -_this.sliderBorder) {
@@ -691,9 +686,7 @@ function () {
         _this.getSliderRangePosition(_this.options, _this.range);
       }
 
-      var newHandlersPosition = _this.handlersPosition;
-
-      _this.notifyChangedHandlerPosition(newHandlersPosition);
+      _this.notifyChangedHandlerPosition();
     };
 
     this.options = options;
