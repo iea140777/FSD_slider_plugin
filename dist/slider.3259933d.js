@@ -161,17 +161,18 @@ function () {
 
       _this.model.getRangeValue(_this.options);
 
-      if (_this.options.rangeInput && _this.options.range) {
+      if (_this.options.rangeInput && _this.options.range && _this.options.handlersAmount > 1) {
         view.rangeInput.value = model.rangeValue;
       }
 
-      if (_this.options.rangeInput && !_this.options.range) {
+      if (_this.options.rangeInput && !_this.options.range && _this.options.handlersAmount > 1) {
         view.rangeInput.value = model.currentValue[0] + "; " + model.currentValue[1];
       }
 
       if (_this.options.valueInputs) {
-        view.valueInputs[0].value = "" + model.currentValue[0];
-        view.valueInputs[1].value = "" + model.currentValue[1];
+        for (var i = 0; i < _this.options.handlersAmount; i++) {
+          view.valueInputs[i].value = "" + model.currentValue[i];
+        }
       }
 
       return model.currentValue;
@@ -214,19 +215,20 @@ function () {
         }
       }
 
-      if (_this.options.rangeInput && _this.options.range) {
+      if (_this.options.rangeInput && _this.options.range && _this.options.handlersAmount > 1) {
         _this.view.showRange(_this.options);
 
         _this.view.rangeInput.value = _this.model.rangeValue;
       }
 
-      if (_this.options.rangeInput && !_this.options.range) {
+      if (_this.options.rangeInput && !_this.options.range && _this.options.handlersAmount > 1) {
         _this.view.rangeInput.value = _this.model.currentValue[0] + "; " + _this.model.currentValue[1];
       }
 
       if (_this.options.valueInputs) {
-        _this.view.valueInputs[0].value = "" + _this.model.currentValue[0];
-        _this.view.valueInputs[1].value = "" + _this.model.currentValue[1];
+        for (var i = 0; i < _this.options.handlersAmount; i++) {
+          _this.view.valueInputs[i].value = "" + _this.model.currentValue[i];
+        }
       }
     };
 
@@ -468,7 +470,7 @@ function () {
   };
 
   SubViewInput.prototype.createRangeInput = function (options, inputsContainer) {
-    if (options.rangeInput) {
+    if (options.rangeInput && options.handlersAmount > 1) {
       var rangeInput = document.createElement('input');
       rangeInput.setAttribute('type', 'text');
       rangeInput.classList.add('slider__input', 'slider__input_range');

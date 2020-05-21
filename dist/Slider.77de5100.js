@@ -126,7 +126,8 @@ $('.slider1').slider({
   vertical: false,
   icon: true,
   handlersAmount: 2,
-  valueInputs: true
+  valueInputs: true,
+  range: true
 });
 $('.slider2').slider({
   minValue: 0,
@@ -140,7 +141,7 @@ $('.slider3').slider({
   maxValue: 100,
   startingValue: [-50, 50],
   vertical: true,
-  handlersAmount: 2
+  handlersAmount: 1
 });
 },{}],"../../Users/alexi/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];

@@ -15,7 +15,7 @@ export  default class SubViewInput  {
     }
 
     createRangeInput (options, inputsContainer){
-        if (options.rangeInput){
+        if (options.rangeInput && options.handlersAmount > 1){
             let rangeInput = document.createElement('input');
             rangeInput.setAttribute('type', 'text')
             rangeInput.classList.add('slider__input', 'slider__input_range');

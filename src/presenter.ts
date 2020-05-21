@@ -48,17 +48,18 @@ export class Presenter {
             }
         }
         this.model.getRangeValue(this.options);
-        if (this.options.rangeInput && this.options.range){
+        if (this.options.rangeInput && this.options.range && this.options.handlersAmount > 1){
             view.rangeInput.value = model.rangeValue;  
         }
 
-        if (this.options.rangeInput && !this.options.range){
+        if (this.options.rangeInput && !this.options.range && this.options.handlersAmount > 1){
             view.rangeInput.value = `${model.currentValue[0]}; ${model.currentValue[1]}`;  
         } 
 
         if (this.options.valueInputs) {
-            view.valueInputs[0].value = `${model.currentValue[0]}`;
-            view.valueInputs[1].value = `${model.currentValue[1]}`;  
+            for (let i = 0; i < this.options.handlersAmount; i++){
+                view.valueInputs[i].value = `${model.currentValue[i]}`;
+            }
         } 
         return model.currentValue;
     }
@@ -104,18 +105,19 @@ export class Presenter {
             }
         }
 
-        if (this.options.rangeInput && this.options.range){
+        if (this.options.rangeInput && this.options.range && this.options.handlersAmount > 1){
             this.view.showRange(this.options);
             this.view.rangeInput.value = this.model.rangeValue;  
         }
 
-        if (this.options.rangeInput && !this.options.range){
+        if (this.options.rangeInput && !this.options.range && this.options.handlersAmount > 1){
             this.view.rangeInput.value = `${this.model.currentValue[0]}; ${this.model.currentValue[1]}`;  
         } 
                 
         if (this.options.valueInputs) {
-            this.view.valueInputs[0].value = `${this.model.currentValue[0]}`; 
-            this.view.valueInputs[1].value = `${this.model.currentValue[1]}`;
+            for (let i = 0; i < this.options.handlersAmount; i++){
+                this.view.valueInputs[i].value = `${this.model.currentValue[i]}`; 
+            }
         } 
     }   
 }
