@@ -130,6 +130,25 @@ function () {
   function Presenter(Model, View, options, container) {
     var _this = this;
 
+    this.checkOptions = function (options) {
+      if (options.minValue >= options.maxValue) {
+        console.log('minValue should not be equal or be more than maxValue');
+      }
+
+      if (options.startingValue) {} // minValue: 0,
+      // maxValue: 100,
+      // startingValue: [20, 60],
+      // vertical:false,
+      // step: 5,
+      // range: true,
+      // rangeInput: true,
+      // valueInputs: true,
+      // handlersAmount: 2,
+      // icon: true,
+      // input: true
+
+    };
+
     this.setInitialHandlersPosition = function () {
       _this.getPositionFromValue();
 
@@ -141,17 +160,17 @@ function () {
         var computedValue = void 0;
 
         if (_this.options.vertical) {
-          computedValue = _this.model.minValue + (_this.view.minPosition - _this.view.handlersPosition[i]) / _this.model.positionValueRate;
+          computedValue = (_this.view.minPosition - _this.view.handlersPosition[i]) / _this.model.positionValueRate;
         } else {
-          computedValue = _this.model.minValue + (_this.view.handlersPosition[i] - _this.view.minPosition) / _this.model.positionValueRate;
+          computedValue = (_this.view.handlersPosition[i] - _this.view.minPosition) / _this.model.positionValueRate;
         }
 
-        if (_this.view.handlersPosition[i] === _this.view.minPosition) {
-          _this.model.currentValue[i] = _this.model.minValue;
-        } else if (_this.view.handlersPosition[i] === _this.view.maxPosition) {
+        var computedStepValue = Math.round(computedValue / _this.model.step) * _this.model.step;
+
+        if (computedValue > _this.options.step * _this.model.stepsAmount) {
           _this.model.currentValue[i] = _this.model.maxValue;
         } else {
-          _this.model.currentValue[i] = Math.round(computedValue / _this.model.step) * _this.model.step;
+          _this.model.currentValue[i] = _this.model.minValue + computedStepValue;
         }
 
         if (_this.options.icon) {
@@ -180,40 +199,20 @@ function () {
 
     this.getPositionFromValue = function () {
       for (var i = 0; i < _this.view.handlers.length; i++) {
-        if (_this.model.currentValue[i] <= _this.model.minValue) {
-          if (_this.options.vertical) {
-            _this.view.handlers[i].style.top = _this.view.positionRange + 'px';
-            _this.view.handlersPosition[i] = _this.view.minPosition;
-            _this.model.currentValue[i] = _this.model.minValue;
-          } else {
-            _this.view.handlers[i].style.left = 0 - _this.view.sliderBorder + 'px';
-            _this.view.handlersPosition[i] = _this.view.minPosition;
-            _this.model.currentValue[i] = _this.model.minValue;
-          }
-        } else if (_this.model.currentValue[i] >= _this.model.maxValue) {
-          if (_this.options.vertical) {
-            _this.view.handlers[i].style.top = 0 - _this.view.sliderBorder + 'px';
-            _this.view.handlersPosition[i] = _this.view.maxPosition;
-            _this.model.currentValue[i] = _this.model.maxValue;
-          } else {
-            _this.view.handlers[i].style.left = _this.view.positionRange + 'px';
-            _this.view.handlersPosition[i] = _this.view.maxPosition;
-            _this.model.currentValue[i] = _this.model.maxValue;
-          }
+        if (_this.options.vertical) {
+          _this.view.handlers[i].style.top = Math.abs((_this.model.currentValue[i] - _this.model.maxValue) * _this.model.positionValueRate) - _this.view.handlersHeight / 2 + 'px';
+          _this.view.handlersPosition[i] = _this.view.handlers[i].getBoundingClientRect().y + pageYOffset;
         } else {
-          if (_this.options.vertical) {
-            _this.view.handlers[i].style.top = Math.abs((_this.model.currentValue[i] - _this.model.maxValue) * _this.model.positionValueRate) + 'px';
-            _this.view.handlersPosition[i] = _this.view.handlers[i].getBoundingClientRect().y + pageYOffset;
-          } else {
-            _this.view.handlers[i].style.left = Math.abs((_this.model.currentValue[i] - _this.model.minValue) * _this.model.positionValueRate) + 'px';
-            _this.view.handlersPosition[i] = _this.view.handlers[i].getBoundingClientRect().x + pageXOffset;
-          }
+          _this.view.handlers[i].style.left = Math.abs((_this.model.currentValue[i] - _this.model.minValue) * _this.model.positionValueRate) - _this.view.handlersWidth / 2 + 'px';
+          _this.view.handlersPosition[i] = _this.view.handlers[i].getBoundingClientRect().x + pageXOffset;
         }
 
         if (_this.model.icon) {
           _this.view.icons[i].innerHTML = String(_this.model.currentValue[i]);
         }
       }
+
+      _this.model.getRangeValue(_this.options);
 
       if (_this.options.rangeInput && _this.options.range && _this.options.handlersAmount > 1) {
         _this.view.showRange(_this.options);
@@ -280,7 +279,7 @@ function () {
       }
     };
 
-    this.minValue = options.minValue, this.maxValue = options.maxValue, this.step = options.step, this.range = options.range, this.handlersAmount = options.handlersAmount, this.icon = options.icon, this.input = options.input, this.valueRange = Math.abs(options.maxValue - options.minValue), this.positionValueRate, this.currentValue = [], this.getInitialCurrentValue(options), this.rangeValue = Math.abs(this.currentValue[1] - this.currentValue[0]);
+    this.minValue = options.minValue, this.maxValue = options.maxValue, this.step = options.step, this.range = options.range, this.handlersAmount = options.handlersAmount, this.icon = options.icon, this.input = options.input, this.valueRange = Math.abs(options.maxValue - options.minValue), this.stepsAmount = Math.floor(this.valueRange / this.step), this.positionValueRate, this.currentValue = [], this.getInitialCurrentValue(options), this.rangeValue = Math.abs(this.currentValue[1] - this.currentValue[0]);
   }
 
   return Model;
@@ -394,23 +393,21 @@ function () {
   function SubViewIcons() {}
 
   SubViewIcons.prototype.createIcons = function (options, handlers, slider) {
-    if (options.icon) {
-      for (var i = 0; i < handlers.length; i++) {
-        var icon = document.createElement('div');
-        icon.classList.add('slider__icon');
+    for (var i = 0; i < handlers.length; i++) {
+      var icon = document.createElement('div');
+      icon.classList.add('slider__icon');
 
-        if (options.vertical) {
-          icon.classList.add('slider__icon_vertical');
-        } else {
-          icon.classList.add('slider__icon_horisontal');
-        }
-
-        handlers[i].append(icon);
+      if (options.vertical) {
+        icon.classList.add('slider__icon_vertical');
+      } else {
+        icon.classList.add('slider__icon_horisontal');
       }
 
-      var icons = slider.querySelectorAll('.slider__icon');
-      return icons;
+      handlers[i].append(icon);
     }
+
+    var icons = slider.querySelectorAll('.slider__icon');
+    return icons;
   };
 
   return SubViewIcons;
@@ -496,6 +493,42 @@ function () {
 }();
 
 exports.default = SubViewInput;
+},{}],"src/subView/subViewScale.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var SubViewScale =
+/** @class */
+function () {
+  function SubViewScale() {
+    this.createScale = function (options, slider) {
+      var pointsAmount = Math.ceil((options.maxValue - options.minValue) / options.step) + 1;
+
+      for (var i = 0; i < pointsAmount; i++) {
+        var scalePoint = document.createElement('div');
+        scalePoint.classList.add('slider__scale-point');
+
+        if (options.vertical) {
+          scalePoint.classList.add('slider__scale-point_vertical');
+        } else {
+          scalePoint.classList.add('slider__scale-point_horisontal');
+        }
+
+        slider.append(scalePoint);
+      }
+
+      var scalePoints = slider.querySelectorAll('.slider__scale-point');
+      return scalePoints;
+    };
+  }
+
+  return SubViewScale;
+}();
+
+exports.default = SubViewScale;
 },{}],"src/view.ts":[function(require,module,exports) {
 'use strict';
 
@@ -517,6 +550,8 @@ var subViewIcons_1 = __importDefault(require("./subView/subViewIcons"));
 
 var subViewInput_1 = __importDefault(require("./subView/subViewInput"));
 
+var subViewScale_1 = __importDefault(require("./subView/subViewScale"));
+
 var View =
 /** @class */
 function () {
@@ -527,7 +562,14 @@ function () {
       _this.sliderContainer = _this.createContainer(options, container);
       _this.slider = _this.subViewSliderLine.createSliderLine(_this.sliderContainer, options);
       _this.handlers = _this.subViewHandlers.createHandlers(options, _this.slider);
-      _this.icons = _this.subViewIcons.createIcons(options, _this.handlers, _this.slider);
+
+      if (_this.options.scale) {
+        _this.scale = _this.subViewScale.createScale(options, _this.slider);
+      }
+
+      if (_this.options.icon) {
+        _this.icons = _this.subViewIcons.createIcons(options, _this.handlers, _this.slider);
+      }
 
       if (_this.options.rangeInput || _this.options.valueInputs) {
         _this.inputsContainer = _this.subViewInput.createInputsContainer(options, _this.slider, _this.sliderContainer);
@@ -562,19 +604,46 @@ function () {
       if (_this.options.vertical) {
         _this.sliderPosition = _this.slider.getBoundingClientRect().y + pageYOffset;
         _this.sliderBorder = parseFloat(getComputedStyle(_this.slider).borderLeftWidth);
-        _this.maxPosition = _this.sliderPosition;
-        _this.minPosition = _this.maxPosition + _this.slider.getBoundingClientRect().height - _this.handlers[0].offsetHeight;
-        _this.positionRange = _this.minPosition - _this.maxPosition + _this.sliderBorder;
-        _this.handlersPosition = new subViewHandlers_1.default().getInitialHandlersPosition(_this.handlers, _this.options);
+        _this.handlersHeight = _this.handlers[0].offsetHeight;
+        _this.maxPosition = _this.sliderPosition - _this.handlersHeight / 2;
+        _this.minPosition = _this.maxPosition + _this.slider.getBoundingClientRect().height;
+        _this.positionRange = _this.minPosition - _this.maxPosition;
+        _this.handlersPosition = _this.subViewHandlers.getInitialHandlersPosition(_this.handlers, _this.options);
         _this.range = _this.showRange(_this.options);
       } else {
         _this.sliderPosition = _this.slider.getBoundingClientRect().x + pageXOffset;
+        _this.handlersWidth = _this.handlers[0].offsetWidth;
+        console.log(_this.slider.getBoundingClientRect());
         _this.sliderBorder = parseFloat(getComputedStyle(_this.slider).borderLeftWidth);
-        _this.minPosition = _this.sliderPosition;
-        _this.maxPosition = _this.minPosition + _this.slider.getBoundingClientRect().width - _this.handlers[0].offsetWidth;
-        _this.positionRange = _this.maxPosition - _this.minPosition + _this.sliderBorder;
+        _this.minPosition = _this.sliderPosition - _this.handlersWidth / 2;
+        _this.maxPosition = _this.minPosition + _this.slider.getBoundingClientRect().width;
+        _this.positionRange = _this.maxPosition - _this.minPosition;
         _this.handlersPosition = new subViewHandlers_1.default().getInitialHandlersPosition(_this.handlers, _this.options);
         _this.range = _this.showRange(_this.options);
+      }
+    };
+
+    this.getScalePosition = function () {
+      var posToVal = _this.positionRange / Math.abs(_this.options.maxValue - _this.options.minValue);
+
+      for (var i = 0; i < _this.scale.length; i++) {
+        if (_this.options.vertical) {
+          if (i == 0) {
+            _this.scale[i].style.top = _this.positionRange + 'px';
+          } else if (i == _this.scale.length - 1) {
+            _this.scale[i].style.top = 0 + 'px';
+          } else {
+            _this.scale[i].style.top = _this.positionRange - i * posToVal * _this.options.step + 'px';
+          }
+        } else {
+          if (i == 0) {
+            _this.scale[i].style.left = 0 + 'px';
+          } else if (i == _this.scale.length - 1) {
+            _this.scale[i].style.left = _this.positionRange + 'px';
+          } else {
+            _this.scale[i].style.left = i * posToVal * _this.options.step + 'px';
+          }
+        }
       }
     };
 
@@ -584,11 +653,11 @@ function () {
         rangeBlock.classList.add('slider__range');
 
         if (options.vertical) {
-          rangeBlock.style.width = _this.slider.getBoundingClientRect().width + 'px';
-          rangeBlock.style.left = -_this.sliderBorder + 'px';
+          rangeBlock.style.width = _this.slider.getBoundingClientRect().width + 2 + 'px';
+          rangeBlock.style.left = -1 + 'px';
         } else {
-          rangeBlock.style.height = _this.slider.getBoundingClientRect().height + 'px';
-          rangeBlock.style.top = -_this.sliderBorder + 'px';
+          rangeBlock.style.height = _this.slider.getBoundingClientRect().height + 2 + 'px';
+          rangeBlock.style.top = -1 + 'px';
         }
 
         _this.slider.append(rangeBlock);
@@ -637,12 +706,12 @@ function () {
         if (_this.options.vertical) {
           var newTop = e.clientY - shiftX - _this.sliderPosition;
 
-          if (newTop < -_this.sliderBorder) {
-            newTop = -_this.sliderBorder;
+          if (newTop <= _this.maxPosition - _this.sliderPosition) {
+            newTop = _this.maxPosition - _this.sliderPosition;
           }
 
-          if (newTop > _this.positionRange) {
-            newTop = _this.positionRange;
+          if (newTop >= _this.minPosition - _this.sliderPosition) {
+            newTop = _this.minPosition - _this.sliderPosition;
           }
 
           handler.style.top = newTop + 'px';
@@ -651,12 +720,12 @@ function () {
         } else {
           var newLeft = e.clientX - shiftX - _this.sliderPosition;
 
-          if (newLeft < -_this.sliderBorder) {
-            newLeft = -_this.sliderBorder;
+          if (newLeft <= _this.minPosition - _this.sliderPosition) {
+            newLeft = _this.minPosition - _this.sliderPosition;
           }
 
-          if (newLeft > _this.positionRange) {
-            newLeft = _this.positionRange;
+          if (newLeft >= _this.maxPosition - _this.sliderPosition) {
+            newLeft = _this.maxPosition - _this.sliderPosition;
           }
 
           handler.style.left = newLeft + 'px';
@@ -692,10 +761,12 @@ function () {
     this.options = options;
     this.subViewSliderLine = new subViewSliderLine_1.default();
     this.subViewHandlers = new subViewHandlers_1.default();
+    this.subViewScale = new subViewScale_1.default();
     this.subViewIcons = new subViewIcons_1.default();
     this.subViewInput = new subViewInput_1.default();
     this.createSlider(options, container);
     this.getSliderData();
+    this.getScalePosition();
 
     this.subViewHandlers.handlerMouseDown = function (e, handler, num) {
       _this.mouseDown(e, handler, num);
@@ -710,7 +781,7 @@ function () {
 }();
 
 exports.View = View;
-},{"./subView/subViewSliderLine":"src/subView/subViewSliderLine.ts","./subView/subViewHandlers":"src/subView/subViewHandlers.ts","./subView/subViewIcons":"src/subView/subViewIcons.ts","./subView/subViewInput":"src/subView/subViewInput.ts"}],"src/slider.ts":[function(require,module,exports) {
+},{"./subView/subViewSliderLine":"src/subView/subViewSliderLine.ts","./subView/subViewHandlers":"src/subView/subViewHandlers.ts","./subView/subViewIcons":"src/subView/subViewIcons.ts","./subView/subViewInput":"src/subView/subViewInput.ts","./subView/subViewScale":"src/subView/subViewScale.ts"}],"slider.ts":[function(require,module,exports) {
 'use strict';
 
 var __importDefault = this && this.__importDefault || function (mod) {
@@ -723,25 +794,27 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var presenter_1 = require("./presenter");
+var presenter_1 = require("./src/presenter");
 
-var model_1 = __importDefault(require("./model"));
+var model_1 = __importDefault(require("./src/model"));
 
-var view_1 = require("./view"); // var jQuery = require("jQuery");
+var view_1 = require("./src/view"); // var jquery = require("jquery");
+// window.$ = window.jQuery = jquery;
 
 
 (function ($) {
   jQuery.fn.slider = function (options) {
     options = $.extend({
-      minValue: 0,
+      minValue: -100,
       maxValue: 100,
-      startingValue: [20, 60],
+      startingValue: [-50, 50],
       vertical: false,
-      step: 5,
+      step: 15,
       range: true,
       rangeInput: true,
       valueInputs: true,
       handlersAmount: 2,
+      scale: true,
       icon: true,
       input: true
     }, options);
@@ -754,7 +827,7 @@ var view_1 = require("./view"); // var jQuery = require("jQuery");
     return this.each(init);
   };
 })(jQuery);
-},{"./presenter":"src/presenter.ts","./model":"src/model.ts","./view":"src/view.ts"}],"../../Users/alexi/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"./src/presenter":"src/presenter.ts","./src/model":"src/model.ts","./src/view":"src/view.ts"}],"../../Users/alexi/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -782,7 +855,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "63281" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "58217" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
@@ -958,5 +1031,5 @@ function hmrAcceptRun(bundle, id) {
     return true;
   }
 }
-},{}]},{},["../../Users/alexi/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js","src/slider.ts"], null)
-//# sourceMappingURL=/slider.3259933d.js.map
+},{}]},{},["../../Users/alexi/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js","slider.ts"], null)
+//# sourceMappingURL=/slider.4bdd9d3f.js.map

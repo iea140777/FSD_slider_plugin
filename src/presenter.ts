@@ -11,6 +11,7 @@ export interface IOptions{
     rangeInput: boolean;
     valueInputs: boolean;
     handlersAmount: number;
+    scale: boolean;
     icon: boolean;
     input: boolean;
 }
@@ -36,6 +37,25 @@ export class Presenter {
             this.getPositionFromValue();
         }
     }
+
+    checkOptions = (options:IOptions) => {
+        if (options.minValue >= options.maxValue){
+            console.log ('minValue should not be equal or be more than maxValue');
+        }
+        if (options.startingValue){}
+
+            // minValue: 0,
+            // maxValue: 100,
+            // startingValue: [20, 60],
+            // vertical:false,
+            // step: 5,
+            // range: true,
+            // rangeInput: true,
+            // valueInputs: true,
+            // handlersAmount: 2,
+            // icon: true,
+            // input: true
+    }
     
     setInitialHandlersPosition = ():void => {
         this.getPositionFromValue();
@@ -46,15 +66,18 @@ export class Presenter {
         for (let i = 0; i < this.view.handlers.length; i++){
             let computedValue:number;
             if(this.options.vertical) {
-                computedValue = this.model.minValue + ((this.view.minPosition - this.view.handlersPosition[i]) / this.model.positionValueRate);
+                computedValue = ((this.view.minPosition - this.view.handlersPosition[i]) / this.model.positionValueRate);
             }
             else {
-                computedValue = this.model.minValue + ((this.view.handlersPosition[i] - this.view.minPosition) / this.model.positionValueRate);
+                computedValue = ((this.view.handlersPosition[i] - this.view.minPosition) / this.model.positionValueRate);
+                
             }
-            if (this.view.handlersPosition[i]  === this.view.minPosition){this.model.currentValue[i] = this.model.minValue;}
-            else if(this.view.handlersPosition[i] === this.view.maxPosition){this.model.currentValue[i] = this.model.maxValue;}
+            let computedStepValue: number = (Math.round(computedValue / this.model.step)) * this.model.step;
+            if (computedValue > (this.options.step * this.model.stepsAmount)) {
+                this.model.currentValue[i] = this.model.maxValue;
+            }
             else {
-                this.model.currentValue[i] = (Math.round(computedValue / this.model.step)) * this.model.step;
+                this.model.currentValue[i] = this.model.minValue + computedStepValue;
             }
             if (this.options.icon) {
                 this.view.icons[i].innerHTML = String(this.model.currentValue[i]);
@@ -79,45 +102,19 @@ export class Presenter {
     
      getPositionFromValue = () => {
         for (let i = 0; i < this.view.handlers.length; i++){
-            if (this.model.currentValue[i] <= this.model.minValue){
                 if (this.options.vertical){
-                    this.view.handlers[i].style.top = this.view.positionRange +  'px';
-                    this.view.handlersPosition[i]  = this.view.minPosition;
-                    this.model.currentValue[i] = this.model.minValue;
-                } 
-                else {
-                    this.view.handlers[i].style.left = (0 - this.view.sliderBorder) + 'px';
-                    this.view.handlersPosition[i]  = this.view.minPosition;
-                    this.model.currentValue[i] = this.model.minValue
-                }
-            }
-            else if (this.model.currentValue[i] >= this.model.maxValue){
-                if (this.options.vertical){
-                    this.view.handlers[i].style.top = (0 - this.view.sliderBorder) + 'px';
-                    this.view.handlersPosition[i]  = this.view.maxPosition;
-                    this.model.currentValue[i] = this.model.maxValue
-                } 
-                else {
-                    this.view.handlers[i].style.left = this.view.positionRange + 'px';
-                    this.view.handlersPosition[i]  = this.view.maxPosition;
-                    this.model.currentValue[i] = this.model.maxValue
-                }
-            }
-            else {
-                if (this.options.vertical){
-                    this.view.handlers[i].style.top = Math.abs((this.model.currentValue[i] - this.model.maxValue) * this.model.positionValueRate) + 'px'; 
+                    this.view.handlers[i].style.top = Math.abs((this.model.currentValue[i] - this.model.maxValue) * this.model.positionValueRate) - this.view.handlersHeight/2 + 'px'; 
                     this.view.handlersPosition[i] = this.view.handlers[i].getBoundingClientRect().y + pageYOffset;
                 }
                 else {
-                    this.view.handlers[i].style.left = Math.abs((this.model.currentValue[i] - this.model.minValue) * this.model.positionValueRate) + 'px'; 
+                    this.view.handlers[i].style.left = Math.abs((this.model.currentValue[i] - this.model.minValue) * this.model.positionValueRate) - this.view.handlersWidth/2 + 'px'; 
                     this.view.handlersPosition[i] = this.view.handlers[i].getBoundingClientRect().x + pageXOffset;
                 }
-            }
             if (this.model.icon) {
                 this.view.icons[i].innerHTML = String(this.model.currentValue[i]);
             }
         }
-
+        this.model.getRangeValue(this.options);
         if (this.options.rangeInput && this.options.range && this.options.handlersAmount > 1){
             this.view.showRange(this.options);
             this.view.rangeInput.value = String(this.model.rangeValue);  

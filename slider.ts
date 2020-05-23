@@ -1,23 +1,25 @@
 'use strict';
-import {Presenter} from './presenter';
-import Model from './model';
-import {View} from './view';
-import{IOptions} from './presenter';
-// var jQuery = require("jQuery");
+import {Presenter} from './src/presenter';
+import Model from './src/model';
+import {View} from './src/view';
+import{IOptions} from './src/presenter';
+// var jquery = require("jquery");
+// window.$ = window.jQuery = jquery;
 
 
 (function($){
     jQuery.fn.slider = function(options:IOptions){
         options = $.extend ({
-            minValue: 0,
+            minValue: -100,
             maxValue: 100,
-            startingValue: [20, 60],
+            startingValue: [-50, 50],
             vertical:false,
-            step: 5,
+            step: 15,
             range: true,
             rangeInput: true,
             valueInputs: true,
             handlersAmount: 2,
+            scale: true,
             icon: true,
             input: true
         }, options);

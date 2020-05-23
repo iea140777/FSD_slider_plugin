@@ -4,22 +4,27 @@ import SubViewHandlers from './subView/subViewHandlers';
 import SubViewIcons from './subView/subViewIcons';
 import SubViewInput from './subView/subViewInput';
 import {IOptions} from './presenter';
+import SubViewScale from './subView/subViewScale';
 
 export class View {
     options: IOptions;
     subViewSliderLine: SubViewSliderLine;
     subViewHandlers: SubViewHandlers;
+    subViewScale: SubViewScale;
     subViewIcons: SubViewIcons;
     subViewInput: SubViewInput;
     sliderContainer:HTMLDivElement;
     slider: HTMLDivElement;
     handlers: NodeListOf<HTMLDivElement>;
+    scale: NodeListOf<HTMLDivElement>;
     icons: NodeListOf<HTMLDivElement>;
     inputsContainer: HTMLDivElement;
     rangeInput:HTMLInputElement;
     valueInputs: NodeListOf<HTMLInputElement>;
     sliderPosition: number;
     sliderBorder: number;
+    handlersHeight: number;
+    handlersWidth: number;
     maxPosition: number;
     minPosition: number;
     positionRange: number;
@@ -31,10 +36,12 @@ export class View {
         this.options = options;
         this.subViewSliderLine = new SubViewSliderLine;
         this.subViewHandlers = new SubViewHandlers;
+        this.subViewScale = new SubViewScale;
         this.subViewIcons = new SubViewIcons;
         this.subViewInput = new SubViewInput;
         this.createSlider(options, container);
         this.getSliderData();
+        this.getScalePosition();
         this.subViewHandlers.handlerMouseDown = (e:MouseEvent, handler:HTMLDivElement, num:number):void => {
             this.mouseDown(e, handler, num);
         }
@@ -47,7 +54,12 @@ export class View {
         this.sliderContainer = this.createContainer(options, container);
         this.slider = this.subViewSliderLine.createSliderLine(this.sliderContainer, options);
         this.handlers = this.subViewHandlers.createHandlers(options, this.slider);
-        this.icons = this.subViewIcons.createIcons(options, this.handlers, this.slider);
+        if (this.options.scale) {
+            this.scale = this.subViewScale.createScale(options, this.slider);
+        }
+        if (this.options.icon) {
+            this.icons = this.subViewIcons.createIcons(options, this.handlers, this.slider);
+        }
         if(this.options.rangeInput || this.options.valueInputs){
             this.inputsContainer = this.subViewInput.createInputsContainer(options, this.slider, this.sliderContainer);
             if (this.options.rangeInput && this.options.handlersAmount > 1){
@@ -77,20 +89,50 @@ export class View {
         if (this.options.vertical){
             this.sliderPosition = this.slider.getBoundingClientRect().y + pageYOffset;
             this.sliderBorder = parseFloat(getComputedStyle(this.slider).borderLeftWidth);
-            this.maxPosition = this.sliderPosition;
-            this.minPosition = this.maxPosition + this.slider.getBoundingClientRect().height - this.handlers[0].offsetHeight;
-            this.positionRange = (this.minPosition -this.maxPosition) + this.sliderBorder;
-            this.handlersPosition = new SubViewHandlers().getInitialHandlersPosition(this.handlers, this.options);
+            this.handlersHeight = this.handlers[0].offsetHeight;
+            this.maxPosition = this.sliderPosition - this.handlersHeight/2;
+            this.minPosition = this.maxPosition + this.slider.getBoundingClientRect().height;
+            this.positionRange = (this.minPosition - this.maxPosition);
+            this.handlersPosition = this.subViewHandlers.getInitialHandlersPosition(this.handlers, this.options);
             this.range = this.showRange(this.options);
             
         } else {
             this.sliderPosition = this.slider.getBoundingClientRect().x + pageXOffset;
+            this.handlersWidth = this.handlers[0].offsetWidth;
+            console.log(this.slider.getBoundingClientRect());
             this.sliderBorder = parseFloat(getComputedStyle(this.slider).borderLeftWidth);
-            this.minPosition = this.sliderPosition;
-            this.maxPosition = this.minPosition + this.slider.getBoundingClientRect().width - this.handlers[0].offsetWidth;
-            this.positionRange = (this.maxPosition - this.minPosition) + this.sliderBorder;
+            this.minPosition = this.sliderPosition - this.handlersWidth/2;
+            this.maxPosition = this.minPosition + this.slider.getBoundingClientRect().width;
+            this.positionRange = (this.maxPosition - this.minPosition);
             this.handlersPosition = new SubViewHandlers().getInitialHandlersPosition(this.handlers, this.options);
             this.range = this.showRange(this.options);
+        }
+    }
+
+    getScalePosition = (): void => {
+        const posToVal: number = this.positionRange / Math.abs((this.options.maxValue - this.options.minValue));
+        for (let i = 0; i < this.scale.length; i++){
+            if (this.options.vertical) {
+                if (i == 0) {
+                    this.scale[i].style.top = this.positionRange + 'px';
+                }
+                else if (i == this.scale.length - 1){
+                    this.scale[i].style.top = 0 + 'px';
+                }
+                else {
+                    this.scale[i].style.top = this.positionRange - (i * posToVal * this.options.step)  + 'px';
+                }    
+            } else {
+                if (i == 0) {
+                    this.scale[i].style.left = 0 + 'px';
+                }
+                else if (i == this.scale.length - 1){
+                    this.scale[i].style.left = this.positionRange + 'px';
+                }
+                else {
+                    this.scale[i].style.left = (i * posToVal * this.options.step)  + 'px';
+                }    
+            }
         }
     }
 
@@ -99,12 +141,12 @@ export class View {
            let rangeBlock:HTMLDivElement = document.createElement('div');
            rangeBlock.classList.add('slider__range');
            if (options.vertical){
-                rangeBlock.style.width = this.slider.getBoundingClientRect().width + 'px';
-                rangeBlock.style.left = (- this.sliderBorder) + 'px';
+                rangeBlock.style.width = this.slider.getBoundingClientRect().width + 2 + 'px';
+                rangeBlock.style.left = -1 + 'px';
            } 
            else {
-                rangeBlock.style.height = this.slider.getBoundingClientRect().height + 'px';
-                rangeBlock.style.top = (-this.sliderBorder) + 'px';
+                rangeBlock.style.height = this.slider.getBoundingClientRect().height + 2 + 'px';
+                rangeBlock.style.top = -1 + 'px';
            }
            this.slider.append(rangeBlock);
            let range:HTMLDivElement = this.slider.querySelector('.slider__range');
@@ -147,22 +189,22 @@ export class View {
         document.onmousemove = (e:MouseEvent):void => {
             if(this.options.vertical){
                 let newTop: number = e.clientY - shiftX - this.sliderPosition;
-                if (newTop < -this.sliderBorder) {
-                    newTop = -this.sliderBorder;
+                if (newTop <= (this.maxPosition - this.sliderPosition)) {
+                    newTop = this.maxPosition - this.sliderPosition;
                 }
-                if (newTop > this.positionRange) {
-                    newTop = this.positionRange;
+                if (newTop >= this.minPosition - this.sliderPosition) {
+                    newTop = this.minPosition - this.sliderPosition;
                 }
-                handler.style.top = newTop + 'px';
+                handler.style.top = newTop  + 'px';
                 this.writeNewPosition(handler, num);
             }
             else {
                 let newLeft = e.clientX - shiftX - this.sliderPosition;
-                if (newLeft < -this.sliderBorder) {
-                    newLeft = -this.sliderBorder;
+                if (newLeft <= (this.minPosition - this.sliderPosition)) {
+                    newLeft = this.minPosition - this.sliderPosition;
                 }
-                if (newLeft > this.positionRange) {
-                    newLeft = this.positionRange;
+                if (newLeft >= this.maxPosition - this.sliderPosition) {
+                    newLeft = this.maxPosition - this.sliderPosition;
                 }
                 handler.style.left = newLeft + 'px';
                 this.writeNewPosition(handler, num);

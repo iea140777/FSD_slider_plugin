@@ -20,6 +20,7 @@
     "typescript": "^3.8.3"
   },
   "dependencies": {
+    "@types/jquery": "^3.3.38",
     "jquery": "^3.5.1",
     "model": "^6.0.1",
     "view": "^1.1.1",
