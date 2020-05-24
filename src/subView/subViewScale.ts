@@ -14,6 +14,18 @@ export default class SubViewScale  {
             slider.append(scalePoint);
         }
         let scalePoints:NodeListOf<HTMLDivElement> = slider.querySelectorAll('.slider__scale-point');
+        // this.addScaleListener(scalePoints);
         return scalePoints;
     }
+
+    addScaleListener = (scalePoints:NodeListOf<HTMLDivElement>):void => {
+        scalePoints.forEach(point => {
+            point.onclick = (e):void => {
+                this.scalePpointClick(e);
+            }
+        });
+        
+    }
+
+    scalePpointClick: any;
 }

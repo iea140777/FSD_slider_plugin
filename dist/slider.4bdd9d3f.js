@@ -117,144 +117,7 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   }
 
   return newRequire;
-})({"src/presenter.ts":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var Presenter =
-/** @class */
-function () {
-  function Presenter(Model, View, options, container) {
-    var _this = this;
-
-    this.checkOptions = function (options) {
-      if (options.minValue >= options.maxValue) {
-        console.log('minValue should not be equal or be more than maxValue');
-      }
-
-      if (options.startingValue) {} // minValue: 0,
-      // maxValue: 100,
-      // startingValue: [20, 60],
-      // vertical:false,
-      // step: 5,
-      // range: true,
-      // rangeInput: true,
-      // valueInputs: true,
-      // handlersAmount: 2,
-      // icon: true,
-      // input: true
-
-    };
-
-    this.setInitialHandlersPosition = function () {
-      _this.getPositionFromValue();
-
-      _this.model.getRangeValue(_this.options);
-    };
-
-    this.getValueFromPosition = function () {
-      for (var i = 0; i < _this.view.handlers.length; i++) {
-        var computedValue = void 0;
-
-        if (_this.options.vertical) {
-          computedValue = (_this.view.minPosition - _this.view.handlersPosition[i]) / _this.model.positionValueRate;
-        } else {
-          computedValue = (_this.view.handlersPosition[i] - _this.view.minPosition) / _this.model.positionValueRate;
-        }
-
-        var computedStepValue = Math.round(computedValue / _this.model.step) * _this.model.step;
-
-        if (computedValue > _this.options.step * _this.model.stepsAmount) {
-          _this.model.currentValue[i] = _this.model.maxValue;
-        } else {
-          _this.model.currentValue[i] = _this.model.minValue + computedStepValue;
-        }
-
-        if (_this.options.icon) {
-          _this.view.icons[i].innerHTML = String(_this.model.currentValue[i]);
-        }
-      }
-
-      _this.model.getRangeValue(_this.options);
-
-      if (_this.options.rangeInput && _this.options.range && _this.options.handlersAmount > 1) {
-        _this.view.rangeInput.value = String(_this.model.rangeValue);
-      }
-
-      if (_this.options.rangeInput && !_this.options.range && _this.options.handlersAmount > 1) {
-        _this.view.rangeInput.value = _this.model.currentValue[0] + "; " + _this.model.currentValue[1];
-      }
-
-      if (_this.options.valueInputs) {
-        for (var i = 0; i < _this.options.handlersAmount; i++) {
-          _this.view.valueInputs[i].value = "" + _this.model.currentValue[i];
-        }
-      }
-
-      return _this.model.currentValue;
-    };
-
-    this.getPositionFromValue = function () {
-      for (var i = 0; i < _this.view.handlers.length; i++) {
-        if (_this.options.vertical) {
-          _this.view.handlers[i].style.top = Math.abs((_this.model.currentValue[i] - _this.model.maxValue) * _this.model.positionValueRate) - _this.view.handlersHeight / 2 + 'px';
-          _this.view.handlersPosition[i] = _this.view.handlers[i].getBoundingClientRect().y + pageYOffset;
-        } else {
-          _this.view.handlers[i].style.left = Math.abs((_this.model.currentValue[i] - _this.model.minValue) * _this.model.positionValueRate) - _this.view.handlersWidth / 2 + 'px';
-          _this.view.handlersPosition[i] = _this.view.handlers[i].getBoundingClientRect().x + pageXOffset;
-        }
-
-        if (_this.model.icon) {
-          _this.view.icons[i].innerHTML = String(_this.model.currentValue[i]);
-        }
-      }
-
-      _this.model.getRangeValue(_this.options);
-
-      if (_this.options.rangeInput && _this.options.range && _this.options.handlersAmount > 1) {
-        _this.view.showRange(_this.options);
-
-        _this.view.rangeInput.value = String(_this.model.rangeValue);
-      }
-
-      if (_this.options.rangeInput && !_this.options.range && _this.options.handlersAmount > 1) {
-        _this.view.rangeInput.value = _this.model.currentValue[0] + "; " + _this.model.currentValue[1];
-      }
-
-      if (_this.options.valueInputs) {
-        for (var i = 0; i < _this.options.handlersAmount; i++) {
-          _this.view.valueInputs[i].value = "" + _this.model.currentValue[i];
-        }
-      }
-    };
-
-    this.options = options;
-    this.model = new Model(this.options);
-    this.view = new View(this.options, container);
-    this.model.positionValueRate = this.view.positionRange / this.model.valueRange;
-    this.setInitialHandlersPosition();
-    console.log(this.view);
-    console.log(this.model);
-
-    this.view.notifyChangedHandlerPosition = function () {
-      _this.getValueFromPosition();
-    };
-
-    this.view.notifyChangedInputValue = function (newInputValue, num) {
-      _this.model.currentValue[num] = newInputValue;
-
-      _this.getPositionFromValue();
-    };
-  }
-
-  return Presenter;
-}();
-
-exports.Presenter = Presenter;
-},{}],"src/model.ts":[function(require,module,exports) {
+})({"src/model.ts":[function(require,module,exports) {
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -297,6 +160,8 @@ var SubViewSliderLine =
 /** @class */
 function () {
   function SubViewSliderLine() {
+    var _this = this;
+
     this.createSliderLine = function (sliderContainer, options) {
       var sliderLine = document.createElement('div');
       sliderLine.classList.add('slider__slider');
@@ -307,7 +172,16 @@ function () {
 
       sliderContainer.append(sliderLine);
       var slider = sliderContainer.querySelector('.slider__slider');
+
+      _this.addSliderListener(slider);
+
       return slider;
+    };
+
+    this.addSliderListener = function (slider) {
+      slider.onclick = function (e) {
+        _this.sliderClick(e);
+      };
     };
   }
 
@@ -504,6 +378,8 @@ var SubViewScale =
 /** @class */
 function () {
   function SubViewScale() {
+    var _this = this;
+
     this.createScale = function (options, slider) {
       var pointsAmount = Math.ceil((options.maxValue - options.minValue) / options.step) + 1;
 
@@ -520,8 +396,17 @@ function () {
         slider.append(scalePoint);
       }
 
-      var scalePoints = slider.querySelectorAll('.slider__scale-point');
+      var scalePoints = slider.querySelectorAll('.slider__scale-point'); // this.addScaleListener(scalePoints);
+
       return scalePoints;
+    };
+
+    this.addScaleListener = function (scalePoints) {
+      scalePoints.forEach(function (point) {
+        point.onclick = function (e) {
+          _this.scalePpointClick(e);
+        };
+      });
     };
   }
 
@@ -690,7 +575,7 @@ function () {
       }
     };
 
-    this.mouseDown = function (e, handler, num) {
+    this.moveByMouse = function (e, handler, num) {
       e.preventDefault();
       var shiftX;
 
@@ -758,6 +643,76 @@ function () {
       _this.notifyChangedHandlerPosition();
     };
 
+    this.moveByClick = function (e) {
+      var clickPosition;
+
+      if (_this.options.vertical) {
+        clickPosition = e.clientY;
+      } else {
+        clickPosition = e.clientX;
+      }
+
+      var handlerToMove;
+
+      if (_this.options.handlersAmount == 2) {
+        handlerToMove = _this.getNearestHandler(clickPosition);
+      } else {
+        handlerToMove = _this.handlers[0];
+      }
+
+      var num = 0;
+
+      if (handlerToMove == _this.handlers[1]) {
+        num = 1;
+      }
+
+      console.log(handlerToMove, num);
+
+      if (_this.options.vertical) {
+        var newTop = e.clientY + pageYOffset - _this.handlersHeight / 2 - _this.sliderPosition;
+
+        if (newTop <= _this.maxPosition - _this.sliderPosition) {
+          newTop = _this.maxPosition - _this.sliderPosition;
+        }
+
+        if (newTop >= _this.minPosition - _this.sliderPosition) {
+          newTop = _this.minPosition - _this.sliderPosition;
+        }
+
+        handlerToMove.style.top = newTop + 'px';
+
+        _this.writeNewPosition(handlerToMove, num);
+
+        console.log(_this.handlersPosition);
+      } else {
+        var newLeft = e.clientX + pageXOffset - _this.handlersWidth / 2 - _this.sliderPosition;
+
+        if (newLeft <= _this.minPosition - _this.sliderPosition) {
+          newLeft = _this.minPosition - _this.sliderPosition;
+        }
+
+        if (newLeft >= _this.maxPosition - _this.sliderPosition) {
+          newLeft = _this.maxPosition - _this.sliderPosition;
+        }
+
+        handlerToMove.style.left = newLeft + 'px';
+
+        _this.writeNewPosition(handlerToMove, num);
+      }
+    };
+
+    this.getNearestHandler = function (position) {
+      var a = Math.abs(_this.handlersPosition[0] - position);
+      var b = Math.abs(_this.handlersPosition[1] - position);
+      console.log(position, a, b);
+
+      if (b < a) {
+        return _this.handlers[1];
+      } else {
+        return _this.handlers[0];
+      }
+    };
+
     this.options = options;
     this.subViewSliderLine = new subViewSliderLine_1.default();
     this.subViewHandlers = new subViewHandlers_1.default();
@@ -769,20 +724,30 @@ function () {
     this.getScalePosition();
 
     this.subViewHandlers.handlerMouseDown = function (e, handler, num) {
-      _this.mouseDown(e, handler, num);
+      _this.moveByMouse(e, handler, num);
     };
 
     this.subViewInput.newInputValue = function (newInputValue, num) {
       _this.notifyChangedInputValue(newInputValue, num);
     };
+
+    this.subViewSliderLine.sliderClick = function (e) {
+      if (e.target !== _this.handlers[0] && e.target !== _this.handlers[1]) {
+        // console.log (e.target);
+        _this.moveByClick(e);
+      }
+    }; // this.subViewScale.scalePpointClick = (e:MouseEvent):void =>{
+    //     this.moveByClick(e);
+    // }
+
   }
 
   return View;
 }();
 
 exports.View = View;
-},{"./subView/subViewSliderLine":"src/subView/subViewSliderLine.ts","./subView/subViewHandlers":"src/subView/subViewHandlers.ts","./subView/subViewIcons":"src/subView/subViewIcons.ts","./subView/subViewInput":"src/subView/subViewInput.ts","./subView/subViewScale":"src/subView/subViewScale.ts"}],"slider.ts":[function(require,module,exports) {
-'use strict';
+},{"./subView/subViewSliderLine":"src/subView/subViewSliderLine.ts","./subView/subViewHandlers":"src/subView/subViewHandlers.ts","./subView/subViewIcons":"src/subView/subViewIcons.ts","./subView/subViewInput":"src/subView/subViewInput.ts","./subView/subViewScale":"src/subView/subViewScale.ts"}],"src/presenter.ts":[function(require,module,exports) {
+"use strict";
 
 var __importDefault = this && this.__importDefault || function (mod) {
   return mod && mod.__esModule ? mod : {
@@ -794,11 +759,152 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var presenter_1 = require("./src/presenter");
+var model_1 = __importDefault(require("./model"));
 
-var model_1 = __importDefault(require("./src/model"));
+var view_1 = require("./view");
 
-var view_1 = require("./src/view"); // var jquery = require("jquery");
+var Presenter =
+/** @class */
+function () {
+  function Presenter(options, container) {
+    var _this = this;
+
+    this.checkOptions = function (options) {
+      if (options.minValue >= options.maxValue) {
+        console.log('minValue should not be equal or be more than maxValue');
+      }
+
+      if (options.startingValue) {} // minValue: 0,
+      // maxValue: 100,
+      // startingValue: [20, 60],
+      // vertical:false,
+      // step: 5,
+      // range: true,
+      // rangeInput: true,
+      // valueInputs: true,
+      // handlersAmount: 2,
+      // icon: true,
+      // input: true
+
+    };
+
+    this.setInitialHandlersPosition = function () {
+      _this.getPositionFromValue();
+
+      _this.model.getRangeValue(_this.options);
+    };
+
+    this.getValueFromPosition = function () {
+      for (var i = 0; i < _this.view.handlers.length; i++) {
+        var computedValue = void 0;
+
+        if (_this.options.vertical) {
+          computedValue = (_this.view.minPosition - _this.view.handlersPosition[i]) / _this.model.positionValueRate;
+        } else {
+          computedValue = (_this.view.handlersPosition[i] - _this.view.minPosition) / _this.model.positionValueRate;
+        }
+
+        var computedStepValue = Math.round(computedValue / _this.model.step) * _this.model.step;
+
+        if (computedValue > _this.options.step * _this.model.stepsAmount) {
+          _this.model.currentValue[i] = _this.model.maxValue;
+        } else {
+          _this.model.currentValue[i] = _this.model.minValue + computedStepValue;
+        }
+
+        if (_this.options.icon) {
+          _this.view.icons[i].innerHTML = String(_this.model.currentValue[i]);
+        }
+      }
+
+      _this.model.getRangeValue(_this.options);
+
+      if (_this.options.rangeInput && _this.options.range && _this.options.handlersAmount > 1) {
+        _this.view.rangeInput.value = String(_this.model.rangeValue);
+      }
+
+      if (_this.options.rangeInput && !_this.options.range && _this.options.handlersAmount > 1) {
+        _this.view.rangeInput.value = _this.model.currentValue[0] + "; " + _this.model.currentValue[1];
+      }
+
+      if (_this.options.valueInputs) {
+        for (var i = 0; i < _this.options.handlersAmount; i++) {
+          _this.view.valueInputs[i].value = "" + _this.model.currentValue[i];
+        }
+      }
+
+      if (_this.options.moveBySteps) {
+        _this.getPositionFromValue();
+      }
+
+      return _this.model.currentValue;
+    };
+
+    this.getPositionFromValue = function () {
+      for (var i = 0; i < _this.view.handlers.length; i++) {
+        if (_this.options.vertical) {
+          _this.view.handlers[i].style.top = Math.abs((_this.model.currentValue[i] - _this.model.maxValue) * _this.model.positionValueRate) - _this.view.handlersHeight / 2 + 'px';
+          _this.view.handlersPosition[i] = _this.view.handlers[i].getBoundingClientRect().y + pageYOffset;
+        } else {
+          _this.view.handlers[i].style.left = Math.abs((_this.model.currentValue[i] - _this.model.minValue) * _this.model.positionValueRate) - _this.view.handlersWidth / 2 + 'px';
+          _this.view.handlersPosition[i] = _this.view.handlers[i].getBoundingClientRect().x + pageXOffset;
+        }
+
+        if (_this.model.icon) {
+          _this.view.icons[i].innerHTML = String(_this.model.currentValue[i]);
+        }
+      }
+
+      _this.model.getRangeValue(_this.options);
+
+      if (_this.options.rangeInput && _this.options.range && _this.options.handlersAmount > 1) {
+        _this.view.showRange(_this.options);
+
+        _this.view.rangeInput.value = String(_this.model.rangeValue);
+      }
+
+      if (_this.options.rangeInput && !_this.options.range && _this.options.handlersAmount > 1) {
+        _this.view.rangeInput.value = _this.model.currentValue[0] + "; " + _this.model.currentValue[1];
+      }
+
+      if (_this.options.valueInputs) {
+        for (var i = 0; i < _this.options.handlersAmount; i++) {
+          _this.view.valueInputs[i].value = "" + _this.model.currentValue[i];
+        }
+      }
+    };
+
+    this.options = options;
+    this.model = new model_1.default(this.options);
+    this.view = new view_1.View(this.options, container);
+    this.model.positionValueRate = this.view.positionRange / this.model.valueRange;
+    this.setInitialHandlersPosition();
+    console.log(this.view);
+    console.log(this.model);
+
+    this.view.notifyChangedHandlerPosition = function () {
+      _this.getValueFromPosition();
+    };
+
+    this.view.notifyChangedInputValue = function (newInputValue, num) {
+      _this.model.currentValue[num] = newInputValue;
+
+      _this.getPositionFromValue();
+    };
+  }
+
+  return Presenter;
+}();
+
+exports.Presenter = Presenter;
+},{"./model":"src/model.ts","./view":"src/view.ts"}],"slider.ts":[function(require,module,exports) {
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var presenter_1 = require("./src/presenter"); // var jquery = require("jquery");
 // window.$ = window.jQuery = jquery;
 
 
@@ -807,9 +913,10 @@ var view_1 = require("./src/view"); // var jquery = require("jquery");
     options = $.extend({
       minValue: -100,
       maxValue: 100,
-      startingValue: [-50, 50],
+      startingValue: [-50, 20],
       vertical: false,
       step: 15,
+      moveBySteps: true,
       range: true,
       rangeInput: true,
       valueInputs: true,
@@ -821,13 +928,13 @@ var view_1 = require("./src/view"); // var jquery = require("jquery");
 
     var init = function init() {
       this.container = this;
-      this.presenter = new presenter_1.Presenter(model_1.default, view_1.View, options, this.container);
+      this.presenter = new presenter_1.Presenter(options, this.container);
     };
 
     return this.each(init);
   };
 })(jQuery);
-},{"./src/presenter":"src/presenter.ts","./src/model":"src/model.ts","./src/view":"src/view.ts"}],"../../Users/alexi/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"./src/presenter":"src/presenter.ts"}],"../../Users/alexi/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -855,7 +962,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "58217" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "57981" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

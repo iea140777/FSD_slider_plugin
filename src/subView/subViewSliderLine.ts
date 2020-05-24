@@ -9,8 +9,17 @@ export default class SubViewSliderLine  {
         }
         sliderContainer.append(sliderLine);
         let slider:HTMLDivElement = sliderContainer.querySelector('.slider__slider');
+        this.addSliderListener(slider);
         return slider;
     }
+
+    addSliderListener = (slider:HTMLDivElement):void => {
+        slider.onclick = (e):void => {
+            this.sliderClick(e);
+        }
+    }
+
+    sliderClick: any;
 } 
 
 

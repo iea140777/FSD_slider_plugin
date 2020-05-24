@@ -21,7 +21,7 @@ export class Presenter {
     model: Model;
     view: View;
 
-    constructor(Model, View, options:IOptions, container:HTMLElement){
+    constructor(options:IOptions, container:HTMLDivElement){
         this.options = options;
         this.model = new Model(this.options);
         this.view = new View (this.options, container);
@@ -97,10 +97,13 @@ export class Presenter {
                 this.view.valueInputs[i].value = `${this.model.currentValue[i]}`;
             }
         } 
+        if (this.options.moveBySteps) {
+            this.getPositionFromValue();
+        }
         return this.model.currentValue;
     }
     
-     getPositionFromValue = () => {
+     getPositionFromValue = ():void => {
         for (let i = 0; i < this.view.handlers.length; i++){
                 if (this.options.vertical){
                     this.view.handlers[i].style.top = Math.abs((this.model.currentValue[i] - this.model.maxValue) * this.model.positionValueRate) - this.view.handlersHeight/2 + 'px'; 

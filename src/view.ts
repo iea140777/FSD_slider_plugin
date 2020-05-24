@@ -43,11 +43,20 @@ export class View {
         this.getSliderData();
         this.getScalePosition();
         this.subViewHandlers.handlerMouseDown = (e:MouseEvent, handler:HTMLDivElement, num:number):void => {
-            this.mouseDown(e, handler, num);
+            this.moveByMouse(e, handler, num);
         }
         this.subViewInput.newInputValue = (newInputValue:number, num:number):void => {
             this.notifyChangedInputValue(newInputValue, num);
         }
+        this.subViewSliderLine.sliderClick = (e:MouseEvent):void => {
+            if (e.target !== this.handlers [0] && e.target !== this.handlers [1]) {
+                // console.log (e.target);
+                this.moveByClick(e);
+            }
+        }
+        // this.subViewScale.scalePpointClick = (e:MouseEvent):void =>{
+        //     this.moveByClick(e);
+        // }
     }
 
     createSlider = (options:IOptions, container:HTMLDivElement):void => {
@@ -176,7 +185,7 @@ export class View {
        }
     }
   
-    mouseDown = (e:MouseEvent, handler:HTMLDivElement, num:number): void => {
+    moveByMouse = (e:MouseEvent, handler:HTMLDivElement, num:number): void => {
         e.preventDefault();
         let shiftX:number;
         if(this.options.vertical){
@@ -188,7 +197,7 @@ export class View {
         handler.classList.add('slider__handler_active');
         document.onmousemove = (e:MouseEvent):void => {
             if(this.options.vertical){
-                let newTop: number = e.clientY - shiftX - this.sliderPosition;
+                let newTop: number = e.clientY  - shiftX - this.sliderPosition;
                 if (newTop <= (this.maxPosition - this.sliderPosition)) {
                     newTop = this.maxPosition - this.sliderPosition;
                 }
@@ -199,7 +208,7 @@ export class View {
                 this.writeNewPosition(handler, num);
             }
             else {
-                let newLeft = e.clientX - shiftX - this.sliderPosition;
+                let newLeft = e.clientX  - shiftX - this.sliderPosition;
                 if (newLeft <= (this.minPosition - this.sliderPosition)) {
                     newLeft = this.minPosition - this.sliderPosition;
                 }
@@ -234,6 +243,63 @@ export class View {
     notifyChangedHandlerPosition: any;
 
     notifyChangedInputValue: any; 
+
+    moveByClick = (e:MouseEvent) =>{
+        let clickPosition;
+        if (this.options.vertical) {
+            clickPosition = e.clientY;
+        }
+        else {
+            clickPosition = e.clientX ;
+        }
+        let handlerToMove;
+        if (this.options.handlersAmount == 2) {
+            handlerToMove = this.getNearestHandler(clickPosition);
+        }
+        else {
+            handlerToMove = this.handlers[0];
+        }
+        let num = 0;
+        if (handlerToMove == this.handlers[1]){
+            num = 1;
+        }
+        console.log (handlerToMove, num)
+        if(this.options.vertical){
+            let newTop: number = e.clientY + pageYOffset - this.handlersHeight/2 -  this.sliderPosition;
+            if (newTop <= (this.maxPosition - this.sliderPosition)) {
+                newTop = this.maxPosition - this.sliderPosition;
+            }
+            if (newTop >= this.minPosition - this.sliderPosition) {
+                newTop = this.minPosition - this.sliderPosition;
+            }
+            handlerToMove.style.top = newTop +  'px';
+            this.writeNewPosition(handlerToMove, num);
+            console.log(this.handlersPosition);
+        }
+        else {
+            let newLeft = e.clientX  + pageXOffset - this.handlersWidth/2 - this.sliderPosition;
+            if (newLeft <= (this.minPosition - this.sliderPosition)) {
+                newLeft = this.minPosition - this.sliderPosition;
+            }
+            if (newLeft >= this.maxPosition - this.sliderPosition) {
+                newLeft = this.maxPosition - this.sliderPosition;
+            }
+            handlerToMove.style.left = newLeft + 'px';
+            this.writeNewPosition(handlerToMove, num);
+        }
+    }
+
+    getNearestHandler = (position: number): HTMLDivElement =>{
+        let a = Math.abs(this.handlersPosition[0] - position);
+        let b = Math.abs(this.handlersPosition[1] - position);
+        console.log (position, a, b);
+        if (b < a) {
+            return this.handlers[1];
+        } else {
+            return this.handlers[0];
+        }
+    }
+
 }
    
 

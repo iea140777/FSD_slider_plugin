@@ -4,7 +4,9 @@
   "description": "",
   "main": "slider.ts",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "start": "parcel slider.html",
+    "build":  "parcel build slider.ts -d docs  --public-url ./"
   },
   "keywords": [],
   "author": "",
