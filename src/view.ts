@@ -247,10 +247,10 @@ export class View {
     moveByClick = (e:MouseEvent) =>{
         let clickPosition;
         if (this.options.vertical) {
-            clickPosition = e.clientY;
+            clickPosition = e.clientY + pageYOffset;
         }
         else {
-            clickPosition = e.clientX ;
+            clickPosition = e.clientX + pageXOffset ;
         }
         let handlerToMove;
         if (this.options.handlersAmount == 2) {
@@ -263,7 +263,6 @@ export class View {
         if (handlerToMove == this.handlers[1]){
             num = 1;
         }
-        console.log (handlerToMove, num)
         if(this.options.vertical){
             let newTop: number = e.clientY + pageYOffset - this.handlersHeight/2 -  this.sliderPosition;
             if (newTop <= (this.maxPosition - this.sliderPosition)) {
@@ -292,7 +291,6 @@ export class View {
     getNearestHandler = (position: number): HTMLDivElement =>{
         let a = Math.abs(this.handlersPosition[0] - position);
         let b = Math.abs(this.handlersPosition[1] - position);
-        console.log (position, a, b);
         if (b < a) {
             return this.handlers[1];
         } else {
