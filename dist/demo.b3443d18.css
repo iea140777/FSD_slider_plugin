@@ -1,0 +1,16 @@
+body {
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+}
+
+.slider1, .slider2, .slider3 {
+    padding: 0;
+    margin: 20px;
+    height: 300px;
+    width: 300px;
+    display: inline-block;
+}
+
+
+/*# sourceMappingURL=/demo.b3443d18.css.map */

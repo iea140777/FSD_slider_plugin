@@ -50,13 +50,9 @@ export class View {
         }
         this.subViewSliderLine.sliderClick = (e:MouseEvent):void => {
             if (e.target !== this.handlers [0] && e.target !== this.handlers [1]) {
-                // console.log (e.target);
                 this.moveByClick(e);
             }
         }
-        // this.subViewScale.scalePpointClick = (e:MouseEvent):void =>{
-        //     this.moveByClick(e);
-        // }
     }
 
     createSlider = (options:IOptions, container:HTMLDivElement):void => {
@@ -245,14 +241,14 @@ export class View {
     notifyChangedInputValue: any; 
 
     moveByClick = (e:MouseEvent) =>{
-        let clickPosition;
+        let clickPosition: number;
         if (this.options.vertical) {
             clickPosition = e.clientY + pageYOffset;
         }
         else {
             clickPosition = e.clientX + pageXOffset ;
         }
-        let handlerToMove;
+        let handlerToMove:HTMLDivElement;
         if (this.options.handlersAmount == 2) {
             handlerToMove = this.getNearestHandler(clickPosition);
         }
@@ -288,9 +284,9 @@ export class View {
         }
     }
 
-    getNearestHandler = (position: number): HTMLDivElement =>{
-        let a = Math.abs(this.handlersPosition[0] - position);
-        let b = Math.abs(this.handlersPosition[1] - position);
+    getNearestHandler = (position: number): HTMLDivElement => {
+        let a: number = Math.abs(this.handlersPosition[0] - position);
+        let b: number = Math.abs(this.handlersPosition[1] - position);
         if (b < a) {
             return this.handlers[1];
         } else {

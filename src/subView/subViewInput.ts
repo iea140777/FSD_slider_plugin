@@ -44,22 +44,33 @@ export  default class SubViewInput  {
     addInputsListener = (inputs:NodeListOf<HTMLInputElement>):void => {
         inputs.forEach (
             input => {
-                input.onclick = ():void => {
-                input.value = '';
-                input.addEventListener('keydown',  (e) => {
-                    if (e.code == 'Enter'){
-                        let newInputValue:number = Number(input.value);
-                        if (e.target == inputs[0]){
-                            this.newInputValue(newInputValue, 0);
+                input.onfocus = () => {
+                    input.value = '';
+                    input.addEventListener('blur',  (e) => {
+                        this.getInputValue(input, inputs, e);
+                    })
+                    input.addEventListener('keydown',  (e) => {
+                        if (e.code == 'Enter') {
+                            this.getInputValue(input, inputs, e);
                         }
-                        else{
-                            this.newInputValue(newInputValue, 1);
-                        }
-                    }                
-                })
-            }}
+                    })                       
+                }
+            }
         )      
     }
 
+    getInputValue = (input: HTMLInputElement, inputs:NodeListOf<HTMLInputElement>, e: FocusEvent | KeyboardEvent): void => {
+        let newInputValue: number = Number(input.value);
+            if (input.value == '' || isNaN(Number(input.value))) {
+                newInputValue = undefined;
+            }
+            console.log(newInputValue);
+            if (e.target == inputs[0]){
+                this.newInputValue(newInputValue, 0);
+            }
+            else{
+                this.newInputValue(newInputValue, 1);
+            }
+    }
     newInputValue:any;
 }

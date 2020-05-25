@@ -184,7 +184,7 @@ function reloadCSS() {
 }
 
 module.exports = reloadCSS;
-},{"./bundle-url":"../../Users/alexi/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/bundle-url.js"}],"slider.css":[function(require,module,exports) {
+},{"./bundle-url":"../../Users/alexi/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/bundle-url.js"}],"demo.css":[function(require,module,exports) {
 var reloadCSS = require('_css_loader');
 
 module.hot.dispose(reloadCSS);
@@ -394,4 +394,4 @@ function hmrAcceptRun(bundle, id) {
   }
 }
 },{}]},{},["../../Users/alexi/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js"], null)
-//# sourceMappingURL=/slider.15c7cd75.js.map
+//# sourceMappingURL=/demo.b3443d18.js.map

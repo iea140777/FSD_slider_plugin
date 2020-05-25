@@ -7,6 +7,7 @@ export interface IOptions{
     startingValue: [number, number];
     vertical:boolean;
     step: number;
+    moveBySteps: boolean;
     range: boolean;
     rangeInput: boolean;
     valueInputs: boolean;
@@ -33,8 +34,7 @@ export class Presenter {
             this.getValueFromPosition();
         }
         this.view.notifyChangedInputValue = (newInputValue:number, num: number) => {
-            this.model.currentValue[num] = newInputValue;
-            this.getPositionFromValue();
+            this.setHandlersToInputValue (newInputValue, num);
         }
     }
 
@@ -60,6 +60,25 @@ export class Presenter {
     setInitialHandlersPosition = ():void => {
         this.getPositionFromValue();
         this.model.getRangeValue(this.options); 
+    }
+
+    setHandlersToInputValue = (inputValue:number, num: number): void => {
+        if (inputValue == undefined) {
+            this.getValueFromPosition();
+            return;
+        }
+        else if (inputValue > this.model.maxValue) {
+            inputValue = this.model.maxValue;
+        }
+        else if (inputValue < this.model.minValue) {
+            inputValue = this.model.minValue;
+        }
+        if (this.options.moveBySteps) {
+            let _steps: number = Math.round((inputValue - this.model.minValue) / this.options.step);
+            inputValue = _steps * this.options.step + this.model.minValue;
+        }
+        this.model.currentValue[num] = inputValue;
+        this.getPositionFromValue();
     }
 
     getValueFromPosition =  ():number[] => {
@@ -105,6 +124,7 @@ export class Presenter {
     
      getPositionFromValue = ():void => {
         for (let i = 0; i < this.view.handlers.length; i++){
+            if (this.options)
                 if (this.options.vertical){
                     this.view.handlers[i].style.top = Math.abs((this.model.currentValue[i] - this.model.maxValue) * this.model.positionValueRate) - this.view.handlersHeight/2 + 'px'; 
                     this.view.handlersPosition[i] = this.view.handlers[i].getBoundingClientRect().y + pageYOffset;

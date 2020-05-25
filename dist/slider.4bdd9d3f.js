@@ -303,21 +303,34 @@ function () {
 
     this.addInputsListener = function (inputs) {
       inputs.forEach(function (input) {
-        input.onclick = function () {
+        input.onfocus = function () {
           input.value = '';
+          input.addEventListener('blur', function (e) {
+            _this.getInputValue(input, inputs, e);
+          });
           input.addEventListener('keydown', function (e) {
             if (e.code == 'Enter') {
-              var newInputValue = Number(input.value);
-
-              if (e.target == inputs[0]) {
-                _this.newInputValue(newInputValue, 0);
-              } else {
-                _this.newInputValue(newInputValue, 1);
-              }
+              _this.getInputValue(input, inputs, e);
             }
           });
         };
       });
+    };
+
+    this.getInputValue = function (input, inputs, e) {
+      var newInputValue = Number(input.value);
+
+      if (input.value == '' || isNaN(Number(input.value))) {
+        newInputValue = undefined;
+      }
+
+      console.log(newInputValue);
+
+      if (e.target == inputs[0]) {
+        _this.newInputValue(newInputValue, 0);
+      } else {
+        _this.newInputValue(newInputValue, 1);
+      }
     };
   }
 
@@ -730,13 +743,9 @@ function () {
 
     this.subViewSliderLine.sliderClick = function (e) {
       if (e.target !== _this.handlers[0] && e.target !== _this.handlers[1]) {
-        // console.log (e.target);
         _this.moveByClick(e);
       }
-    }; // this.subViewScale.scalePpointClick = (e:MouseEvent):void =>{
-    //     this.moveByClick(e);
-    // }
-
+    };
   }
 
   return View;
@@ -791,6 +800,28 @@ function () {
       _this.model.getRangeValue(_this.options);
     };
 
+    this.setHandlersToInputValue = function (inputValue, num) {
+      if (inputValue == undefined) {
+        _this.getValueFromPosition();
+
+        return;
+      } else if (inputValue > _this.model.maxValue) {
+        inputValue = _this.model.maxValue;
+      } else if (inputValue < _this.model.minValue) {
+        inputValue = _this.model.minValue;
+      }
+
+      if (_this.options.moveBySteps) {
+        var _steps = Math.round((inputValue - _this.model.minValue) / _this.options.step);
+
+        inputValue = _steps * _this.options.step + _this.model.minValue;
+      }
+
+      _this.model.currentValue[num] = inputValue;
+
+      _this.getPositionFromValue();
+    };
+
     this.getValueFromPosition = function () {
       for (var i = 0; i < _this.view.handlers.length; i++) {
         var computedValue = void 0;
@@ -839,7 +870,7 @@ function () {
 
     this.getPositionFromValue = function () {
       for (var i = 0; i < _this.view.handlers.length; i++) {
-        if (_this.options.vertical) {
+        if (_this.options) if (_this.options.vertical) {
           _this.view.handlers[i].style.top = Math.abs((_this.model.currentValue[i] - _this.model.maxValue) * _this.model.positionValueRate) - _this.view.handlersHeight / 2 + 'px';
           _this.view.handlersPosition[i] = _this.view.handlers[i].getBoundingClientRect().y + pageYOffset;
         } else {
@@ -884,9 +915,7 @@ function () {
     };
 
     this.view.notifyChangedInputValue = function (newInputValue, num) {
-      _this.model.currentValue[num] = newInputValue;
-
-      _this.getPositionFromValue();
+      _this.setHandlersToInputValue(newInputValue, num);
     };
   }
 
@@ -912,8 +941,8 @@ var presenter_1 = require("./src/presenter"); // var jquery = require("jquery");
       maxValue: 100,
       startingValue: [-50, 20],
       vertical: false,
-      step: 15,
-      moveBySteps: true,
+      step: 10,
+      moveBySteps: false,
       range: true,
       rangeInput: true,
       valueInputs: true,
@@ -959,7 +988,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "58887" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59262" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
