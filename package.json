@@ -6,7 +6,7 @@
   "scripts": {
     "test": "jest",
     "start": "parcel slider.html",
-    "build":  "parcel build slider.ts -d docs  --public-url ./"
+    "build": "parcel build slider.ts -d docs  --public-url ./"
   },
   "keywords": [],
   "author": "",
@@ -25,6 +25,8 @@
     "@types/jquery": "^3.3.38",
     "jquery": "^3.5.1",
     "model": "^6.0.1",
+    "pug": "^3.0.0",
+    "src": "^1.1.2",
     "view": "^1.1.1",
     "view.js": "^4.1.0"
   }

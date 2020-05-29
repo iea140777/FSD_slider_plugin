@@ -142,7 +142,7 @@ function () {
       }
     };
 
-    this.minValue = options.minValue, this.maxValue = options.maxValue, this.step = options.step, this.range = options.range, this.handlersAmount = options.handlersAmount, this.icon = options.icon, this.input = options.input, this.valueRange = Math.abs(options.maxValue - options.minValue), this.stepsAmount = Math.floor(this.valueRange / this.step), this.positionValueRate, this.currentValue = [], this.getInitialCurrentValue(options), this.rangeValue = Math.abs(this.currentValue[1] - this.currentValue[0]);
+    this.minValue = options.minValue, this.maxValue = options.maxValue, this.step = options.step, this.range = options.range, this.handlersAmount = options.handlersAmount, this.icon = options.icon, this.valueRange = Math.abs(options.maxValue - options.minValue), this.stepsAmount = Math.floor(this.valueRange / this.step), this.positionValueRate, this.currentValue = [], this.getInitialCurrentValue(options), this.rangeValue = Math.abs(this.currentValue[1] - this.currentValue[0]);
   }
 
   return Model;
@@ -926,6 +926,8 @@ exports.Presenter = Presenter;
 },{"./model":"src/model.ts","./view":"src/view.ts"}],"slider.ts":[function(require,module,exports) {
 'use strict';
 
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -935,29 +937,48 @@ var presenter_1 = require("./src/presenter"); // var jquery = require("jquery");
 
 
 (function ($) {
-  jQuery.fn.slider = function (options) {
-    options = $.extend({
-      minValue: -100,
-      maxValue: 100,
-      startingValue: [-50, 20],
-      vertical: false,
-      step: 10,
-      moveBySteps: false,
-      range: true,
-      rangeInput: true,
-      valueInputs: true,
-      handlersAmount: 2,
-      scale: true,
-      icon: true,
-      input: true
-    }, options);
+  var defaults = {
+    minValue: -100,
+    maxValue: 100,
+    startingValue: [-50, 20],
+    vertical: false,
+    step: 10,
+    moveBySteps: true,
+    range: true,
+    rangeInput: true,
+    valueInputs: true,
+    handlersAmount: 2,
+    scale: true,
+    icon: true
+  };
+  var methods = {
+    init: function init(options) {
+      return this.each(function () {
+        var params = $.extend({}, defaults, options);
+        this.presenter = new presenter_1.Presenter(params, this);
+      });
+    },
+    destroy: function destroy() {
+      return this.each(function () {
+        var slider = this.children;
+        console.log(slider);
 
-    var init = function init() {
-      this.container = this;
-      this.presenter = new presenter_1.Presenter(options, this.container);
-    };
+        for (var _i = 0, slider_1 = slider; _i < slider_1.length; _i++) {
+          var elem = slider_1[_i];
+          elem.remove();
+        }
+      });
+    }
+  };
 
-    return this.each(init);
+  $.fn.slider = function (method) {
+    if (methods[method]) {
+      return methods[method].apply(this, Array.prototype.slice.call(arguments, 1));
+    } else if (_typeof(method) === 'object' || !method) {
+      return methods.init.apply(this, arguments);
+    } else {
+      $.error('Метод с именем ' + method + ' не существует для jQuery.slider');
+    }
   };
 })(jQuery);
 },{"./src/presenter":"src/presenter.ts"}],"../../Users/alexi/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
@@ -988,7 +1009,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59262" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49517" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

@@ -22,7 +22,6 @@ export default class Model  {
     this.range = options.range,
     this.handlersAmount = options.handlersAmount,
     this.icon = options.icon,
-    this.input = options.input,
     this.valueRange = Math.abs(options.maxValue - options.minValue),
     this.stepsAmount = Math.floor(this.valueRange / this.step),
     this.positionValueRate,

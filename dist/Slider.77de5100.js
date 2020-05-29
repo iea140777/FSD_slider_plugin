@@ -118,13 +118,68 @@ parcelRequire = (function (modules, cache, entry, globalName) {
 
   return newRequire;
 })({"index.ts":[function(require,module,exports) {
-// var jquery = require("jquery");
-// window.$ = window.jQuery = jquery;
-$('.slider1').slider();
-$('.slider2').slider();
-$('.slider3').slider({
-  vertical: true
-});
+var NewOptions =
+/** @class */
+function () {
+  function NewOptions(block) {
+    this.getOptions(block); // this.getChangedOptios(block);
+  }
+
+  NewOptions.prototype.getOptions = function (block) {
+    var form = block.querySelector('form');
+    this.minValue = form.minValue.value;
+    this.maxValue = form.maxValue.value;
+    this.startingValue = [form.startValue1.value, form.startValue2.value];
+    this.vertical = form.vertical.checked;
+    this.step = form.step.value;
+    this.moveBySteps = form.moveBySteps.checked;
+    this.range = form.range.checked;
+    this.rangeInput = form.rangeInput.checked;
+    this.valueInputs = form.valueInputs.checked;
+
+    if (form.handlers[1].checked) {
+      this.handlersAmount = 2;
+    } else {
+      this.handlersAmount = 1;
+    }
+
+    this.scale = form.scale.checked;
+    this.icon = form.icon.checked;
+  };
+
+  NewOptions.prototype.getChangedOptios = function (block) {
+    var _this = this;
+
+    var form = block.querySelector('form');
+    form.addEventListener('change', function () {
+      console.log('form changed');
+
+      _this.getOptions(block);
+    });
+  };
+
+  return NewOptions;
+}();
+
+var blocks = document.querySelectorAll('.demo-block');
+
+var _loop_1 = function _loop_1(block) {
+  var form = block.querySelector('form');
+  var options = new NewOptions(block);
+  var slider = block.querySelector('.slider');
+  $(slider).slider(options);
+  form.addEventListener('change', function () {
+    options = new NewOptions(block);
+    $(slider).slider('destroy');
+    $(slider).slider(options);
+  });
+};
+
+for (var _i = 0, blocks_1 = blocks; _i < blocks_1.length; _i++) {
+  var block = blocks_1[_i];
+
+  _loop_1(block);
+}
 },{}],"../../Users/alexi/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
@@ -153,7 +208,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59262" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49517" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

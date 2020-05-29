@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="slider.css">
+    <link rel="stylesheet" href="demo.css">
+</head>
+
+body
+    div.demo-container 
+        div.demo-block
+            include src/config-block/config-block.pug
+            div.slider
+        div.demo-block
+            include src/config-block/config-block.pug
+            div.slider 
+        div.demo-block 
+            include src/config-block/config-block.pug
+            div.slider
+    script(src="jquery-3.4.1.js")
+    script(src="slider.ts")
+    script(src="index.ts")
+
+

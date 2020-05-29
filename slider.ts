@@ -5,28 +5,51 @@ import{IOptions} from './src/presenter';
 // window.$ = window.jQuery = jquery;
 
 
-(function($){
-    jQuery.fn.slider = function(options:IOptions){
-        options = $.extend ({
-            minValue: -100,
-            maxValue: 100,
-            startingValue: [-50, 20],
-            vertical:false,
-            step: 10,
-            moveBySteps: false,
-            range: true,
-            rangeInput: true,
-            valueInputs: true,
-            handlersAmount: 2, 
-            scale: true,
-            icon: true,
-            input: true
-        }, options);
-        var init = function(){
-            this.container = this;
-            this.presenter = new Presenter (options, this.container);
-            };
-    return this.each(init);    
-};
-})(jQuery);
+(function( $ ){
+    const defaults = {
+        minValue: -100,
+        maxValue: 100,
+        startingValue: [-50, 20],
+        vertical:false,
+        step: 10,
+        moveBySteps: true,
+        range: true,
+        rangeInput: true,
+        valueInputs: true,
+        handlersAmount: 2, 
+        scale: true,
+        icon: true
+    };
+   
+    const methods = {
+        init: function (options) {
+            return this.each(function(){
+                const params = $.extend({}, defaults, options);
+                this.presenter = new Presenter (params, this);
+            });
+        },
 
+        destroy: function  () {
+            return this.each(function(){
+                const slider = this.children;
+                console.log(slider);
+                for (let elem of slider) {
+                    elem.remove();
+                  }
+            })
+        }
+    };
+  
+    $.fn.slider = function(method) {
+      
+      if ( methods[method] ) {
+        return methods[method].apply( this, Array.prototype.slice.call( arguments, 1 ));
+      } else if ( typeof method === 'object' || ! method ) {
+        return methods.init.apply( this, arguments );
+      } else {
+        $.error( 'Метод с именем ' +  method + ' не существует для jQuery.slider' );
+      }    
+    
+    };
+  
+  })( jQuery );
