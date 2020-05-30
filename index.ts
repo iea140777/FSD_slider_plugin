@@ -1,4 +1,4 @@
-
+// $('.slider1').slider();
 interface IOptions {
     minValue: number;
     maxValue: number;
@@ -29,7 +29,6 @@ class NewOptions implements IOptions {
     icon: boolean;
     constructor(block:HTMLDivElement) {
         this.getOptions(block);
-        // this.getChangedOptios(block);
     }
 
     getOptions (block:HTMLDivElement):void {
@@ -51,21 +50,14 @@ class NewOptions implements IOptions {
         this.scale = form.scale.checked;
         this.icon = form.icon.checked; 
     }
-
-    getChangedOptios (block:HTMLDivElement)  {
-        const form = block.querySelector('form');
-        form.addEventListener('change', () => {
-            console.log('form changed');
-            this.getOptions(block);
-        })
-    }
 }
 
 const blocks:NodeListOf<HTMLDivElement> = document.querySelectorAll('.demo-block');
+
 for (let block of blocks) {
-    const form = block.querySelector('form');
-    let options: Object = new NewOptions(block);
-    const slider = block.querySelector('.slider');
+    const form:HTMLFormElement = block.querySelector('form');
+    let options: IOptions = new NewOptions(block);
+    const slider:HTMLDivElement = block.querySelector('.slider');
     $(slider).slider(options);
     form.addEventListener('change', () => {
         options = new NewOptions(block);

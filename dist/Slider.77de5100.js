@@ -122,7 +122,7 @@ var NewOptions =
 /** @class */
 function () {
   function NewOptions(block) {
-    this.getOptions(block); // this.getChangedOptios(block);
+    this.getOptions(block);
   }
 
   NewOptions.prototype.getOptions = function (block) {
@@ -145,17 +145,6 @@ function () {
 
     this.scale = form.scale.checked;
     this.icon = form.icon.checked;
-  };
-
-  NewOptions.prototype.getChangedOptios = function (block) {
-    var _this = this;
-
-    var form = block.querySelector('form');
-    form.addEventListener('change', function () {
-      console.log('form changed');
-
-      _this.getOptions(block);
-    });
   };
 
   return NewOptions;
@@ -208,7 +197,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49517" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "63249" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

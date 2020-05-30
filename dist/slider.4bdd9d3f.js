@@ -200,23 +200,20 @@ var SubViewHandlers =
 /** @class */
 function () {
   function SubViewHandlers() {
-    var _this = this;
+    var _this = this; // getInitialHandlersPosition = (handlers:NodeListOf<HTMLDivElement>, options:IOptions):number[] => {
+    //     let handlersPosition:number[] = [];
+    //     for (let i = 0; i < handlers.length; i++){
+    //         if(options.vertical){
+    //             let handlerPosition:number = handlers[i].getBoundingClientRect().y;
+    //             handlersPosition[i] = handlerPosition;
+    //         } else {
+    //             let handlerPosition:number = handlers[i].getBoundingClientRect().x;
+    //             handlersPosition[i] = handlerPosition;
+    //         }
+    //     }
+    //     return handlersPosition;
+    // }
 
-    this.getInitialHandlersPosition = function (handlers, options) {
-      var handlersPosition = [];
-
-      for (var i = 0; i < handlers.length; i++) {
-        if (options.vertical) {
-          var handlerPosition = handlers[i].getBoundingClientRect().y;
-          handlersPosition[i] = handlerPosition;
-        } else {
-          var handlerPosition = handlers[i].getBoundingClientRect().x;
-          handlersPosition[i] = handlerPosition;
-        }
-      }
-
-      return handlersPosition;
-    };
 
     this.addHandlerListeners = function (handlers) {
       handlers[0].onmousedown = function (e) {
@@ -324,8 +321,6 @@ function () {
         newInputValue = undefined;
       }
 
-      console.log(newInputValue);
-
       if (e.target == inputs[0]) {
         _this.newInputValue(newInputValue, 0);
       } else {
@@ -345,35 +340,33 @@ function () {
   };
 
   SubViewInput.prototype.createRangeInput = function (options, inputsContainer) {
+    var inputLabel = document.createElement('span');
+    inputLabel.classList.add('slider__inputLabel');
+    inputLabel.innerText = 'range';
+    inputsContainer.append(inputLabel);
     var rangeInput = document.createElement('input');
     rangeInput.setAttribute('type', 'text');
     rangeInput.classList.add('slider__input', 'slider__input_range');
-    inputsContainer.append(rangeInput);
-    var inputLabel = document.createElement('span');
-    inputLabel.classList.add('slider__label');
-    inputLabel.innerText = 'range';
-    rangeInput.before(inputLabel);
+    inputLabel.append(rangeInput);
     var input = inputsContainer.querySelector('.slider__input_range');
     return input;
   };
 
   SubViewInput.prototype.createValueInputs = function (options, inputsContainer) {
-    if (options.valueInputs) {
-      for (var i = 0; i < +options.handlersAmount; i++) {
-        var valueInput = document.createElement('input');
-        valueInput.setAttribute('type', 'text');
-        valueInput.classList.add('slider__input', 'slider__input_value');
-        inputsContainer.append(valueInput);
-        var inputLabel = document.createElement('span');
-        inputLabel.classList.add('slider__label');
-        inputLabel.innerText = "value " + (i + 1);
-        valueInput.before(inputLabel);
-      }
-
-      var inputs = inputsContainer.querySelectorAll('.slider__input_value');
-      this.addInputsListener(inputs);
-      return inputs;
+    for (var i = 0; i < +options.handlersAmount; i++) {
+      var inputLabel = document.createElement('span');
+      inputLabel.classList.add('slider__inputLabel');
+      inputLabel.innerText = "value " + (i + 1);
+      inputsContainer.append(inputLabel);
+      var valueInput = document.createElement('input');
+      valueInput.setAttribute('type', 'text');
+      valueInput.classList.add('slider__input', 'slider__input_value');
+      inputLabel.append(valueInput);
     }
+
+    var inputs = inputsContainer.querySelectorAll('.slider__input_value');
+    this.addInputsListener(inputs);
+    return inputs;
   };
 
   return SubViewInput;
@@ -487,7 +480,7 @@ function () {
 
       _cont.classList.add('slider__container');
 
-      if (options.vertical) {
+      if (_this.options.vertical) {
         _cont.classList.add('slider__container_vertical');
       } else {
         _cont.classList.add('slider__container_horisontal');
@@ -506,8 +499,11 @@ function () {
         _this.maxPosition = _this.sliderPosition - _this.handlersHeight / 2;
         _this.minPosition = _this.maxPosition + _this.slider.getBoundingClientRect().height;
         _this.positionRange = _this.minPosition - _this.maxPosition;
-        _this.handlersPosition = _this.subViewHandlers.getInitialHandlersPosition(_this.handlers, _this.options);
-        _this.range = _this.showRange(_this.options);
+        _this.handlersPosition = []; // this.subViewHandlers.getInitialHandlersPosition(this.handlers, this.options);
+
+        if (_this.options.range) {
+          _this.range = _this.showRange(_this.options);
+        }
       } else {
         _this.sliderPosition = _this.slider.getBoundingClientRect().x + pageXOffset;
         _this.handlersWidth = _this.handlers[0].offsetWidth;
@@ -516,8 +512,11 @@ function () {
         _this.minPosition = _this.sliderPosition - _this.handlersWidth / 2;
         _this.maxPosition = _this.minPosition + _this.slider.getBoundingClientRect().width;
         _this.positionRange = _this.maxPosition - _this.minPosition;
-        _this.handlersPosition = new subViewHandlers_1.default().getInitialHandlersPosition(_this.handlers, _this.options);
-        _this.range = _this.showRange(_this.options);
+        _this.handlersPosition = []; // new SubViewHandlers().getInitialHandlersPosition(this.handlers, this.options);
+
+        if (_this.options.range) {
+          _this.range = _this.showRange(_this.options);
+        }
       }
     };
 
@@ -546,30 +545,28 @@ function () {
     };
 
     this.showRange = function (options) {
-      if (_this.options.range) {
-        var rangeBlock = document.createElement('div');
-        rangeBlock.classList.add('slider__range');
+      var rangeBlock = document.createElement('div');
+      rangeBlock.classList.add('slider__range');
 
-        if (options.vertical) {
-          rangeBlock.style.width = _this.slider.getBoundingClientRect().width + 2 + 'px';
-          rangeBlock.style.left = -1 + 'px';
-        } else {
-          rangeBlock.style.height = _this.slider.getBoundingClientRect().height + 2 + 'px';
-          rangeBlock.style.top = -1 + 'px';
-        }
-
-        _this.slider.append(rangeBlock);
-
-        var range = _this.slider.querySelector('.slider__range');
-
-        _this.getSliderRangePosition(options, range);
-
-        return range;
+      if (options.vertical) {
+        rangeBlock.style.width = _this.slider.getBoundingClientRect().width + 2 + 'px';
+        rangeBlock.style.left = -1 + 'px';
+      } else {
+        rangeBlock.style.height = _this.slider.getBoundingClientRect().height + 2 + 'px';
+        rangeBlock.style.top = -1 + 'px';
       }
+
+      _this.slider.append(rangeBlock);
+
+      var range = _this.slider.querySelector('.slider__range');
+
+      _this.getSliderRangePosition(options, range);
+
+      return range;
     };
 
     this.getSliderRangePosition = function (options, rangeBlock) {
-      if (options.vertical) {
+      if (_this.options.vertical) {
         if (_this.handlersPosition[0] > _this.handlersPosition[1]) {
           rangeBlock.style.top = _this.handlers[1].offsetTop + _this.handlers[1].offsetHeight / 2 + 'px';
         } else {
@@ -731,7 +728,10 @@ function () {
     this.subViewInput = new subViewInput_1.default();
     this.createSlider(options, container);
     this.getSliderData();
-    this.getScalePosition();
+
+    if (this.options.scale) {
+      this.getScalePosition();
+    }
 
     this.subViewHandlers.handlerMouseDown = function (e, handler, num) {
       _this.moveByMouse(e, handler, num);
@@ -776,22 +776,48 @@ function () {
     var _this = this;
 
     this.checkOptions = function (options) {
-      if (options.minValue >= options.maxValue) {
-        console.log('minValue should not be equal or be more than maxValue');
+      _this.options = options;
+      _this.options.minValue = Number(options.minValue);
+      _this.options.maxValue = Number(options.maxValue);
+      _this.options.startingValue = [Number(options.startingValue[0]), Number(options.startingValue[1])];
+      _this.options.step = Number(options.step);
+      _this.options.handlersAmount = Number(options.handlersAmount);
+
+      if (_this.options.minValue >= _this.options.maxValue) {
+        console.log('Slider: minValue should not be equal or be more than maxValue');
+        return;
       }
 
-      if (options.startingValue) {} // minValue: 0,
-      // maxValue: 100,
-      // startingValue: [20, 60],
-      // vertical:false,
-      // step: 5,
-      // range: true,
-      // rangeInput: true,
-      // valueInputs: true,
-      // handlersAmount: 2,
-      // icon: true,
-      // input: true
+      for (var i = 0; i <= _this.options.startingValue.length; i++) {
+        if (_this.options.startingValue[i] > _this.options.maxValue) {
+          _this.options.startingValue[i] = _this.options.maxValue;
+        } else if (_this.options.startingValue[i] < _this.options.minValue) {
+          _this.options.startingValue[i] = _this.options.minValue;
+        }
+      }
 
+      if (_this.options.handlersAmount < 1) {
+        _this.options.handlersAmount = 1;
+        console.log('Slider: handlers amount should be equal either 1 or 2');
+      } else if (_this.options.handlersAmount > 2) {
+        _this.options.handlersAmount = 2;
+        console.log('Slider: handlers amount should be equal either 1 or 2');
+      }
+
+      if (_this.options.handlersAmount == 2 && _this.options.startingValue.length < 2) {
+        _this.options.startingValue = [_this.options.minValue, _this.options.maxValue];
+        console.log('Slider: starting value should be defined for every handler');
+      }
+
+      if (_this.options.step >= Math.abs(_this.options.maxValue - _this.options.minValue)) {
+        console.log('Slider: step value should  be  less than slider value range');
+        return;
+      }
+
+      if (_this.options.handlersAmount == 1 && _this.options.range) {
+        _this.options.range = false;
+        console.log('Slider: range option cannot be applied to one handler');
+      }
     };
 
     this.setInitialHandlersPosition = function () {
@@ -902,7 +928,7 @@ function () {
       }
     };
 
-    this.options = options;
+    this.checkOptions(options);
     this.model = new model_1.default(this.options);
     this.view = new view_1.View(this.options, container);
     this.model.positionValueRate = this.view.positionRange / this.model.valueRange;
@@ -1009,7 +1035,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49517" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "63249" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

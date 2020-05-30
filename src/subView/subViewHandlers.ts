@@ -17,19 +17,19 @@ export default class SubViewHandlers  {
         return handlers;
     }
 
-    getInitialHandlersPosition = (handlers:NodeListOf<HTMLDivElement>, options:IOptions):number[] => {
-        let handlersPosition:number[] = [];
-        for (let i = 0; i < handlers.length; i++){
-            if(options.vertical){
-                let handlerPosition:number = handlers[i].getBoundingClientRect().y;
-                handlersPosition[i] = handlerPosition;
-            } else {
-                let handlerPosition:number = handlers[i].getBoundingClientRect().x;
-                handlersPosition[i] = handlerPosition;
-            }
-        }
-        return handlersPosition;
-    }
+    // getInitialHandlersPosition = (handlers:NodeListOf<HTMLDivElement>, options:IOptions):number[] => {
+    //     let handlersPosition:number[] = [];
+    //     for (let i = 0; i < handlers.length; i++){
+    //         if(options.vertical){
+    //             let handlerPosition:number = handlers[i].getBoundingClientRect().y;
+    //             handlersPosition[i] = handlerPosition;
+    //         } else {
+    //             let handlerPosition:number = handlers[i].getBoundingClientRect().x;
+    //             handlersPosition[i] = handlerPosition;
+    //         }
+    //     }
+    //     return handlersPosition;
+    // }
 
     addHandlerListeners = (handlers:NodeListOf<HTMLDivElement>):void => {
         handlers[0].onmousedown = (e):void => {

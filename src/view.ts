@@ -41,7 +41,9 @@ export class View {
         this.subViewInput = new SubViewInput;
         this.createSlider(options, container);
         this.getSliderData();
-        this.getScalePosition();
+        if (this.options.scale){
+            this.getScalePosition();
+        }
         this.subViewHandlers.handlerMouseDown = (e:MouseEvent, handler:HTMLDivElement, num:number):void => {
             this.moveByMouse(e, handler, num);
         }
@@ -69,7 +71,7 @@ export class View {
             this.inputsContainer = this.subViewInput.createInputsContainer(options, this.slider, this.sliderContainer);
             if (this.options.rangeInput && this.options.handlersAmount > 1){
                 this.rangeInput = this.subViewInput.createRangeInput(options, this.inputsContainer);
-            }       
+            }  
             if(this.options.valueInputs){
             this.valueInputs = this.subViewInput.createValueInputs(options, this.inputsContainer);
             }
@@ -79,7 +81,7 @@ export class View {
     createContainer = (options:IOptions, container:HTMLElement):HTMLDivElement => {
         const _cont:HTMLDivElement = document.createElement('div');
         _cont.classList.add('slider__container');
-        if (options.vertical) {
+        if (this.options.vertical) {
             _cont.classList.add('slider__container_vertical');
         }
         else {
@@ -98,8 +100,11 @@ export class View {
             this.maxPosition = this.sliderPosition - this.handlersHeight/2;
             this.minPosition = this.maxPosition + this.slider.getBoundingClientRect().height;
             this.positionRange = (this.minPosition - this.maxPosition);
-            this.handlersPosition = this.subViewHandlers.getInitialHandlersPosition(this.handlers, this.options);
-            this.range = this.showRange(this.options);
+            this.handlersPosition = [];
+            // this.subViewHandlers.getInitialHandlersPosition(this.handlers, this.options);
+            if (this.options.range) {
+                this.range = this.showRange(this.options);
+            }
             
         } else {
             this.sliderPosition = this.slider.getBoundingClientRect().x + pageXOffset;
@@ -109,8 +114,11 @@ export class View {
             this.minPosition = this.sliderPosition - this.handlersWidth/2;
             this.maxPosition = this.minPosition + this.slider.getBoundingClientRect().width;
             this.positionRange = (this.maxPosition - this.minPosition);
-            this.handlersPosition = new SubViewHandlers().getInitialHandlersPosition(this.handlers, this.options);
-            this.range = this.showRange(this.options);
+            this.handlersPosition = [];
+            // new SubViewHandlers().getInitialHandlersPosition(this.handlers, this.options);
+            if (this.options.range) {
+                this.range = this.showRange(this.options);
+            }
         }
     }
 
@@ -142,7 +150,6 @@ export class View {
     }
 
     showRange = (options:IOptions):HTMLDivElement => {
-        if (this.options.range){
            let rangeBlock:HTMLDivElement = document.createElement('div');
            rangeBlock.classList.add('slider__range');
            if (options.vertical){
@@ -157,11 +164,10 @@ export class View {
            let range:HTMLDivElement = this.slider.querySelector('.slider__range');
            this.getSliderRangePosition(options, range);
            return range;
-        }
     }
 
     getSliderRangePosition = (options:IOptions, rangeBlock:HTMLDivElement):void => {
-        if (options.vertical){
+        if (this.options.vertical){
             if (this.handlersPosition[0] > this.handlersPosition[1]) {
                 rangeBlock.style.top = this.handlers[1].offsetTop + this.handlers[1].offsetHeight/2 + 'px';
             }
@@ -187,7 +193,7 @@ export class View {
         if(this.options.vertical){
             shiftX = e.clientY - this.handlersPosition[num];
         }
-        else{
+        else {
             shiftX = e.clientX - this.handlersPosition[num];
         }
         handler.classList.add('slider__handler_active');

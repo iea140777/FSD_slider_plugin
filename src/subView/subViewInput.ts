@@ -11,34 +11,34 @@ export  default class SubViewInput  {
     }
 
     createRangeInput (options:IOptions, inputsContainer:HTMLDivElement): HTMLInputElement {
+        let inputLabel:HTMLElement = document.createElement('span');
+        inputLabel.classList.add('slider__inputLabel');
+        inputLabel.innerText = 'range';
+        inputsContainer.append(inputLabel);
         let rangeInput:HTMLInputElement = document.createElement('input');
         rangeInput.setAttribute('type', 'text')
         rangeInput.classList.add('slider__input', 'slider__input_range');
-        inputsContainer.append(rangeInput);
-        let inputLabel:HTMLElement = document.createElement('span');
-        inputLabel.classList.add('slider__label');
-        inputLabel.innerText = 'range';
-        rangeInput.before(inputLabel);
+        inputLabel.append(rangeInput);
+        
         let input:HTMLInputElement = inputsContainer.querySelector('.slider__input_range');
         return input;
     }
 
     createValueInputs (options:IOptions, inputsContainer:HTMLDivElement):NodeListOf<HTMLInputElement>{
-        if(options.valueInputs){
-            for (let i = 0; i < +options.handlersAmount; i++){
-                let valueInput:HTMLInputElement = document.createElement('input');
-                valueInput.setAttribute('type', 'text')
-                valueInput.classList.add('slider__input', 'slider__input_value');
-                inputsContainer.append(valueInput);
-                let inputLabel:HTMLElement = document.createElement('span');
-                inputLabel.classList.add('slider__label');
-                inputLabel.innerText = `value ${i+1}`;
-                valueInput.before(inputLabel);
-            }
-            let inputs:NodeListOf<HTMLInputElement> = inputsContainer.querySelectorAll('.slider__input_value');
-            this.addInputsListener(inputs);
-            return inputs;
+        for (let i = 0; i < +options.handlersAmount; i++){
+            let inputLabel:HTMLElement = document.createElement('span');
+            inputLabel.classList.add('slider__inputLabel');
+            inputLabel.innerText = `value ${i+1}`;
+            inputsContainer.append(inputLabel);
+            let valueInput:HTMLInputElement = document.createElement('input');
+            valueInput.setAttribute('type', 'text')
+            valueInput.classList.add('slider__input', 'slider__input_value');
+            inputLabel.append(valueInput);
+            
         }
+        let inputs:NodeListOf<HTMLInputElement> = inputsContainer.querySelectorAll('.slider__input_value');
+        this.addInputsListener(inputs);
+        return inputs;
     }
 
     addInputsListener = (inputs:NodeListOf<HTMLInputElement>):void => {
@@ -64,7 +64,6 @@ export  default class SubViewInput  {
             if (input.value == '' || isNaN(Number(input.value))) {
                 newInputValue = undefined;
             }
-            console.log(newInputValue);
             if (e.target == inputs[0]){
                 this.newInputValue(newInputValue, 0);
             }

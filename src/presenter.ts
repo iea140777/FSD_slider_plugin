@@ -23,7 +23,7 @@ export class Presenter {
     view: View;
 
     constructor(options:IOptions, container:HTMLDivElement){
-        this.options = options;
+        this.checkOptions(options);
         this.model = new Model(this.options);
         this.view = new View (this.options, container);
         this.model.positionValueRate = this.view.positionRange / this.model.valueRange;
@@ -39,22 +39,49 @@ export class Presenter {
     }
 
     checkOptions = (options:IOptions) => {
-        if (options.minValue >= options.maxValue){
-            console.log ('minValue should not be equal or be more than maxValue');
-        }
-        if (options.startingValue){}
+        this.options = options;
+        this.options.minValue = Number(options.minValue);
+        this.options.maxValue = Number(options.maxValue);
+        this.options.startingValue = [Number(options.startingValue[0]), Number(options.startingValue[1])];
+        this.options.step = Number(options.step);
+        this.options.handlersAmount = Number(options.handlersAmount);
 
-            // minValue: 0,
-            // maxValue: 100,
-            // startingValue: [20, 60],
-            // vertical:false,
-            // step: 5,
-            // range: true,
-            // rangeInput: true,
-            // valueInputs: true,
-            // handlersAmount: 2,
-            // icon: true,
-            // input: true
+        if (this.options.minValue >= this.options.maxValue){
+            console.log ('Slider: minValue should not be equal or be more than maxValue');
+            return;
+        }
+
+        for (let i = 0; i <= this.options.startingValue.length; i++){
+            if (this.options.startingValue[i] > this.options.maxValue){
+                this.options.startingValue[i] = this.options.maxValue;
+            }
+            else if (this.options.startingValue[i] < this.options.minValue){
+                this.options.startingValue[i] = this.options.minValue;
+            }
+        }
+
+        if (this.options.handlersAmount < 1){
+            this.options.handlersAmount = 1;
+            console.log ('Slider: handlers amount should be equal either 1 or 2');
+        }
+        else if (this.options.handlersAmount > 2){
+            this.options.handlersAmount = 2;
+            console.log ('Slider: handlers amount should be equal either 1 or 2');
+        }
+        if (this.options.handlersAmount == 2 && this.options.startingValue.length < 2){
+            this.options.startingValue = [this.options.minValue, this.options.maxValue];
+            console.log('Slider: starting value should be defined for every handler');
+        }
+
+        if (this.options.step >= Math.abs(this.options.maxValue - this.options.minValue)) {
+            console.log ('Slider: step value should  be  less than slider value range');
+            return;
+        }
+
+        if (this.options.handlersAmount == 1 && this.options.range){
+            this.options.range = false;
+            console.log('Slider: range option cannot be applied to one handler')
+        }
     }
     
     setInitialHandlersPosition = ():void => {

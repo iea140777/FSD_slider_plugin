@@ -41,8 +41,4 @@ export default class Model  {
             this.rangeValue = Math.abs(this.currentValue[1] - this.currentValue[0]);
         }
     }
-
-    // getNumberOfSteps = () => {
-    //     let stepsAmount: number = this.valueRange / this.step;
-    // }
 }
