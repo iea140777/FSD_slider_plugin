@@ -506,8 +506,8 @@ function () {
         }
       } else {
         _this.sliderPosition = _this.slider.getBoundingClientRect().x + pageXOffset;
-        _this.handlersWidth = _this.handlers[0].offsetWidth;
-        console.log(_this.slider.getBoundingClientRect());
+        _this.handlersWidth = _this.handlers[0].offsetWidth; // console.log(this.slider.getBoundingClientRect());
+
         _this.sliderBorder = parseFloat(getComputedStyle(_this.slider).borderLeftWidth);
         _this.minPosition = _this.sliderPosition - _this.handlersWidth / 2;
         _this.maxPosition = _this.minPosition + _this.slider.getBoundingClientRect().width;
@@ -522,23 +522,25 @@ function () {
 
     this.getScalePosition = function () {
       var posToVal = _this.positionRange / Math.abs(_this.options.maxValue - _this.options.minValue);
+      var percentPosToVal = posToVal / _this.positionRange * 100;
 
       for (var i = 0; i < _this.scale.length; i++) {
         if (_this.options.vertical) {
           if (i == 0) {
-            _this.scale[i].style.top = _this.positionRange + 'px';
+            // this.scale[i].style.top = this.positionRange + 'px';
+            _this.scale[i].style.top = '100%';
           } else if (i == _this.scale.length - 1) {
-            _this.scale[i].style.top = 0 + 'px';
+            _this.scale[i].style.top = '0%';
           } else {
-            _this.scale[i].style.top = _this.positionRange - i * posToVal * _this.options.step + 'px';
+            _this.scale[i].style.top = 100 - i * percentPosToVal * _this.options.step + '%';
           }
         } else {
           if (i == 0) {
-            _this.scale[i].style.left = 0 + 'px';
+            _this.scale[i].style.left = '0%';
           } else if (i == _this.scale.length - 1) {
-            _this.scale[i].style.left = _this.positionRange + 'px';
+            _this.scale[i].style.left = '100%';
           } else {
-            _this.scale[i].style.left = i * posToVal * _this.options.step + 'px';
+            _this.scale[i].style.left = i * percentPosToVal * _this.options.step + '%';
           }
         }
       }
@@ -690,8 +692,6 @@ function () {
         handlerToMove.style.top = newTop + 'px';
 
         _this.writeNewPosition(handlerToMove, num);
-
-        console.log(_this.handlersPosition);
       } else {
         var newLeft = e.clientX + pageXOffset - _this.handlersWidth / 2 - _this.sliderPosition;
 
@@ -721,6 +721,7 @@ function () {
     };
 
     this.options = options;
+    this.outerContainer = container;
     this.subViewSliderLine = new subViewSliderLine_1.default();
     this.subViewHandlers = new subViewHandlers_1.default();
     this.subViewScale = new subViewScale_1.default();
@@ -731,7 +732,8 @@ function () {
 
     if (this.options.scale) {
       this.getScalePosition();
-    }
+    } // this.windowChange();
+
 
     this.subViewHandlers.handlerMouseDown = function (e, handler, num) {
       _this.moveByMouse(e, handler, num);
@@ -932,9 +934,7 @@ function () {
     this.model = new model_1.default(this.options);
     this.view = new view_1.View(this.options, container);
     this.model.positionValueRate = this.view.positionRange / this.model.valueRange;
-    this.setInitialHandlersPosition();
-    console.log(this.view);
-    console.log(this.model);
+    this.setInitialHandlersPosition(); // this.windowChange(this.options, container);
 
     this.view.notifyChangedHandlerPosition = function () {
       _this.getValueFromPosition();
@@ -942,13 +942,29 @@ function () {
 
     this.view.notifyChangedInputValue = function (newInputValue, num) {
       _this.setHandlersToInputValue(newInputValue, num);
-    };
+    }; // this.view.notifyChangedWindow = () => {
+    //     this.view = new View (this.options, container);
+    //     this.model.positionValueRate = this.view.positionRange / this.model.valueRange;
+    //     this.setInitialHandlersPosition();
+    // }
+
   }
 
   return Presenter;
 }();
 
-exports.Presenter = Presenter;
+exports.Presenter = Presenter; // <div contentEditable id="elem">Отредактируй <b>меня</b>, пожалуйста</div>
+// <script>
+// let observer = new MutationObserver(mutationRecords => {
+//   console.log(mutationRecords); // console.log(изменения)
+// });
+// // наблюдать за всем, кроме атрибутов
+// observer.observe(elem, {
+//   childList: true, // наблюдать за непосредственными детьми
+//   subtree: true, // и более глубокими потомками
+//   characterDataOldValue: true // передавать старое значение в колбэк
+// });
+// </script>
 },{"./model":"src/model.ts","./view":"src/view.ts"}],"slider.ts":[function(require,module,exports) {
 'use strict';
 
@@ -987,7 +1003,6 @@ var presenter_1 = require("./src/presenter"); // var jquery = require("jquery");
     destroy: function destroy() {
       return this.each(function () {
         var slider = this.children;
-        console.log(slider);
 
         for (var _i = 0, slider_1 = slider; _i < slider_1.length; _i++) {
           var elem = slider_1[_i];
@@ -1035,7 +1050,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "63249" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "55817" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

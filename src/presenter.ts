@@ -28,14 +28,20 @@ export class Presenter {
         this.view = new View (this.options, container);
         this.model.positionValueRate = this.view.positionRange / this.model.valueRange;
         this.setInitialHandlersPosition();
-        console.log(this.view);
-        console.log(this.model);  
+        // this.windowChange(this.options, container);
         this.view.notifyChangedHandlerPosition = ():void => {
             this.getValueFromPosition();
         }
         this.view.notifyChangedInputValue = (newInputValue:number, num: number) => {
             this.setHandlersToInputValue (newInputValue, num);
         }
+
+        // this.view.notifyChangedWindow = () => {
+        //     this.view = new View (this.options, container);
+        //     this.model.positionValueRate = this.view.positionRange / this.model.valueRange;
+        //     this.setInitialHandlersPosition();
+        // }
+        
     }
 
     checkOptions = (options:IOptions) => {
@@ -179,7 +185,23 @@ export class Presenter {
                 this.view.valueInputs[i].value = `${this.model.currentValue[i]}`; 
             }
         } 
-    }   
+    } 
+
 }
-    
-    
+  
+
+
+// <div contentEditable id="elem">Отредактируй <b>меня</b>, пожалуйста</div>
+
+// <script>
+// let observer = new MutationObserver(mutationRecords => {
+//   console.log(mutationRecords); // console.log(изменения)
+// });
+
+// // наблюдать за всем, кроме атрибутов
+// observer.observe(elem, {
+//   childList: true, // наблюдать за непосредственными детьми
+//   subtree: true, // и более глубокими потомками
+//   characterDataOldValue: true // передавать старое значение в колбэк
+// });
+// </script>    

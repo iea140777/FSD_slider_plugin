@@ -7,7 +7,7 @@
     "test": "jest",
     "start": "parcel slider.html",
     "buildSlider": "parcel build slider.ts -d docs/slider  --public-url ./",
-    "buildDemo": "parcel build slider.pug -d docs  --public-url ./"
+    "buildDemo": "parcel build index.pug -d docs  --public-url ./"
   },
   "keywords": [],
   "author": "",

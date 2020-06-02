@@ -32,7 +32,6 @@ import{IOptions} from './src/presenter';
         destroy: function  () {
             return this.each(function(){
                 const slider = this.children;
-                console.log(slider);
                 for (let elem of slider) {
                     elem.remove();
                   }

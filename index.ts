@@ -66,7 +66,12 @@ for (let block of blocks) {
     })
 }
 
+// function resize() {
+//     let slider = document.querySelector('.slider__container');  
+//     console.log(slider.offsetWidth);
+//   }
 
+// window.addEventListener("resize", resize);
 
 
 

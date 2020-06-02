@@ -34,6 +34,7 @@ export class View {
 
     constructor (options:IOptions, container:HTMLDivElement){
         this.options = options;
+        this.outerContainer = container;
         this.subViewSliderLine = new SubViewSliderLine;
         this.subViewHandlers = new SubViewHandlers;
         this.subViewScale = new SubViewScale;
@@ -44,6 +45,7 @@ export class View {
         if (this.options.scale){
             this.getScalePosition();
         }
+        // this.windowChange();
         this.subViewHandlers.handlerMouseDown = (e:MouseEvent, handler:HTMLDivElement, num:number):void => {
             this.moveByMouse(e, handler, num);
         }
@@ -57,6 +59,7 @@ export class View {
         }
     }
 
+    
     createSlider = (options:IOptions, container:HTMLDivElement):void => {
         this.sliderContainer = this.createContainer(options, container);
         this.slider = this.subViewSliderLine.createSliderLine(this.sliderContainer, options);
@@ -106,10 +109,11 @@ export class View {
                 this.range = this.showRange(this.options);
             }
             
-        } else {
+        } 
+        else {
             this.sliderPosition = this.slider.getBoundingClientRect().x + pageXOffset;
             this.handlersWidth = this.handlers[0].offsetWidth;
-            console.log(this.slider.getBoundingClientRect());
+            // console.log(this.slider.getBoundingClientRect());
             this.sliderBorder = parseFloat(getComputedStyle(this.slider).borderLeftWidth);
             this.minPosition = this.sliderPosition - this.handlersWidth/2;
             this.maxPosition = this.minPosition + this.slider.getBoundingClientRect().width;
@@ -119,31 +123,33 @@ export class View {
             if (this.options.range) {
                 this.range = this.showRange(this.options);
             }
-        }
+        }       
     }
 
     getScalePosition = (): void => {
         const posToVal: number = this.positionRange / Math.abs((this.options.maxValue - this.options.minValue));
+        const percentPosToVal = (posToVal/this.positionRange) * 100
         for (let i = 0; i < this.scale.length; i++){
             if (this.options.vertical) {
                 if (i == 0) {
-                    this.scale[i].style.top = this.positionRange + 'px';
+                    // this.scale[i].style.top = this.positionRange + 'px';
+                    this.scale[i].style.top = '100%';
                 }
                 else if (i == this.scale.length - 1){
-                    this.scale[i].style.top = 0 + 'px';
+                    this.scale[i].style.top = '0%';
                 }
                 else {
-                    this.scale[i].style.top = this.positionRange - (i * posToVal * this.options.step)  + 'px';
+                    this.scale[i].style.top = 100 - (i * percentPosToVal * this.options.step)  + '%';
                 }    
             } else {
                 if (i == 0) {
-                    this.scale[i].style.left = 0 + 'px';
+                    this.scale[i].style.left = '0%';
                 }
                 else if (i == this.scale.length - 1){
-                    this.scale[i].style.left = this.positionRange + 'px';
+                    this.scale[i].style.left = '100%';
                 }
                 else {
-                    this.scale[i].style.left = (i * posToVal * this.options.step)  + 'px';
+                    this.scale[i].style.left = (i * percentPosToVal * this.options.step)  + '%';
                 }    
             }
         }
@@ -275,7 +281,6 @@ export class View {
             }
             handlerToMove.style.top = newTop +  'px';
             this.writeNewPosition(handlerToMove, num);
-            console.log(this.handlersPosition);
         }
         else {
             let newLeft = e.clientX  + pageXOffset - this.handlersWidth/2 - this.sliderPosition;
