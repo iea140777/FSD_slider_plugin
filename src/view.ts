@@ -29,7 +29,8 @@ export class View {
     minPosition: number;
     positionRange: number;
     handlersPosition: number[];
-    range: HTMLDivElement;
+    handlersPositionPerc: number[];
+    rangeBlock: HTMLDivElement;
 
 
     constructor (options:IOptions, container:HTMLDivElement){
@@ -40,12 +41,14 @@ export class View {
         this.subViewScale = new SubViewScale;
         this.subViewIcons = new SubViewIcons;
         this.subViewInput = new SubViewInput;
+        this.handlersPosition = [];
+        this.handlersPositionPerc = [];
         this.createSlider(options, container);
         this.getSliderData();
         if (this.options.scale){
             this.getScalePosition();
         }
-        // this.windowChange();
+        this.resizeListener();
         this.subViewHandlers.handlerMouseDown = (e:MouseEvent, handler:HTMLDivElement, num:number):void => {
             this.moveByMouse(e, handler, num);
         }
@@ -58,7 +61,6 @@ export class View {
             }
         }
     }
-
     
     createSlider = (options:IOptions, container:HTMLDivElement):void => {
         this.sliderContainer = this.createContainer(options, container);
@@ -70,12 +72,12 @@ export class View {
         if (this.options.icon) {
             this.icons = this.subViewIcons.createIcons(options, this.handlers, this.slider);
         }
-        if(this.options.rangeInput || this.options.valueInputs){
+        if (this.options.rangeInput || this.options.valueInputs){
             this.inputsContainer = this.subViewInput.createInputsContainer(options, this.slider, this.sliderContainer);
             if (this.options.rangeInput && this.options.handlersAmount > 1){
                 this.rangeInput = this.subViewInput.createRangeInput(options, this.inputsContainer);
             }  
-            if(this.options.valueInputs){
+            if (this.options.valueInputs){
             this.valueInputs = this.subViewInput.createValueInputs(options, this.inputsContainer);
             }
         }    
@@ -95,36 +97,73 @@ export class View {
         return sliderContainer;
     }
 
+    resizeListener = () => {
+        let resize =  () =>  {
+            this.notifyChangedWindow();
+          }
+          window.addEventListener('resize', resize);
+    }
+
+    notifyChangedWindow: any;
+
     getSliderData = ():void => {
-        if (this.options.vertical){
-            this.sliderPosition = this.slider.getBoundingClientRect().y + pageYOffset;
-            this.sliderBorder = parseFloat(getComputedStyle(this.slider).borderLeftWidth);
-            this.handlersHeight = this.handlers[0].offsetHeight;
-            this.maxPosition = this.sliderPosition - this.handlersHeight/2;
-            this.minPosition = this.maxPosition + this.slider.getBoundingClientRect().height;
-            this.positionRange = (this.minPosition - this.maxPosition);
-            this.handlersPosition = [];
-            // this.subViewHandlers.getInitialHandlersPosition(this.handlers, this.options);
-            if (this.options.range) {
-                this.range = this.showRange(this.options);
-            }
-            
-        } 
-        else {
-            this.sliderPosition = this.slider.getBoundingClientRect().x + pageXOffset;
-            this.handlersWidth = this.handlers[0].offsetWidth;
-            // console.log(this.slider.getBoundingClientRect());
-            this.sliderBorder = parseFloat(getComputedStyle(this.slider).borderLeftWidth);
-            this.minPosition = this.sliderPosition - this.handlersWidth/2;
-            this.maxPosition = this.minPosition + this.slider.getBoundingClientRect().width;
-            this.positionRange = (this.maxPosition - this.minPosition);
-            this.handlersPosition = [];
-            // new SubViewHandlers().getInitialHandlersPosition(this.handlers, this.options);
-            if (this.options.range) {
-                this.range = this.showRange(this.options);
-            }
+        this.getSliderPosition();
+        this.getSliderLength();
+        this.getHandlerSize();
+        this.getMinMaxPosition();
+        if (this.options.range) {
+            this.rangeBlock = this.showRange();
         }       
     }
+
+    getSliderPosition() {
+        if (this.options.vertical){
+            this.sliderPosition = this.slider.getBoundingClientRect().y + pageYOffset;
+        }
+        else {
+            this.sliderPosition = this.slider.getBoundingClientRect().x + pageXOffset
+        }
+    }
+
+    getSliderLength() {
+        if (this.options.vertical){
+            this.sliderLength = this.slider.getBoundingClientRect().height;
+        }
+        else {
+            this.sliderLength = this.slider.getBoundingClientRect().width;
+        }
+    }
+
+    getHandlerSize() {
+        this.getSliderLength();
+        if (this.options.vertical){
+            this.handlerSizePerc = (this.handlers[0].offsetHeight / 2) / this.sliderLength * 100;
+            this.handlerSizePx = this.handlers[0].offsetHeight;
+
+        }
+        else {
+            this.handlerSizePerc = (this.handlers[0].offsetWidth / 2) / this.sliderLength * 100;
+            this.handlerSizePx = this.handlers[0].offsetWidth;
+        }
+    }
+
+    getMinMaxPosition(){
+        this.getHandlerSize;
+        if (this.options.vertical){
+            this.maxPosition = this.sliderPosition - this.handlerSizePx/2;
+            this.maxPositionPerc = 0 - this.handlerSizePerc;
+            this.minPosition = this.maxPosition + this.sliderLength;
+            this.minPositionPerc = 100 - this.handlerSizePerc
+        }
+        else {
+            this.minPosition = this.sliderPosition - this.handlerSizePx/2;
+            this.minPositionPerc = 0 - this.handlerSizePerc;
+            this.maxPosition = this.minPosition + this.sliderLength;
+            this.maxPositionPerc = 100 - this.handlerSizePerc;
+        }
+        this.positionRange = Math.abs(this.minPosition - this.maxPosition);
+    }
+
 
     getScalePosition = (): void => {
         const posToVal: number = this.positionRange / Math.abs((this.options.maxValue - this.options.minValue));
@@ -155,10 +194,10 @@ export class View {
         }
     }
 
-    showRange = (options:IOptions):HTMLDivElement => {
+    showRange = ():HTMLDivElement => {
            let rangeBlock:HTMLDivElement = document.createElement('div');
            rangeBlock.classList.add('slider__range');
-           if (options.vertical){
+           if (this.options.vertical){
                 rangeBlock.style.width = this.slider.getBoundingClientRect().width + 2 + 'px';
                 rangeBlock.style.left = -1 + 'px';
            } 
@@ -167,64 +206,74 @@ export class View {
                 rangeBlock.style.top = -1 + 'px';
            }
            this.slider.append(rangeBlock);
-           let range:HTMLDivElement = this.slider.querySelector('.slider__range');
-           this.getSliderRangePosition(options, range);
-           return range;
+           this.rangeBlock = this.slider.querySelector('.slider__range');
+           this.getSliderRangePosition();
+           return this.rangeBlock;
     }
 
-    getSliderRangePosition = (options:IOptions, rangeBlock:HTMLDivElement):void => {
+    getSliderRangePosition = ():void => {
+        this.getHandlerSize();
         if (this.options.vertical){
-            if (this.handlersPosition[0] > this.handlersPosition[1]) {
-                rangeBlock.style.top = this.handlers[1].offsetTop + this.handlers[1].offsetHeight/2 + 'px';
+            if (this.handlersPositionPerc[0] > this.handlersPositionPerc[1]) {
+                this.rangeBlock.style.top = this.handlersPositionPerc[1]  + '%';
             }
             else {
-                rangeBlock.style.top = this.handlers[0].offsetTop + this.handlers[0].offsetHeight/2 + 'px';
+                this.rangeBlock.style.top = this.handlersPositionPerc[0] + '%';
             }
-            rangeBlock.style.height = Math.abs(this.handlersPosition[1] - this.handlersPosition[0]) + 'px';
-       } 
-       else {
-            if (this.handlersPosition[0] > this.handlersPosition[1]) {
-                rangeBlock.style.left = this.handlers[1].offsetLeft + this.handlers[1].offsetWidth/2 + 'px';
+            this.rangeBlock.style.height = Math.abs(this.handlersPositionPerc[1] - this.handlersPositionPerc[0]) + '%';
+        } 
+        else {
+            if (this.handlersPositionPerc[0] > this.handlersPositionPerc[1]) {
+                this.rangeBlock.style.left = this.handlersPositionPerc[1]  + '%';
             }
             else {
-                rangeBlock.style.left = this.handlers[0].offsetLeft + this.handlers[0].offsetWidth/2 + 'px';
+                this.rangeBlock.style.left = this.handlersPositionPerc[0]  + '%';
             }
-            rangeBlock.style.width = (Math.abs(this.handlersPosition[1] - this.handlersPosition[0])) + 'px';
+            this.rangeBlock.style.width = (Math.abs(this.handlersPositionPerc[1] - this.handlersPositionPerc[0])) + '%';
        }
     }
   
     moveByMouse = (e:MouseEvent, handler:HTMLDivElement, num:number): void => {
         e.preventDefault();
-        let shiftX:number;
+        this.getMinMaxPosition();
+        let shift:number;
+        let shiftXPerc: number;
         if(this.options.vertical){
-            shiftX = e.clientY - this.handlersPosition[num];
+            shift = e.clientY  - this.handlers[num].getBoundingClientRect().y ;
         }
         else {
-            shiftX = e.clientX - this.handlersPosition[num];
+            shift = e.clientX - this.handlers[num].getBoundingClientRect().x + pageXOffset;
         }
+        shiftXPerc = (shift / this.sliderLength) * 100;
         handler.classList.add('slider__handler_active');
         document.onmousemove = (e:MouseEvent):void => {
+            let mousePos:number;
+            let mouseposPerc: number;
             if(this.options.vertical){
-                let newTop: number = e.clientY  - shiftX - this.sliderPosition;
-                if (newTop <= (this.maxPosition - this.sliderPosition)) {
-                    newTop = this.maxPosition - this.sliderPosition;
+                mousePos = e.clientY ;
+                mouseposPerc = ((mousePos - this.slider.getBoundingClientRect().y) / this.slider.getBoundingClientRect().height)*100;
+                let newTop: number = mouseposPerc  - shiftXPerc;
+                if (newTop <= this.maxPositionPerc) {
+                    newTop = this.maxPositionPerc;
                 }
-                if (newTop >= this.minPosition - this.sliderPosition) {
-                    newTop = this.minPosition - this.sliderPosition;
+                if (newTop >= this.minPositionPerc) {
+                    newTop = this.minPositionPerc;
                 }
-                handler.style.top = newTop  + 'px';
-                this.writeNewPosition(handler, num);
+                handler.style.top = newTop  + '%';
+                this.writeNewPosition(handler, num, newTop);
             }
             else {
-                let newLeft = e.clientX  - shiftX - this.sliderPosition;
-                if (newLeft <= (this.minPosition - this.sliderPosition)) {
-                    newLeft = this.minPosition - this.sliderPosition;
+                mousePos = e.clientX ;
+                mouseposPerc = ((mousePos - this.slider.getBoundingClientRect().x) / this.slider.getBoundingClientRect().width)*100;
+                let newLeft:number = mouseposPerc  - shiftXPerc;
+                if (newLeft <= this.minPositionPerc) {
+                    newLeft = this.minPositionPerc;
                 }
-                if (newLeft >= this.maxPosition - this.sliderPosition) {
-                    newLeft = this.maxPosition - this.sliderPosition;
+                if (newLeft >= this.maxPositionPerc) {
+                    newLeft = this.maxPositionPerc;
                 }
-                handler.style.left = newLeft + 'px';
-                this.writeNewPosition(handler, num);
+                handler.style.left = newLeft + '%';
+                this.writeNewPosition(handler, num, newLeft);
             }
         }
         document.onmouseup = ():void => {
@@ -233,17 +282,10 @@ export class View {
           };
     }
     
-    writeNewPosition = (handler:HTMLDivElement, num: number):void => {
-        let newPosition: number;
-        if(this.options.vertical){
-            newPosition = handler.getBoundingClientRect().y + pageYOffset;
-        }
-        else {
-            newPosition = handler.getBoundingClientRect().x + pageXOffset;
-        }
-        this.handlersPosition[num] = newPosition;
+    writeNewPosition = (handler:HTMLDivElement, num: number, newPos: number):void => {
+        this.handlersPositionPerc[num] = newPos + this.handlerSizePerc;
         if(this.options.range){
-            this.getSliderRangePosition(this.options, this.range);
+            this.getSliderRangePosition();
         }
         this.notifyChangedHandlerPosition();
     }
@@ -253,12 +295,14 @@ export class View {
     notifyChangedInputValue: any; 
 
     moveByClick = (e:MouseEvent) =>{
+        e.preventDefault();
+        this.getMinMaxPosition();
         let clickPosition: number;
         if (this.options.vertical) {
-            clickPosition = e.clientY + pageYOffset;
+            clickPosition = e.clientY;
         }
         else {
-            clickPosition = e.clientX + pageXOffset ;
+            clickPosition = e.clientX ;
         }
         let handlerToMove:HTMLDivElement;
         if (this.options.handlersAmount == 2) {
@@ -271,33 +315,44 @@ export class View {
         if (handlerToMove == this.handlers[1]){
             num = 1;
         }
+        let clickPosPerc: number;
         if(this.options.vertical){
-            let newTop: number = e.clientY + pageYOffset - this.handlersHeight/2 -  this.sliderPosition;
-            if (newTop <= (this.maxPosition - this.sliderPosition)) {
-                newTop = this.maxPosition - this.sliderPosition;
+            clickPosPerc = ((clickPosition - this.slider.getBoundingClientRect().y) / this.slider.getBoundingClientRect().height) * 100;
+            let newTop: number = clickPosPerc - this.handlerSizePerc;
+            if (newTop <= this.maxPositionPerc) {
+                newTop = this.maxPositionPerc;
             }
-            if (newTop >= this.minPosition - this.sliderPosition) {
-                newTop = this.minPosition - this.sliderPosition;
+            if (newTop >= this.minPositionPerc) {
+                newTop = this.minPositionPerc;
             }
-            handlerToMove.style.top = newTop +  'px';
-            this.writeNewPosition(handlerToMove, num);
+            handlerToMove.style.top = newTop +  '%';
+            this.writeNewPosition(handlerToMove, num, newTop);
         }
         else {
-            let newLeft = e.clientX  + pageXOffset - this.handlersWidth/2 - this.sliderPosition;
-            if (newLeft <= (this.minPosition - this.sliderPosition)) {
-                newLeft = this.minPosition - this.sliderPosition;
+            clickPosPerc = ((clickPosition - this.slider.getBoundingClientRect().x) / this.slider.getBoundingClientRect().width)*100;
+            let newLeft = clickPosPerc - this.handlerSizePerc;
+            if (newLeft <= this.minPositionPerc) {
+                newLeft = this.minPositionPerc;
             }
-            if (newLeft >= this.maxPosition - this.sliderPosition) {
-                newLeft = this.maxPosition - this.sliderPosition;
+            if (newLeft >= this.maxPositionPerc) {
+                newLeft = this.maxPositionPerc;
             }
-            handlerToMove.style.left = newLeft + 'px';
-            this.writeNewPosition(handlerToMove, num);
+            handlerToMove.style.left = newLeft + '%';
+            this.writeNewPosition(handlerToMove, num, newLeft);
         }
     }
 
     getNearestHandler = (position: number): HTMLDivElement => {
-        let a: number = Math.abs(this.handlersPosition[0] - position);
-        let b: number = Math.abs(this.handlersPosition[1] - position);
+        let a: number,
+            b: number;
+        if (this.options.vertical){
+            a = Math.abs(this.handlers[0].getBoundingClientRect().y - position);
+            b = Math.abs(this.handlers[1].getBoundingClientRect().y - position);
+        }
+        else {
+            a = Math.abs(this.handlers[0].getBoundingClientRect().x - position);
+            b = Math.abs(this.handlers[1].getBoundingClientRect().x - position);
+        }
         if (b < a) {
             return this.handlers[1];
         } else {
@@ -306,11 +361,3 @@ export class View {
     }
 
 }
-   
-
-
-
-    
-
-
-

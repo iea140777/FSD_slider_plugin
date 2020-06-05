@@ -25,7 +25,7 @@ import{IOptions} from './src/presenter';
         init: function (options) {
             return this.each(function(){
                 const params = $.extend({}, defaults, options);
-                this.presenter = new Presenter (params, this);
+                this.presenter = new Presenter (params, this);                
             });
         },
 

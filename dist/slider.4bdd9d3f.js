@@ -117,7 +117,7 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   }
 
   return newRequire;
-})({"src/model.ts":[function(require,module,exports) {
+})({"src/model1.ts":[function(require,module,exports) {
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -130,19 +130,35 @@ function () {
   function Model(options) {
     var _this = this;
 
-    this.getInitialCurrentValue = function (options) {
-      for (var i = 0; i < options.handlersAmount; i++) {
-        _this.currentValue[i] = options.startingValue[i];
+    this.getInitialCurrentValue = function () {
+      _this.currentValue = [];
+
+      for (var i = 0; i < _this.options.handlersAmount; i++) {
+        _this.currentValue[i] = _this.options.startingValue[i];
       }
     };
 
-    this.getRangeValue = function (options) {
-      if (options.range) {
-        _this.rangeValue = Math.abs(_this.currentValue[1] - _this.currentValue[0]);
-      }
+    this.getValueRange = function () {
+      _this.valueRange = Math.abs(_this.options.maxValue - _this.options.minValue);
     };
 
-    this.minValue = options.minValue, this.maxValue = options.maxValue, this.step = options.step, this.range = options.range, this.handlersAmount = options.handlersAmount, this.icon = options.icon, this.valueRange = Math.abs(options.maxValue - options.minValue), this.stepsAmount = Math.floor(this.valueRange / this.step), this.positionValueRate, this.currentValue = [], this.getInitialCurrentValue(options), this.rangeValue = Math.abs(this.currentValue[1] - this.currentValue[0]);
+    this.getStepsAmount = function () {
+      _this.stepsAmount = Math.ceil(_this.valueRange / _this.options.step);
+    };
+
+    this.getStepPercent = function () {
+      _this.stepPercent = _this.options.step / _this.valueRange * 100;
+    };
+
+    this.getValuePercent = function () {
+      _this.valuePercent = 100 / _this.valueRange;
+    };
+
+    this.getRangeValue = function () {
+      _this.rangeValue = Math.abs(_this.currentValue[1] - _this.currentValue[0]);
+    };
+
+    this.options = options, this.getInitialCurrentValue(), this.getValueRange(), this.getStepsAmount(), this.getStepPercent(), this.getValuePercent(), this.getRangeValue();
   }
 
   return Model;
@@ -200,20 +216,7 @@ var SubViewHandlers =
 /** @class */
 function () {
   function SubViewHandlers() {
-    var _this = this; // getInitialHandlersPosition = (handlers:NodeListOf<HTMLDivElement>, options:IOptions):number[] => {
-    //     let handlersPosition:number[] = [];
-    //     for (let i = 0; i < handlers.length; i++){
-    //         if(options.vertical){
-    //             let handlerPosition:number = handlers[i].getBoundingClientRect().y;
-    //             handlersPosition[i] = handlerPosition;
-    //         } else {
-    //             let handlerPosition:number = handlers[i].getBoundingClientRect().x;
-    //             handlersPosition[i] = handlerPosition;
-    //         }
-    //     }
-    //     return handlersPosition;
-    // }
-
+    var _this = this;
 
     this.addHandlerListeners = function (handlers) {
       handlers[0].onmousedown = function (e) {
@@ -491,32 +494,25 @@ function () {
       return sliderContainer;
     };
 
+    this.resizeListener = function () {
+      var resize = function resize() {
+        _this.notifyChangedWindow();
+      };
+
+      window.addEventListener('resize', resize);
+    };
+
     this.getSliderData = function () {
-      if (_this.options.vertical) {
-        _this.sliderPosition = _this.slider.getBoundingClientRect().y + pageYOffset;
-        _this.sliderBorder = parseFloat(getComputedStyle(_this.slider).borderLeftWidth);
-        _this.handlersHeight = _this.handlers[0].offsetHeight;
-        _this.maxPosition = _this.sliderPosition - _this.handlersHeight / 2;
-        _this.minPosition = _this.maxPosition + _this.slider.getBoundingClientRect().height;
-        _this.positionRange = _this.minPosition - _this.maxPosition;
-        _this.handlersPosition = []; // this.subViewHandlers.getInitialHandlersPosition(this.handlers, this.options);
+      _this.getSliderPosition();
 
-        if (_this.options.range) {
-          _this.range = _this.showRange(_this.options);
-        }
-      } else {
-        _this.sliderPosition = _this.slider.getBoundingClientRect().x + pageXOffset;
-        _this.handlersWidth = _this.handlers[0].offsetWidth; // console.log(this.slider.getBoundingClientRect());
+      _this.getSliderLength();
 
-        _this.sliderBorder = parseFloat(getComputedStyle(_this.slider).borderLeftWidth);
-        _this.minPosition = _this.sliderPosition - _this.handlersWidth / 2;
-        _this.maxPosition = _this.minPosition + _this.slider.getBoundingClientRect().width;
-        _this.positionRange = _this.maxPosition - _this.minPosition;
-        _this.handlersPosition = []; // new SubViewHandlers().getInitialHandlersPosition(this.handlers, this.options);
+      _this.getHandlerSize();
 
-        if (_this.options.range) {
-          _this.range = _this.showRange(_this.options);
-        }
+      _this.getMinMaxPosition();
+
+      if (_this.options.range) {
+        _this.rangeBlock = _this.showRange();
       }
     };
 
@@ -546,11 +542,11 @@ function () {
       }
     };
 
-    this.showRange = function (options) {
+    this.showRange = function () {
       var rangeBlock = document.createElement('div');
       rangeBlock.classList.add('slider__range');
 
-      if (options.vertical) {
+      if (_this.options.vertical) {
         rangeBlock.style.width = _this.slider.getBoundingClientRect().width + 2 + 'px';
         rangeBlock.style.left = -1 + 'px';
       } else {
@@ -560,74 +556,88 @@ function () {
 
       _this.slider.append(rangeBlock);
 
-      var range = _this.slider.querySelector('.slider__range');
+      _this.rangeBlock = _this.slider.querySelector('.slider__range');
 
-      _this.getSliderRangePosition(options, range);
+      _this.getSliderRangePosition();
 
-      return range;
+      return _this.rangeBlock;
     };
 
-    this.getSliderRangePosition = function (options, rangeBlock) {
+    this.getSliderRangePosition = function () {
+      _this.getHandlerSize();
+
       if (_this.options.vertical) {
-        if (_this.handlersPosition[0] > _this.handlersPosition[1]) {
-          rangeBlock.style.top = _this.handlers[1].offsetTop + _this.handlers[1].offsetHeight / 2 + 'px';
+        if (_this.handlersPositionPerc[0] > _this.handlersPositionPerc[1]) {
+          _this.rangeBlock.style.top = _this.handlersPositionPerc[1] + '%';
         } else {
-          rangeBlock.style.top = _this.handlers[0].offsetTop + _this.handlers[0].offsetHeight / 2 + 'px';
+          _this.rangeBlock.style.top = _this.handlersPositionPerc[0] + '%';
         }
 
-        rangeBlock.style.height = Math.abs(_this.handlersPosition[1] - _this.handlersPosition[0]) + 'px';
+        _this.rangeBlock.style.height = Math.abs(_this.handlersPositionPerc[1] - _this.handlersPositionPerc[0]) + '%';
       } else {
-        if (_this.handlersPosition[0] > _this.handlersPosition[1]) {
-          rangeBlock.style.left = _this.handlers[1].offsetLeft + _this.handlers[1].offsetWidth / 2 + 'px';
+        if (_this.handlersPositionPerc[0] > _this.handlersPositionPerc[1]) {
+          _this.rangeBlock.style.left = _this.handlersPositionPerc[1] + '%';
         } else {
-          rangeBlock.style.left = _this.handlers[0].offsetLeft + _this.handlers[0].offsetWidth / 2 + 'px';
+          _this.rangeBlock.style.left = _this.handlersPositionPerc[0] + '%';
         }
 
-        rangeBlock.style.width = Math.abs(_this.handlersPosition[1] - _this.handlersPosition[0]) + 'px';
+        _this.rangeBlock.style.width = Math.abs(_this.handlersPositionPerc[1] - _this.handlersPositionPerc[0]) + '%';
       }
     };
 
     this.moveByMouse = function (e, handler, num) {
       e.preventDefault();
-      var shiftX;
+
+      _this.getMinMaxPosition();
+
+      var shift;
+      var shiftXPerc;
 
       if (_this.options.vertical) {
-        shiftX = e.clientY - _this.handlersPosition[num];
+        shift = e.clientY - _this.handlers[num].getBoundingClientRect().y;
       } else {
-        shiftX = e.clientX - _this.handlersPosition[num];
+        shift = e.clientX - _this.handlers[num].getBoundingClientRect().x + pageXOffset;
       }
 
+      shiftXPerc = shift / _this.sliderLength * 100;
       handler.classList.add('slider__handler_active');
 
       document.onmousemove = function (e) {
+        var mousePos;
+        var mouseposPerc;
+
         if (_this.options.vertical) {
-          var newTop = e.clientY - shiftX - _this.sliderPosition;
+          mousePos = e.clientY;
+          mouseposPerc = (mousePos - _this.slider.getBoundingClientRect().y) / _this.slider.getBoundingClientRect().height * 100;
+          var newTop = mouseposPerc - shiftXPerc;
 
-          if (newTop <= _this.maxPosition - _this.sliderPosition) {
-            newTop = _this.maxPosition - _this.sliderPosition;
+          if (newTop <= _this.maxPositionPerc) {
+            newTop = _this.maxPositionPerc;
           }
 
-          if (newTop >= _this.minPosition - _this.sliderPosition) {
-            newTop = _this.minPosition - _this.sliderPosition;
+          if (newTop >= _this.minPositionPerc) {
+            newTop = _this.minPositionPerc;
           }
 
-          handler.style.top = newTop + 'px';
+          handler.style.top = newTop + '%';
 
-          _this.writeNewPosition(handler, num);
+          _this.writeNewPosition(handler, num, newTop);
         } else {
-          var newLeft = e.clientX - shiftX - _this.sliderPosition;
+          mousePos = e.clientX;
+          mouseposPerc = (mousePos - _this.slider.getBoundingClientRect().x) / _this.slider.getBoundingClientRect().width * 100;
+          var newLeft = mouseposPerc - shiftXPerc;
 
-          if (newLeft <= _this.minPosition - _this.sliderPosition) {
-            newLeft = _this.minPosition - _this.sliderPosition;
+          if (newLeft <= _this.minPositionPerc) {
+            newLeft = _this.minPositionPerc;
           }
 
-          if (newLeft >= _this.maxPosition - _this.sliderPosition) {
-            newLeft = _this.maxPosition - _this.sliderPosition;
+          if (newLeft >= _this.maxPositionPerc) {
+            newLeft = _this.maxPositionPerc;
           }
 
-          handler.style.left = newLeft + 'px';
+          handler.style.left = newLeft + '%';
 
-          _this.writeNewPosition(handler, num);
+          _this.writeNewPosition(handler, num, newLeft);
         }
       };
 
@@ -637,31 +647,27 @@ function () {
       };
     };
 
-    this.writeNewPosition = function (handler, num) {
-      var newPosition;
-
-      if (_this.options.vertical) {
-        newPosition = handler.getBoundingClientRect().y + pageYOffset;
-      } else {
-        newPosition = handler.getBoundingClientRect().x + pageXOffset;
-      }
-
-      _this.handlersPosition[num] = newPosition;
+    this.writeNewPosition = function (handler, num, newPos) {
+      _this.handlersPositionPerc[num] = newPos + _this.handlerSizePerc;
 
       if (_this.options.range) {
-        _this.getSliderRangePosition(_this.options, _this.range);
+        _this.getSliderRangePosition();
       }
 
       _this.notifyChangedHandlerPosition();
     };
 
     this.moveByClick = function (e) {
+      e.preventDefault();
+
+      _this.getMinMaxPosition();
+
       var clickPosition;
 
       if (_this.options.vertical) {
-        clickPosition = e.clientY + pageYOffset;
+        clickPosition = e.clientY;
       } else {
-        clickPosition = e.clientX + pageXOffset;
+        clickPosition = e.clientX;
       }
 
       var handlerToMove;
@@ -678,40 +684,51 @@ function () {
         num = 1;
       }
 
+      var clickPosPerc;
+
       if (_this.options.vertical) {
-        var newTop = e.clientY + pageYOffset - _this.handlersHeight / 2 - _this.sliderPosition;
+        clickPosPerc = (clickPosition - _this.slider.getBoundingClientRect().y) / _this.slider.getBoundingClientRect().height * 100;
+        var newTop = clickPosPerc - _this.handlerSizePerc;
 
-        if (newTop <= _this.maxPosition - _this.sliderPosition) {
-          newTop = _this.maxPosition - _this.sliderPosition;
+        if (newTop <= _this.maxPositionPerc) {
+          newTop = _this.maxPositionPerc;
         }
 
-        if (newTop >= _this.minPosition - _this.sliderPosition) {
-          newTop = _this.minPosition - _this.sliderPosition;
+        if (newTop >= _this.minPositionPerc) {
+          newTop = _this.minPositionPerc;
         }
 
-        handlerToMove.style.top = newTop + 'px';
+        handlerToMove.style.top = newTop + '%';
 
-        _this.writeNewPosition(handlerToMove, num);
+        _this.writeNewPosition(handlerToMove, num, newTop);
       } else {
-        var newLeft = e.clientX + pageXOffset - _this.handlersWidth / 2 - _this.sliderPosition;
+        clickPosPerc = (clickPosition - _this.slider.getBoundingClientRect().x) / _this.slider.getBoundingClientRect().width * 100;
+        var newLeft = clickPosPerc - _this.handlerSizePerc;
 
-        if (newLeft <= _this.minPosition - _this.sliderPosition) {
-          newLeft = _this.minPosition - _this.sliderPosition;
+        if (newLeft <= _this.minPositionPerc) {
+          newLeft = _this.minPositionPerc;
         }
 
-        if (newLeft >= _this.maxPosition - _this.sliderPosition) {
-          newLeft = _this.maxPosition - _this.sliderPosition;
+        if (newLeft >= _this.maxPositionPerc) {
+          newLeft = _this.maxPositionPerc;
         }
 
-        handlerToMove.style.left = newLeft + 'px';
+        handlerToMove.style.left = newLeft + '%';
 
-        _this.writeNewPosition(handlerToMove, num);
+        _this.writeNewPosition(handlerToMove, num, newLeft);
       }
     };
 
     this.getNearestHandler = function (position) {
-      var a = Math.abs(_this.handlersPosition[0] - position);
-      var b = Math.abs(_this.handlersPosition[1] - position);
+      var a, b;
+
+      if (_this.options.vertical) {
+        a = Math.abs(_this.handlers[0].getBoundingClientRect().y - position);
+        b = Math.abs(_this.handlers[1].getBoundingClientRect().y - position);
+      } else {
+        a = Math.abs(_this.handlers[0].getBoundingClientRect().x - position);
+        b = Math.abs(_this.handlers[1].getBoundingClientRect().x - position);
+      }
 
       if (b < a) {
         return _this.handlers[1];
@@ -727,13 +744,16 @@ function () {
     this.subViewScale = new subViewScale_1.default();
     this.subViewIcons = new subViewIcons_1.default();
     this.subViewInput = new subViewInput_1.default();
+    this.handlersPosition = [];
+    this.handlersPositionPerc = [];
     this.createSlider(options, container);
     this.getSliderData();
 
     if (this.options.scale) {
       this.getScalePosition();
-    } // this.windowChange();
+    }
 
+    this.resizeListener();
 
     this.subViewHandlers.handlerMouseDown = function (e, handler, num) {
       _this.moveByMouse(e, handler, num);
@@ -749,6 +769,52 @@ function () {
       }
     };
   }
+
+  View.prototype.getSliderPosition = function () {
+    if (this.options.vertical) {
+      this.sliderPosition = this.slider.getBoundingClientRect().y + pageYOffset;
+    } else {
+      this.sliderPosition = this.slider.getBoundingClientRect().x + pageXOffset;
+    }
+  };
+
+  View.prototype.getSliderLength = function () {
+    if (this.options.vertical) {
+      this.sliderLength = this.slider.getBoundingClientRect().height;
+    } else {
+      this.sliderLength = this.slider.getBoundingClientRect().width;
+    }
+  };
+
+  View.prototype.getHandlerSize = function () {
+    this.getSliderLength();
+
+    if (this.options.vertical) {
+      this.handlerSizePerc = this.handlers[0].offsetHeight / 2 / this.sliderLength * 100;
+      this.handlerSizePx = this.handlers[0].offsetHeight;
+    } else {
+      this.handlerSizePerc = this.handlers[0].offsetWidth / 2 / this.sliderLength * 100;
+      this.handlerSizePx = this.handlers[0].offsetWidth;
+    }
+  };
+
+  View.prototype.getMinMaxPosition = function () {
+    this.getHandlerSize;
+
+    if (this.options.vertical) {
+      this.maxPosition = this.sliderPosition - this.handlerSizePx / 2;
+      this.maxPositionPerc = 0 - this.handlerSizePerc;
+      this.minPosition = this.maxPosition + this.sliderLength;
+      this.minPositionPerc = 100 - this.handlerSizePerc;
+    } else {
+      this.minPosition = this.sliderPosition - this.handlerSizePx / 2;
+      this.minPositionPerc = 0 - this.handlerSizePerc;
+      this.maxPosition = this.minPosition + this.sliderLength;
+      this.maxPositionPerc = 100 - this.handlerSizePerc;
+    }
+
+    this.positionRange = Math.abs(this.minPosition - this.maxPosition);
+  };
 
   return View;
 }();
@@ -767,7 +833,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var model_1 = __importDefault(require("./model"));
+var model1_1 = __importDefault(require("./model1"));
 
 var view_1 = require("./view");
 
@@ -787,7 +853,6 @@ function () {
 
       if (_this.options.minValue >= _this.options.maxValue) {
         console.log('Slider: minValue should not be equal or be more than maxValue');
-        return;
       }
 
       for (var i = 0; i <= _this.options.startingValue.length; i++) {
@@ -813,7 +878,6 @@ function () {
 
       if (_this.options.step >= Math.abs(_this.options.maxValue - _this.options.minValue)) {
         console.log('Slider: step value should  be  less than slider value range');
-        return;
       }
 
       if (_this.options.handlersAmount == 1 && _this.options.range) {
@@ -825,7 +889,11 @@ function () {
     this.setInitialHandlersPosition = function () {
       _this.getPositionFromValue();
 
-      _this.model.getRangeValue(_this.options);
+      if (_this.options.range) {
+        _this.model.getRangeValue();
+
+        _this.view.getSliderRangePosition();
+      }
     };
 
     this.setHandlersToInputValue = function (inputValue, num) {
@@ -833,16 +901,16 @@ function () {
         _this.getValueFromPosition();
 
         return;
-      } else if (inputValue > _this.model.maxValue) {
-        inputValue = _this.model.maxValue;
-      } else if (inputValue < _this.model.minValue) {
-        inputValue = _this.model.minValue;
+      } else if (inputValue > _this.options.maxValue) {
+        inputValue = _this.options.maxValue;
+      } else if (inputValue < _this.options.minValue) {
+        inputValue = _this.options.minValue;
       }
 
       if (_this.options.moveBySteps) {
-        var _steps = Math.round((inputValue - _this.model.minValue) / _this.options.step);
+        var _steps = Math.round((inputValue - _this.options.minValue) / _this.options.step);
 
-        inputValue = _steps * _this.options.step + _this.model.minValue;
+        inputValue = _steps * _this.options.step + _this.options.minValue;
       }
 
       _this.model.currentValue[num] = inputValue;
@@ -855,17 +923,21 @@ function () {
         var computedValue = void 0;
 
         if (_this.options.vertical) {
-          computedValue = (_this.view.minPosition - _this.view.handlersPosition[i]) / _this.model.positionValueRate;
+          computedValue = (100 - _this.view.handlersPositionPerc[i]) / _this.model.valuePercent;
         } else {
-          computedValue = (_this.view.handlersPosition[i] - _this.view.minPosition) / _this.model.positionValueRate;
+          computedValue = _this.view.handlersPositionPerc[i] / _this.model.valuePercent;
         }
 
-        var computedStepValue = Math.round(computedValue / _this.model.step) * _this.model.step;
+        if (_this.options.moveBySteps) {
+          var computedStepValue = Math.round(computedValue / _this.options.step) * _this.options.step;
 
-        if (computedValue > _this.options.step * _this.model.stepsAmount) {
-          _this.model.currentValue[i] = _this.model.maxValue;
+          if (computedStepValue > _this.model.valueRange) {
+            _this.model.currentValue[i] = _this.options.maxValue;
+          } else {
+            _this.model.currentValue[i] = _this.options.minValue + computedStepValue;
+          }
         } else {
-          _this.model.currentValue[i] = _this.model.minValue + computedStepValue;
+          _this.model.currentValue[i] = _this.options.minValue + Math.round(computedValue);
         }
 
         if (_this.options.icon) {
@@ -873,7 +945,7 @@ function () {
         }
       }
 
-      _this.model.getRangeValue(_this.options);
+      _this.model.getRangeValue();
 
       if (_this.options.rangeInput && _this.options.range && _this.options.handlersAmount > 1) {
         _this.view.rangeInput.value = String(_this.model.rangeValue);
@@ -889,32 +961,60 @@ function () {
         }
       }
 
-      if (_this.options.moveBySteps) {
-        _this.getPositionFromValue();
-      }
-
       return _this.model.currentValue;
     };
 
     this.getPositionFromValue = function () {
+      _this.view.getMinMaxPosition();
+
       for (var i = 0; i < _this.view.handlers.length; i++) {
-        if (_this.options) if (_this.options.vertical) {
-          _this.view.handlers[i].style.top = Math.abs((_this.model.currentValue[i] - _this.model.maxValue) * _this.model.positionValueRate) - _this.view.handlersHeight / 2 + 'px';
-          _this.view.handlersPosition[i] = _this.view.handlers[i].getBoundingClientRect().y + pageYOffset;
+        var _value = _this.model.currentValue[i] - _this.options.minValue;
+
+        var newPos = void 0;
+
+        if (_this.options.vertical) {
+          if (!_this.options.moveBySteps) {
+            newPos = 100 - _value * _this.model.valuePercent - _this.view.handlerSizePerc;
+            _this.view.handlers[i].style.top = newPos + '%';
+          } else {
+            var nearestStep = Math.round(_value / _this.options.step) * _this.options.step;
+
+            if (nearestStep > _this.model.valueRange) {
+              nearestStep = _this.model.valueRange;
+            }
+
+            newPos = 100 - nearestStep * _this.model.valuePercent - _this.view.handlerSizePerc;
+            _this.view.handlers[i].style.top = newPos + '%';
+            _this.model.currentValue[i] = _this.options.minValue + nearestStep;
+          }
         } else {
-          _this.view.handlers[i].style.left = Math.abs((_this.model.currentValue[i] - _this.model.minValue) * _this.model.positionValueRate) - _this.view.handlersWidth / 2 + 'px';
-          _this.view.handlersPosition[i] = _this.view.handlers[i].getBoundingClientRect().x + pageXOffset;
+          if (!_this.options.moveBySteps) {
+            newPos = _value * _this.model.valuePercent - _this.view.handlerSizePerc;
+            _this.view.handlers[i].style.left = newPos + '%';
+          } else {
+            var nearestStep = Math.round(_value / _this.options.step) * _this.options.step;
+
+            if (nearestStep > _this.model.valueRange) {
+              nearestStep = _this.model.valueRange;
+            }
+
+            newPos = nearestStep * _this.model.valuePercent - _this.view.handlerSizePerc;
+            _this.view.handlers[i].style.left = newPos + '%';
+            _this.model.currentValue[i] = _this.options.minValue + nearestStep;
+          }
         }
 
-        if (_this.model.icon) {
+        _this.view.handlersPositionPerc[i] = newPos + _this.view.handlerSizePerc;
+
+        if (_this.options.icon) {
           _this.view.icons[i].innerHTML = String(_this.model.currentValue[i]);
         }
       }
 
-      _this.model.getRangeValue(_this.options);
+      _this.model.getRangeValue();
 
       if (_this.options.rangeInput && _this.options.range && _this.options.handlersAmount > 1) {
-        _this.view.showRange(_this.options);
+        _this.view.showRange();
 
         _this.view.rangeInput.value = String(_this.model.rangeValue);
       }
@@ -931,10 +1031,10 @@ function () {
     };
 
     this.checkOptions(options);
-    this.model = new model_1.default(this.options);
+    this.model = new model1_1.default(this.options);
     this.view = new view_1.View(this.options, container);
     this.model.positionValueRate = this.view.positionRange / this.model.valueRange;
-    this.setInitialHandlersPosition(); // this.windowChange(this.options, container);
+    this.setInitialHandlersPosition();
 
     this.view.notifyChangedHandlerPosition = function () {
       _this.getValueFromPosition();
@@ -942,12 +1042,11 @@ function () {
 
     this.view.notifyChangedInputValue = function (newInputValue, num) {
       _this.setHandlersToInputValue(newInputValue, num);
-    }; // this.view.notifyChangedWindow = () => {
-    //     this.view = new View (this.options, container);
-    //     this.model.positionValueRate = this.view.positionRange / this.model.valueRange;
-    //     this.setInitialHandlersPosition();
-    // }
+    };
 
+    this.view.notifyChangedWindow = function () {
+      _this.getPositionFromValue();
+    };
   }
 
   return Presenter;
@@ -965,7 +1064,7 @@ exports.Presenter = Presenter; // <div contentEditable id="elem">Отредак�
 //   characterDataOldValue: true // передавать старое значение в колбэк
 // });
 // </script>
-},{"./model":"src/model.ts","./view":"src/view.ts"}],"slider.ts":[function(require,module,exports) {
+},{"./model1":"src/model1.ts","./view":"src/view.ts"}],"slider.ts":[function(require,module,exports) {
 'use strict';
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
@@ -1050,7 +1149,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "55817" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50745" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
