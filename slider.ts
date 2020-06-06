@@ -18,6 +18,7 @@ import{IOptions} from './src/presenter';
         valueInputs: true,
         handlersAmount: 2, 
         scale: true,
+        scaleLegend: true,
         icon: true
     };
    

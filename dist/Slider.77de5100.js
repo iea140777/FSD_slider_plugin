@@ -144,6 +144,7 @@ function () {
     }
 
     this.scale = form.scale.checked;
+    this.scaleLegend = form.scaleLegend.checked;
     this.icon = form.icon.checked;
   };
 
@@ -197,7 +198,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50745" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50793" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

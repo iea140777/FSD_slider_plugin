@@ -390,6 +390,7 @@ function () {
     var _this = this;
 
     this.createScale = function (options, slider) {
+      _this.options = options;
       var pointsAmount = Math.ceil((options.maxValue - options.minValue) / options.step) + 1;
 
       for (var i = 0; i < pointsAmount; i++) {
@@ -405,18 +406,37 @@ function () {
         slider.append(scalePoint);
       }
 
-      var scalePoints = slider.querySelectorAll('.slider__scale-point'); // this.addScaleListener(scalePoints);
+      var scalePoints = slider.querySelectorAll('.slider__scale-point'); // if (options.scaleLegend){
+      //     this.addScaleLegend(scalePoints, slider);
+      // }
 
       return scalePoints;
     };
 
-    this.addScaleListener = function (scalePoints) {
-      scalePoints.forEach(function (point) {
-        point.onclick = function (e) {
-          _this.scalePpointClick(e);
-        };
+    this.addScaleLegend = function (scalePoints, slider) {
+      scalePoints.forEach(function (scalePoint) {
+        var legend = document.createElement('div');
+        legend.classList.add('slider__scale-legend');
+
+        if (_this.options.vertical) {
+          legend.classList.add('slider__scale-legend_vertical');
+        } else {
+          legend.classList.add('slider__scale-legend_horisontal');
+        }
+
+        scalePoint.append(legend);
       });
-    };
+      var scaleLegend = slider.querySelectorAll('.slider__scale-legend');
+      return scaleLegend;
+    }; // addScaleListener = (scalePoints:NodeListOf<HTMLDivElement>):void => {
+    //     scalePoints.forEach(point => {
+    //         point.onclick = (e):void => {
+    //             this.scalePpointClick(e);
+    //         }
+    //     });
+    // }
+    // scalePpointClick: any;
+
   }
 
   return SubViewScale;
@@ -459,6 +479,10 @@ function () {
 
       if (_this.options.scale) {
         _this.scale = _this.subViewScale.createScale(options, _this.slider);
+      }
+
+      if (_this.options.scaleLegend) {
+        _this.scaleLegend = _this.subViewScale.addScaleLegend(_this.scale, _this.slider);
       }
 
       if (_this.options.icon) {
@@ -540,6 +564,30 @@ function () {
           }
         }
       }
+
+      if (_this.options.scaleLegend) {
+        _this.getScaleLegendValues();
+      }
+    };
+
+    this.getScaleLegendValues = function () {
+      _this.scaleLegend.forEach(function (scaleLegend) {
+        if (_this.options.vertical) {
+          var position = scaleLegend.parentElement.style.top;
+          var value = (100 - Number(position.slice(0, -1))) / 100 * Math.abs(_this.options.maxValue - _this.options.minValue);
+          var legValue = _this.options.minValue + value;
+          scaleLegend.innerHTML = legValue.toString();
+          var shift = scaleLegend.getBoundingClientRect().height / 2;
+          scaleLegend.style.top = -shift + 'px';
+        } else {
+          var position = scaleLegend.parentElement.style.left;
+          var value = Number(position.slice(0, -1)) / 100 * Math.abs(_this.options.maxValue - _this.options.minValue);
+          var legValue = _this.options.minValue + value;
+          scaleLegend.innerHTML = legValue.toString();
+          var shift = scaleLegend.getBoundingClientRect().width / 2;
+          scaleLegend.style.left = -shift + 'px';
+        }
+      });
     };
 
     this.showRange = function () {
@@ -1032,8 +1080,12 @@ function () {
 
     this.checkOptions(options);
     this.model = new model1_1.default(this.options);
-    this.view = new view_1.View(this.options, container);
-    this.model.positionValueRate = this.view.positionRange / this.model.valueRange;
+    this.view = new view_1.View(this.options, container); // this.model.positionValueRate = this.view.positionRange / this.model.valueRange;
+
+    this.view.getScaleLegendValues = function () {
+      _this.setScaleLegendValues();
+    };
+
     this.setInitialHandlersPosition();
 
     this.view.notifyChangedHandlerPosition = function () {
@@ -1047,6 +1099,8 @@ function () {
     this.view.notifyChangedWindow = function () {
       _this.getPositionFromValue();
     };
+
+    console.log(this.view);
   }
 
   return Presenter;
@@ -1090,6 +1144,7 @@ var presenter_1 = require("./src/presenter"); // var jquery = require("jquery");
     valueInputs: true,
     handlersAmount: 2,
     scale: true,
+    scaleLegend: true,
     icon: true
   };
   var methods = {
@@ -1149,7 +1204,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50745" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50793" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

@@ -17,6 +17,7 @@ export class View {
     slider: HTMLDivElement;
     handlers: NodeListOf<HTMLDivElement>;
     scale: NodeListOf<HTMLDivElement>;
+    scaleLegend: NodeListOf<HTMLDivElement>;
     icons: NodeListOf<HTMLDivElement>;
     inputsContainer: HTMLDivElement;
     rangeInput:HTMLInputElement;
@@ -68,6 +69,9 @@ export class View {
         this.handlers = this.subViewHandlers.createHandlers(options, this.slider);
         if (this.options.scale) {
             this.scale = this.subViewScale.createScale(options, this.slider);
+        }
+        if (this.options.scaleLegend){
+            this.scaleLegend = this.subViewScale.addScaleLegend(this.scale, this.slider);
         }
         if (this.options.icon) {
             this.icons = this.subViewIcons.createIcons(options, this.handlers, this.slider);
@@ -192,7 +196,33 @@ export class View {
                 }    
             }
         }
+        if (this.options.scaleLegend){
+            this.getScaleLegendValues();
+        }
     }
+
+    getScaleLegendValues = () => {
+        this.scaleLegend.forEach(
+            scaleLegend => {
+                if (this.options.vertical){
+                    let position = scaleLegend.parentElement.style.top;
+                    let value = (100 -Number(position.slice(0, -1))) / 100 * Math.abs((this.options.maxValue - this.options.minValue));
+                    let legValue = this.options.minValue + value;
+                    scaleLegend.innerHTML = legValue.toString();
+                    let shift = scaleLegend.getBoundingClientRect().height / 2;
+                    scaleLegend.style.top = -shift + 'px';
+                }
+                else {
+                    let position = scaleLegend.parentElement.style.left;
+                    let value = Number(position.slice(0, -1)) / 100 * Math.abs((this.options.maxValue - this.options.minValue));
+                    let legValue = this.options.minValue + value;
+                    scaleLegend.innerHTML = legValue.toString();
+                    let shift = scaleLegend.getBoundingClientRect().width / 2;
+                    scaleLegend.style.left = -shift + 'px';
+                }
+            }
+        )
+    };
 
     showRange = ():HTMLDivElement => {
            let rangeBlock:HTMLDivElement = document.createElement('div');

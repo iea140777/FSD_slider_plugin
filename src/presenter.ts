@@ -13,8 +13,8 @@ export interface IOptions{
     valueInputs: boolean;
     handlersAmount: number;
     scale: boolean;
+    scaleLegend: boolean;
     icon: boolean;
-    input: boolean;
 }
 
 export class Presenter {
@@ -26,7 +26,10 @@ export class Presenter {
         this.checkOptions(options);
         this.model = new Model(this.options);
         this.view = new View (this.options, container);
-        this.model.positionValueRate = this.view.positionRange / this.model.valueRange;
+        // this.model.positionValueRate = this.view.positionRange / this.model.valueRange;
+        this.view.getScaleLegendValues = () => {
+            this.setScaleLegendValues();
+        }
         this.setInitialHandlersPosition();
         this.view.notifyChangedHandlerPosition = ():void => {
             this.getValueFromPosition();
@@ -38,6 +41,7 @@ export class Presenter {
         this.view.notifyChangedWindow = () => {
             this.getPositionFromValue();
         }
+        console.log (this.view);
     }
 
     checkOptions = (options:IOptions) => {
