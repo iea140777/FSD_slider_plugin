@@ -27,9 +27,9 @@ export class Presenter {
         this.model = new Model(this.options);
         this.view = new View (this.options, container);
         // this.model.positionValueRate = this.view.positionRange / this.model.valueRange;
-        this.view.getScaleLegendValues = () => {
-            this.setScaleLegendValues();
-        }
+        // this.view.getScaleLegendValues = () => {
+        //     this.setScaleLegendValues();
+        // }
         this.setInitialHandlersPosition();
         this.view.notifyChangedHandlerPosition = ():void => {
             this.getValueFromPosition();
@@ -85,6 +85,11 @@ export class Presenter {
         if (this.options.handlersAmount == 1 && this.options.range){
             this.options.range = false;
             console.log('Slider: range option cannot be applied to one handler')
+        }
+
+        if (this.options.scaleLegend && !this.options.scale){
+            this.options.scaleLegend = false;
+            console.log('Slider: scaleLegend option cannot be applied without scale option')
         }
     }
     

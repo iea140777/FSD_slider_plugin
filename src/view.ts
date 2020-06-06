@@ -207,7 +207,7 @@ export class View {
                 if (this.options.vertical){
                     let position = scaleLegend.parentElement.style.top;
                     let value = (100 -Number(position.slice(0, -1))) / 100 * Math.abs((this.options.maxValue - this.options.minValue));
-                    let legValue = this.options.minValue + value;
+                    let legValue = Math.round(this.options.minValue + value);
                     scaleLegend.innerHTML = legValue.toString();
                     let shift = scaleLegend.getBoundingClientRect().height / 2;
                     scaleLegend.style.top = -shift + 'px';
@@ -215,7 +215,7 @@ export class View {
                 else {
                     let position = scaleLegend.parentElement.style.left;
                     let value = Number(position.slice(0, -1)) / 100 * Math.abs((this.options.maxValue - this.options.minValue));
-                    let legValue = this.options.minValue + value;
+                    let legValue = Math.round(this.options.minValue + value);
                     scaleLegend.innerHTML = legValue.toString();
                     let shift = scaleLegend.getBoundingClientRect().width / 2;
                     scaleLegend.style.left = -shift + 'px';

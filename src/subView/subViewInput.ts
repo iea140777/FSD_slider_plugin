@@ -13,7 +13,7 @@ export  default class SubViewInput  {
     createRangeInput (options:IOptions, inputsContainer:HTMLDivElement): HTMLInputElement {
         let inputLabel:HTMLElement = document.createElement('span');
         inputLabel.classList.add('slider__inputLabel');
-        inputLabel.innerText = 'range';
+        inputLabel.innerText = 'Range';
         inputsContainer.append(inputLabel);
         let rangeInput:HTMLInputElement = document.createElement('input');
         rangeInput.setAttribute('type', 'text')
@@ -28,7 +28,7 @@ export  default class SubViewInput  {
         for (let i = 0; i < +options.handlersAmount; i++){
             let inputLabel:HTMLElement = document.createElement('span');
             inputLabel.classList.add('slider__inputLabel');
-            inputLabel.innerText = `value ${i+1}`;
+            inputLabel.innerText = `Value ${i+1}`;
             inputsContainer.append(inputLabel);
             let valueInput:HTMLInputElement = document.createElement('input');
             valueInput.setAttribute('type', 'text')

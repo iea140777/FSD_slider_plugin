@@ -345,7 +345,7 @@ function () {
   SubViewInput.prototype.createRangeInput = function (options, inputsContainer) {
     var inputLabel = document.createElement('span');
     inputLabel.classList.add('slider__inputLabel');
-    inputLabel.innerText = 'range';
+    inputLabel.innerText = 'Range';
     inputsContainer.append(inputLabel);
     var rangeInput = document.createElement('input');
     rangeInput.setAttribute('type', 'text');
@@ -359,7 +359,7 @@ function () {
     for (var i = 0; i < +options.handlersAmount; i++) {
       var inputLabel = document.createElement('span');
       inputLabel.classList.add('slider__inputLabel');
-      inputLabel.innerText = "value " + (i + 1);
+      inputLabel.innerText = "Value " + (i + 1);
       inputsContainer.append(inputLabel);
       var valueInput = document.createElement('input');
       valueInput.setAttribute('type', 'text');
@@ -575,14 +575,14 @@ function () {
         if (_this.options.vertical) {
           var position = scaleLegend.parentElement.style.top;
           var value = (100 - Number(position.slice(0, -1))) / 100 * Math.abs(_this.options.maxValue - _this.options.minValue);
-          var legValue = _this.options.minValue + value;
+          var legValue = Math.round(_this.options.minValue + value);
           scaleLegend.innerHTML = legValue.toString();
           var shift = scaleLegend.getBoundingClientRect().height / 2;
           scaleLegend.style.top = -shift + 'px';
         } else {
           var position = scaleLegend.parentElement.style.left;
           var value = Number(position.slice(0, -1)) / 100 * Math.abs(_this.options.maxValue - _this.options.minValue);
-          var legValue = _this.options.minValue + value;
+          var legValue = Math.round(_this.options.minValue + value);
           scaleLegend.innerHTML = legValue.toString();
           var shift = scaleLegend.getBoundingClientRect().width / 2;
           scaleLegend.style.left = -shift + 'px';
@@ -932,6 +932,11 @@ function () {
         _this.options.range = false;
         console.log('Slider: range option cannot be applied to one handler');
       }
+
+      if (_this.options.scaleLegend && !_this.options.scale) {
+        _this.options.scaleLegend = false;
+        console.log('Slider: scaleLegend option cannot be applied without scale option');
+      }
     };
 
     this.setInitialHandlersPosition = function () {
@@ -1081,10 +1086,9 @@ function () {
     this.checkOptions(options);
     this.model = new model1_1.default(this.options);
     this.view = new view_1.View(this.options, container); // this.model.positionValueRate = this.view.positionRange / this.model.valueRange;
-
-    this.view.getScaleLegendValues = function () {
-      _this.setScaleLegendValues();
-    };
+    // this.view.getScaleLegendValues = () => {
+    //     this.setScaleLegendValues();
+    // }
 
     this.setInitialHandlersPosition();
 
