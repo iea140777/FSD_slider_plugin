@@ -26,10 +26,6 @@ export class Presenter {
         this.checkOptions(options);
         this.model = new Model(this.options);
         this.view = new View (this.options, container);
-        // this.model.positionValueRate = this.view.positionRange / this.model.valueRange;
-        // this.view.getScaleLegendValues = () => {
-        //     this.setScaleLegendValues();
-        // }
         this.setInitialHandlersPosition();
         this.view.notifyChangedHandlerPosition = ():void => {
             this.getValueFromPosition();
@@ -42,6 +38,7 @@ export class Presenter {
             this.getPositionFromValue();
         }
         console.log (this.view);
+        console.log (this.model);
     }
 
     checkOptions = (options:IOptions) => {
@@ -137,6 +134,18 @@ export class Presenter {
                 else {
                     this.model.currentValue[i] = this.options.minValue + computedStepValue;
                 }
+                let _val = this.model.currentValue[i] - this.options.minValue;
+                if (this.options.vertical){
+                    this.view.handlersPositionPerc[i] = 100 -(_val * this.model.valuePercent);
+                    this.view.handlers[i].style.top =  this.view.handlersPositionPerc[i] -this.view.handlerSizePerc + '%';
+                }
+                else {
+                    this.view.handlersPositionPerc[i] = _val * this.model.valuePercent ;
+                    this.view.handlers[i].style.left = this.view.handlersPositionPerc[i] - this.view.handlerSizePerc + '%';
+                }
+                if (this.options.range){
+                    this.view.getSliderRangePosition();
+                }
             }
             else {
                 this.model.currentValue[i] = this.options.minValue + Math.round(computedValue);
@@ -224,18 +233,3 @@ export class Presenter {
 }
   
 
-
-// <div contentEditable id="elem">Отредактируй <b>меня</b>, пожалуйста</div>
-
-// <script>
-// let observer = new MutationObserver(mutationRecords => {
-//   console.log(mutationRecords); // console.log(изменения)
-// });
-
-// // наблюдать за всем, кроме атрибутов
-// observer.observe(elem, {
-//   childList: true, // наблюдать за непосредственными детьми
-//   subtree: true, // и более глубокими потомками
-//   characterDataOldValue: true // передавать старое значение в колбэк
-// });
-// </script>    

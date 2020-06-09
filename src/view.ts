@@ -23,11 +23,14 @@ export class View {
     rangeInput:HTMLInputElement;
     valueInputs: NodeListOf<HTMLInputElement>;
     sliderPosition: number;
+    sliderLength: number;
     sliderBorder: number;
-    handlersHeight: number;
-    handlersWidth: number;
+    handlerSizePerc: number;
+    handlerSizePx: number;
     maxPosition: number;
     minPosition: number;
+    minPositionPerc:number;
+    maxPositionPerc: number;
     positionRange: number;
     handlersPosition: number[];
     handlersPositionPerc: number[];
@@ -36,7 +39,7 @@ export class View {
 
     constructor (options:IOptions, container:HTMLDivElement){
         this.options = options;
-        this.outerContainer = container;
+        // this.outerContainer = container;
         this.subViewSliderLine = new SubViewSliderLine;
         this.subViewHandlers = new SubViewHandlers;
         this.subViewScale = new SubViewScale;
@@ -120,7 +123,7 @@ export class View {
         }       
     }
 
-    getSliderPosition() {
+    getSliderPosition = ():void  => {
         if (this.options.vertical){
             this.sliderPosition = this.slider.getBoundingClientRect().y + pageYOffset;
         }
@@ -129,7 +132,7 @@ export class View {
         }
     }
 
-    getSliderLength() {
+    getSliderLength = ():void => {
         if (this.options.vertical){
             this.sliderLength = this.slider.getBoundingClientRect().height;
         }
@@ -138,7 +141,7 @@ export class View {
         }
     }
 
-    getHandlerSize() {
+    getHandlerSize = ():void => {
         this.getSliderLength();
         if (this.options.vertical){
             this.handlerSizePerc = (this.handlers[0].offsetHeight / 2) / this.sliderLength * 100;
@@ -151,7 +154,7 @@ export class View {
         }
     }
 
-    getMinMaxPosition(){
+    getMinMaxPosition = ():void =>{
         this.getHandlerSize;
         if (this.options.vertical){
             this.maxPosition = this.sliderPosition - this.handlerSizePx/2;
@@ -277,6 +280,7 @@ export class View {
         shiftXPerc = (shift / this.sliderLength) * 100;
         handler.classList.add('slider__handler_active');
         document.onmousemove = (e:MouseEvent):void => {
+            e.preventDefault;
             let mousePos:number;
             let mouseposPerc: number;
             if(this.options.vertical){

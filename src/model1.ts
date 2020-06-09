@@ -9,6 +9,7 @@ export default class Model  {
     currentValue: number[];
     rangeValue: number;
     stepPercent: number;
+    valuePercent: number;
 
     constructor (options:IOptions) {
     this.options = options,

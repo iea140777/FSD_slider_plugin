@@ -349,6 +349,8 @@ function () {
     inputsContainer.append(inputLabel);
     var rangeInput = document.createElement('input');
     rangeInput.setAttribute('type', 'text');
+    rangeInput.setAttribute('readonly', 'true');
+    rangeInput.setAttribute('size', '8');
     rangeInput.classList.add('slider__input', 'slider__input_range');
     inputLabel.append(rangeInput);
     var input = inputsContainer.querySelector('.slider__input_range');
@@ -363,6 +365,7 @@ function () {
       inputsContainer.append(inputLabel);
       var valueInput = document.createElement('input');
       valueInput.setAttribute('type', 'text');
+      valueInput.setAttribute('size', '8');
       valueInput.classList.add('slider__input', 'slider__input_value');
       inputLabel.append(valueInput);
     }
@@ -540,6 +543,52 @@ function () {
       }
     };
 
+    this.getSliderPosition = function () {
+      if (_this.options.vertical) {
+        _this.sliderPosition = _this.slider.getBoundingClientRect().y + pageYOffset;
+      } else {
+        _this.sliderPosition = _this.slider.getBoundingClientRect().x + pageXOffset;
+      }
+    };
+
+    this.getSliderLength = function () {
+      if (_this.options.vertical) {
+        _this.sliderLength = _this.slider.getBoundingClientRect().height;
+      } else {
+        _this.sliderLength = _this.slider.getBoundingClientRect().width;
+      }
+    };
+
+    this.getHandlerSize = function () {
+      _this.getSliderLength();
+
+      if (_this.options.vertical) {
+        _this.handlerSizePerc = _this.handlers[0].offsetHeight / 2 / _this.sliderLength * 100;
+        _this.handlerSizePx = _this.handlers[0].offsetHeight;
+      } else {
+        _this.handlerSizePerc = _this.handlers[0].offsetWidth / 2 / _this.sliderLength * 100;
+        _this.handlerSizePx = _this.handlers[0].offsetWidth;
+      }
+    };
+
+    this.getMinMaxPosition = function () {
+      _this.getHandlerSize;
+
+      if (_this.options.vertical) {
+        _this.maxPosition = _this.sliderPosition - _this.handlerSizePx / 2;
+        _this.maxPositionPerc = 0 - _this.handlerSizePerc;
+        _this.minPosition = _this.maxPosition + _this.sliderLength;
+        _this.minPositionPerc = 100 - _this.handlerSizePerc;
+      } else {
+        _this.minPosition = _this.sliderPosition - _this.handlerSizePx / 2;
+        _this.minPositionPerc = 0 - _this.handlerSizePerc;
+        _this.maxPosition = _this.minPosition + _this.sliderLength;
+        _this.maxPositionPerc = 100 - _this.handlerSizePerc;
+      }
+
+      _this.positionRange = Math.abs(_this.minPosition - _this.maxPosition);
+    };
+
     this.getScalePosition = function () {
       var posToVal = _this.positionRange / Math.abs(_this.options.maxValue - _this.options.minValue);
       var percentPosToVal = posToVal / _this.positionRange * 100;
@@ -651,6 +700,7 @@ function () {
       handler.classList.add('slider__handler_active');
 
       document.onmousemove = function (e) {
+        e.preventDefault;
         var mousePos;
         var mouseposPerc;
 
@@ -785,8 +835,8 @@ function () {
       }
     };
 
-    this.options = options;
-    this.outerContainer = container;
+    this.options = options; // this.outerContainer = container;
+
     this.subViewSliderLine = new subViewSliderLine_1.default();
     this.subViewHandlers = new subViewHandlers_1.default();
     this.subViewScale = new subViewScale_1.default();
@@ -817,52 +867,6 @@ function () {
       }
     };
   }
-
-  View.prototype.getSliderPosition = function () {
-    if (this.options.vertical) {
-      this.sliderPosition = this.slider.getBoundingClientRect().y + pageYOffset;
-    } else {
-      this.sliderPosition = this.slider.getBoundingClientRect().x + pageXOffset;
-    }
-  };
-
-  View.prototype.getSliderLength = function () {
-    if (this.options.vertical) {
-      this.sliderLength = this.slider.getBoundingClientRect().height;
-    } else {
-      this.sliderLength = this.slider.getBoundingClientRect().width;
-    }
-  };
-
-  View.prototype.getHandlerSize = function () {
-    this.getSliderLength();
-
-    if (this.options.vertical) {
-      this.handlerSizePerc = this.handlers[0].offsetHeight / 2 / this.sliderLength * 100;
-      this.handlerSizePx = this.handlers[0].offsetHeight;
-    } else {
-      this.handlerSizePerc = this.handlers[0].offsetWidth / 2 / this.sliderLength * 100;
-      this.handlerSizePx = this.handlers[0].offsetWidth;
-    }
-  };
-
-  View.prototype.getMinMaxPosition = function () {
-    this.getHandlerSize;
-
-    if (this.options.vertical) {
-      this.maxPosition = this.sliderPosition - this.handlerSizePx / 2;
-      this.maxPositionPerc = 0 - this.handlerSizePerc;
-      this.minPosition = this.maxPosition + this.sliderLength;
-      this.minPositionPerc = 100 - this.handlerSizePerc;
-    } else {
-      this.minPosition = this.sliderPosition - this.handlerSizePx / 2;
-      this.minPositionPerc = 0 - this.handlerSizePerc;
-      this.maxPosition = this.minPosition + this.sliderLength;
-      this.maxPositionPerc = 100 - this.handlerSizePerc;
-    }
-
-    this.positionRange = Math.abs(this.minPosition - this.maxPosition);
-  };
 
   return View;
 }();
@@ -989,6 +993,20 @@ function () {
           } else {
             _this.model.currentValue[i] = _this.options.minValue + computedStepValue;
           }
+
+          var _val = _this.model.currentValue[i] - _this.options.minValue;
+
+          if (_this.options.vertical) {
+            _this.view.handlersPositionPerc[i] = 100 - _val * _this.model.valuePercent;
+            _this.view.handlers[i].style.top = _this.view.handlersPositionPerc[i] - _this.view.handlerSizePerc + '%';
+          } else {
+            _this.view.handlersPositionPerc[i] = _val * _this.model.valuePercent;
+            _this.view.handlers[i].style.left = _this.view.handlersPositionPerc[i] - _this.view.handlerSizePerc + '%';
+          }
+
+          if (_this.options.range) {
+            _this.view.getSliderRangePosition();
+          }
         } else {
           _this.model.currentValue[i] = _this.options.minValue + Math.round(computedValue);
         }
@@ -1085,11 +1103,7 @@ function () {
 
     this.checkOptions(options);
     this.model = new model1_1.default(this.options);
-    this.view = new view_1.View(this.options, container); // this.model.positionValueRate = this.view.positionRange / this.model.valueRange;
-    // this.view.getScaleLegendValues = () => {
-    //     this.setScaleLegendValues();
-    // }
-
+    this.view = new view_1.View(this.options, container);
     this.setInitialHandlersPosition();
 
     this.view.notifyChangedHandlerPosition = function () {
@@ -1105,23 +1119,13 @@ function () {
     };
 
     console.log(this.view);
+    console.log(this.model);
   }
 
   return Presenter;
 }();
 
-exports.Presenter = Presenter; // <div contentEditable id="elem">Отредактируй <b>меня</b>, пожалуйста</div>
-// <script>
-// let observer = new MutationObserver(mutationRecords => {
-//   console.log(mutationRecords); // console.log(изменения)
-// });
-// // наблюдать за всем, кроме атрибутов
-// observer.observe(elem, {
-//   childList: true, // наблюдать за непосредственными детьми
-//   subtree: true, // и более глубокими потомками
-//   characterDataOldValue: true // передавать старое значение в колбэк
-// });
-// </script>
+exports.Presenter = Presenter;
 },{"./model1":"src/model1.ts","./view":"src/view.ts"}],"slider.ts":[function(require,module,exports) {
 'use strict';
 
@@ -1208,7 +1212,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50793" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50989" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

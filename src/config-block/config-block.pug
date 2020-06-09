@@ -6,26 +6,36 @@ form.form-options(name= 'options1')
     label Starting value 
         input.form-options__startValue__1(type = 'number'  name = 'startValue1' value = -200)
         input.form-options__startValue__2(type = 'number'   name = 'startValue2' value = 250)
-    label Vertical
+    label 
         input.form-options__vertical(type = 'checkbox'  name = 'vertical' unchecked) 
+        span Vertical
     label Step
         input.form-options__step(type = 'number'   name = 'step' value = 40)
-    label Move by steps
-        input.form-options__moveBySteps(type = 'checkbox' name = 'moveBySteps' checked) 
-    label Range
+    label 
+        input.form-options__moveBySteps(type = 'checkbox' name = 'moveBySteps' checked class = 'checkbox')
+        span Move by steps 
+    label 
         input.form-options__range(type = 'checkbox'  name = 'range' checked) 
-    label Range Input
+        span Range
+    label 
         input.form-options__rangeInput(type = 'checkbox'  name = 'rangeInput' checked) 
-    label Value Inputs
+        span Range Input
+    label
         input.form-options__valueInputs(type = 'checkbox'  name = 'valueInputs' checked) 
+        span Value Inputs
     label  Handlers Amount 
-        label 1
+        label
             input.form-options__handlers(type = 'radio'  name = 'handlers')
-        label 2
+            span 1
+        label
             input.form-options__handlers(type = 'radio'  name = 'handlers' checked) 
-    label Scale
+            span 2
+    label 
         input.form-options__scale(type = 'checkbox'  name = 'scale' checked) 
-    label ScaleLegend
+        span Scale
+    label 
         input.form-options__scale(type = 'checkbox'  name = 'scaleLegend' checked) 
-    label Icons
-        input.form-options__icon(type = 'checkbox'  name = 'icon'  checked) 
+        span Scale Legend
+    label 
+        input.form-options__icon(type = 'checkbox'  name = 'icon'  checked)
+        span Icons 

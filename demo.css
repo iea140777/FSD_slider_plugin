@@ -8,7 +8,7 @@ body {
     margin: 0;
     padding: 15px;
     display: grid;
-    grid-template-columns: 50% 50%;
+    grid-template-columns: 35% 65%;
 }
 .demo-container{
     margin: 20px;
@@ -22,10 +22,10 @@ body {
     flex-direction: column;
 }
 
-.slider1, .slider2, .slider3 {
+.slider {
     padding: 0;
     margin: 20px;
     height: 300px;
-    width: 300px;
+    max-width: 500px;
     display: inline-block;
 }
