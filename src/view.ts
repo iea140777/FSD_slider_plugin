@@ -39,7 +39,6 @@ export class View {
 
     constructor (options:IOptions, container:HTMLDivElement){
         this.options = options;
-        // this.outerContainer = container;
         this.subViewSliderLine = new SubViewSliderLine;
         this.subViewHandlers = new SubViewHandlers;
         this.subViewScale = new SubViewScale;
@@ -228,20 +227,20 @@ export class View {
     };
 
     showRange = ():HTMLDivElement => {
-           let rangeBlock:HTMLDivElement = document.createElement('div');
-           rangeBlock.classList.add('slider__range');
-           if (this.options.vertical){
-                rangeBlock.style.width = this.slider.getBoundingClientRect().width + 2 + 'px';
-                rangeBlock.style.left = -1 + 'px';
-           } 
-           else {
-                rangeBlock.style.height = this.slider.getBoundingClientRect().height + 2 + 'px';
-                rangeBlock.style.top = -1 + 'px';
-           }
-           this.slider.append(rangeBlock);
-           this.rangeBlock = this.slider.querySelector('.slider__range');
-           this.getSliderRangePosition();
-           return this.rangeBlock;
+        let rangeBlock:HTMLDivElement = document.createElement('div');
+        rangeBlock.classList.add('slider__range');
+        if (this.options.vertical){
+            rangeBlock.style.width = this.slider.getBoundingClientRect().width + 2 + 'px';
+            rangeBlock.style.left = -1 + 'px';
+        } 
+        else {
+            rangeBlock.style.height = this.slider.getBoundingClientRect().height + 2 + 'px';
+            rangeBlock.style.top = -1 + 'px';
+        }
+        this.slider.append(rangeBlock);
+        this.rangeBlock = this.slider.querySelector('.slider__range');
+        this.getSliderRangePosition();
+        return this.rangeBlock;
     }
 
     getSliderRangePosition = ():void => {
@@ -328,7 +327,7 @@ export class View {
 
     notifyChangedInputValue: any; 
 
-    moveByClick = (e:MouseEvent) =>{
+    moveByClick = (e:MouseEvent) => {
         e.preventDefault();
         this.getMinMaxPosition();
         let clickPosition: number;
@@ -394,4 +393,16 @@ export class View {
         }
     }
 
+    updatePosition = () => {
+        for (let i = 0; i < this.handlers.length; i++) {
+            let newPos = this.handlersPositionPerc[i] - this.handlerSizePerc;
+            if (this.options.vertical) {
+                this.handlers[i].style.top = newPos + '%'; 
+            }
+            else {
+                this.handlers[i].style.left = newPos + '%';
+            }
+        }
+        // console.log('update');
+    }
 }

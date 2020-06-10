@@ -6,7 +6,7 @@ import{IOptions} from './src/presenter';
 
 
 (function( $ ){
-    const defaults = {
+    const defaults:IOptions = {
         minValue: -100,
         maxValue: 100,
         startingValue: [-50, 20],
@@ -23,7 +23,7 @@ import{IOptions} from './src/presenter';
     };
    
     const methods = {
-        init: function (options) {
+        init: function (options:any) {
             return this.each(function(){
                 const params = $.extend({}, defaults, options);
                 this.presenter = new Presenter (params, this);                

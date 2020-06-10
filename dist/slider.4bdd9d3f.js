@@ -158,7 +158,26 @@ function () {
       _this.rangeValue = Math.abs(_this.currentValue[1] - _this.currentValue[0]);
     };
 
-    this.options = options, this.getInitialCurrentValue(), this.getValueRange(), this.getStepsAmount(), this.getStepPercent(), this.getValuePercent(), this.getRangeValue();
+    this.getAllValues = function () {
+      _this.allValues = [];
+
+      for (var i = 0; i <= _this.stepsAmount; i++) {
+        var _value = {};
+        _value.val = _this.options.minValue + _this.options.step * i;
+        _value.percent = _this.stepPercent * i;
+
+        if (_value.percent >= 100) {
+          _value.percent = 100;
+          _value.val = _this.options.maxValue;
+        }
+
+        _this.allValues.push(_value);
+      }
+
+      console.log(_this.allValues);
+    };
+
+    this.options = options, this.getValueRange(), this.getStepsAmount(), this.getStepPercent(), this.getValuePercent(), this.getAllValues(), this.getInitialCurrentValue(), this.getRangeValue();
   }
 
   return Model;
@@ -835,8 +854,20 @@ function () {
       }
     };
 
-    this.options = options; // this.outerContainer = container;
+    this.updatePosition = function () {
+      for (var i = 0; i < _this.handlers.length; i++) {
+        var newPos = _this.handlersPositionPerc[i] - _this.handlerSizePerc;
 
+        if (_this.options.vertical) {
+          _this.handlers[i].style.top = newPos + '%';
+        } else {
+          _this.handlers[i].style.left = newPos + '%';
+        }
+      } // console.log('update');
+
+    };
+
+    this.options = options;
     this.subViewSliderLine = new subViewSliderLine_1.default();
     this.subViewHandlers = new subViewHandlers_1.default();
     this.subViewScale = new subViewScale_1.default();
@@ -964,12 +995,6 @@ function () {
         inputValue = _this.options.minValue;
       }
 
-      if (_this.options.moveBySteps) {
-        var _steps = Math.round((inputValue - _this.options.minValue) / _this.options.step);
-
-        inputValue = _steps * _this.options.step + _this.options.minValue;
-      }
-
       _this.model.currentValue[num] = inputValue;
 
       _this.getPositionFromValue();
@@ -986,23 +1011,7 @@ function () {
         }
 
         if (_this.options.moveBySteps) {
-          var computedStepValue = Math.round(computedValue / _this.options.step) * _this.options.step;
-
-          if (computedStepValue > _this.model.valueRange) {
-            _this.model.currentValue[i] = _this.options.maxValue;
-          } else {
-            _this.model.currentValue[i] = _this.options.minValue + computedStepValue;
-          }
-
-          var _val = _this.model.currentValue[i] - _this.options.minValue;
-
-          if (_this.options.vertical) {
-            _this.view.handlersPositionPerc[i] = 100 - _val * _this.model.valuePercent;
-            _this.view.handlers[i].style.top = _this.view.handlersPositionPerc[i] - _this.view.handlerSizePerc + '%';
-          } else {
-            _this.view.handlersPositionPerc[i] = _val * _this.model.valuePercent;
-            _this.view.handlers[i].style.left = _this.view.handlersPositionPerc[i] - _this.view.handlerSizePerc + '%';
-          }
+          _this.getNearestStepPos();
 
           if (_this.options.range) {
             _this.view.getSliderRangePosition();
@@ -1035,6 +1044,84 @@ function () {
       return _this.model.currentValue;
     };
 
+    this.getNearestStepPos = function () {
+      var _loop_1 = function _loop_1(i) {
+        var pos;
+
+        if (_this.options.vertical) {
+          pos = 100 - _this.view.handlersPositionPerc[i];
+        } else {
+          pos = _this.view.handlersPositionPerc[i];
+        }
+
+        var _ratio = _this.model.stepPercent / 2;
+
+        var curStep = _this.model.allValues.filter(function (step) {
+          return Math.abs(pos - step.percent) < _ratio;
+        });
+
+        if (curStep.length > 1 && curStep.length <= 2) {
+          var delta1 = Math.abs(pos - curStep[0].percent);
+          var delta2 = Math.abs(pos - curStep[1].percent);
+
+          if (delta1 < delta2) {
+            curStep.splice(1, 1);
+          } else {
+            curStep.splice(0, 1);
+          }
+        }
+
+        if (_this.options.vertical) {
+          _this.view.handlersPositionPerc[i] = 100 - curStep[0].percent;
+        } else {
+          _this.view.handlersPositionPerc[i] = curStep[0].percent;
+        }
+
+        _this.view.updatePosition();
+
+        _this.model.currentValue[i] = curStep[0].val;
+      };
+
+      for (var i = 0; i < _this.view.handlers.length; i++) {
+        _loop_1(i);
+      }
+    };
+
+    this.getNearestStepVal = function () {
+      var _loop_2 = function _loop_2(i) {
+        var val = _this.model.currentValue[i];
+
+        var _ratio = _this.options.step / 2;
+
+        var curVal = _this.model.allValues.filter(function (step) {
+          return Math.abs(step.val - val) <= _ratio;
+        });
+
+        if (curVal.length > 1 && curVal.length <= 2) {
+          var delta1 = Math.abs(val - curVal[0].val);
+          var delta2 = Math.abs(val - curVal[1].val);
+
+          if (delta1 < delta2) {
+            curVal.splice(1, 1);
+          } else {
+            curVal.splice(0, 1);
+          }
+        }
+
+        if (_this.options.vertical) {
+          _this.view.handlersPositionPerc[i] = 100 - curVal[0].percent;
+        } else {
+          _this.view.handlersPositionPerc[i] = curVal[0].percent;
+        }
+
+        _this.model.currentValue[i] = curVal[0].val;
+      };
+
+      for (var i = 0; i < _this.view.handlers.length; i++) {
+        _loop_2(i);
+      }
+    };
+
     this.getPositionFromValue = function () {
       _this.view.getMinMaxPosition();
 
@@ -1046,36 +1133,26 @@ function () {
         if (_this.options.vertical) {
           if (!_this.options.moveBySteps) {
             newPos = 100 - _value * _this.model.valuePercent - _this.view.handlerSizePerc;
-            _this.view.handlers[i].style.top = newPos + '%';
+            _this.view.handlersPositionPerc[i] = newPos + _this.view.handlerSizePerc;
           } else {
-            var nearestStep = Math.round(_value / _this.options.step) * _this.options.step;
+            _this.getNearestStepVal();
 
-            if (nearestStep > _this.model.valueRange) {
-              nearestStep = _this.model.valueRange;
-            }
-
-            newPos = 100 - nearestStep * _this.model.valuePercent - _this.view.handlerSizePerc;
-            _this.view.handlers[i].style.top = newPos + '%';
-            _this.model.currentValue[i] = _this.options.minValue + nearestStep;
+            newPos = _this.view.handlersPositionPerc[i] - _this.view.handlerSizePerc;
           }
+
+          _this.view.handlers[i].style.top = newPos + '%';
         } else {
           if (!_this.options.moveBySteps) {
             newPos = _value * _this.model.valuePercent - _this.view.handlerSizePerc;
-            _this.view.handlers[i].style.left = newPos + '%';
+            _this.view.handlersPositionPerc[i] = newPos + _this.view.handlerSizePerc;
           } else {
-            var nearestStep = Math.round(_value / _this.options.step) * _this.options.step;
+            _this.getNearestStepVal();
 
-            if (nearestStep > _this.model.valueRange) {
-              nearestStep = _this.model.valueRange;
-            }
-
-            newPos = nearestStep * _this.model.valuePercent - _this.view.handlerSizePerc;
-            _this.view.handlers[i].style.left = newPos + '%';
-            _this.model.currentValue[i] = _this.options.minValue + nearestStep;
+            newPos = _this.view.handlersPositionPerc[i] - _this.view.handlerSizePerc;
           }
-        }
 
-        _this.view.handlersPositionPerc[i] = newPos + _this.view.handlerSizePerc;
+          _this.view.handlers[i].style.left = newPos + '%';
+        }
 
         if (_this.options.icon) {
           _this.view.icons[i].innerHTML = String(_this.model.currentValue[i]);
@@ -1116,10 +1193,9 @@ function () {
 
     this.view.notifyChangedWindow = function () {
       _this.getPositionFromValue();
-    };
+    }; // console.log (this.view);
+    // console.log (this.model);
 
-    console.log(this.view);
-    console.log(this.model);
   }
 
   return Presenter;
@@ -1212,7 +1288,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50989" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "53498" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
