@@ -117,60 +117,79 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   }
 
   return newRequire;
-})({"index.ts":[function(require,module,exports) {
-var NewOptions =
-/** @class */
-function () {
-  function NewOptions(block) {
-    this.getOptions(block);
+})({"../../Users/alexi/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
+var bundleURL = null;
+
+function getBundleURLCached() {
+  if (!bundleURL) {
+    bundleURL = getBundleURL();
   }
 
-  NewOptions.prototype.getOptions = function (block) {
-    var form = block.querySelector('form');
-    this.minValue = form.minValue.value;
-    this.maxValue = form.maxValue.value;
-    this.startingValue = [form.startValue1.value, form.startValue2.value];
-    this.vertical = form.vertical.checked;
-    this.step = form.step.value;
-    this.moveBySteps = form.moveBySteps.checked;
-    this.range = form.range.checked;
-    this.rangeInput = form.rangeInput.checked;
-    this.valueInputs = form.valueInputs.checked;
+  return bundleURL;
+}
 
-    if (form.handlers[1].checked) {
-      this.handlersAmount = 2;
-    } else {
-      this.handlersAmount = 1;
+function getBundleURL() {
+  // Attempt to find the URL of the current script and use that as the base URL
+  try {
+    throw new Error();
+  } catch (err) {
+    var matches = ('' + err.stack).match(/(https?|file|ftp|chrome-extension|moz-extension):\/\/[^)\n]+/g);
+
+    if (matches) {
+      return getBaseURL(matches[0]);
     }
+  }
 
-    this.scale = form.scale.checked;
-    this.scaleLegend = form.scaleLegend.checked;
-    this.icon = form.icon.checked;
+  return '/';
+}
+
+function getBaseURL(url) {
+  return ('' + url).replace(/^((?:https?|file|ftp|chrome-extension|moz-extension):\/\/.+)\/[^/]+$/, '$1') + '/';
+}
+
+exports.getBundleURL = getBundleURLCached;
+exports.getBaseURL = getBaseURL;
+},{}],"../../Users/alexi/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/css-loader.js":[function(require,module,exports) {
+var bundle = require('./bundle-url');
+
+function updateLink(link) {
+  var newLink = link.cloneNode();
+
+  newLink.onload = function () {
+    link.remove();
   };
 
-  return NewOptions;
-}();
-
-var blocks = document.querySelectorAll('.demo-block');
-
-var _loop_1 = function _loop_1(block) {
-  var form = block.querySelector('form');
-  var options = new NewOptions(block);
-  var slider = block.querySelector('.slider');
-  $(slider).slider(options);
-  form.addEventListener('change', function () {
-    options = new NewOptions(block);
-    $(slider).slider('destroy');
-    $(slider).slider(options);
-  });
-};
-
-for (var _i = 0, blocks_1 = blocks; _i < blocks_1.length; _i++) {
-  var block = blocks_1[_i];
-
-  _loop_1(block);
+  newLink.href = link.href.split('?')[0] + '?' + Date.now();
+  link.parentNode.insertBefore(newLink, link.nextSibling);
 }
-},{}],"../../Users/alexi/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+
+var cssTimeout = null;
+
+function reloadCSS() {
+  if (cssTimeout) {
+    return;
+  }
+
+  cssTimeout = setTimeout(function () {
+    var links = document.querySelectorAll('link[rel="stylesheet"]');
+
+    for (var i = 0; i < links.length; i++) {
+      if (bundle.getBaseURL(links[i].href) === bundle.getBundleURL()) {
+        updateLink(links[i]);
+      }
+    }
+
+    cssTimeout = null;
+  }, 50);
+}
+
+module.exports = reloadCSS;
+},{"./bundle-url":"../../Users/alexi/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/bundle-url.js"}],"docs/slider/slider.css":[function(require,module,exports) {
+var reloadCSS = require('_css_loader');
+
+module.hot.dispose(reloadCSS);
+module.hot.accept(reloadCSS);
+},{"_css_loader":"../../Users/alexi/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/css-loader.js"}],"../../Users/alexi/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -374,5 +393,5 @@ function hmrAcceptRun(bundle, id) {
     return true;
   }
 }
-},{}]},{},["../../Users/alexi/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js","index.ts"], null)
-//# sourceMappingURL=/Slider.77de5100.js.map
+},{}]},{},["../../Users/alexi/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js"], null)
+//# sourceMappingURL=/slider.4fa9bf5a.js.map
