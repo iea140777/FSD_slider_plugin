@@ -1,29 +1,52 @@
 import { IOptions } from "../presenter";
+import { IObj } from "../view";
 
 export default class SubViewScale  {
     options: IOptions;
-    createScale = (options:IOptions, slider:HTMLDivElement):NodeListOf<HTMLDivElement> => {
+    values:IObj[];
+    slider:HTMLDivElement;
+    scalePoints:NodeListOf<HTMLDivElement>;
+    scalePointsArray:HTMLDivElement[];
+    scaleLegendArray: HTMLDivElement[];
+    scaleLegend:NodeListOf<HTMLDivElement>;
+
+    createScale = (options:IOptions, slider:HTMLDivElement, values:IObj[]):NodeListOf<HTMLDivElement> => {
         this.options = options;
-        let pointsAmount: number = Math.ceil((options.maxValue - options.minValue) / options.step) + 1;
+        this.values = values;
+        this.slider = slider;
+        let pointsAmount: number = this.values.length;
         for (let i = 0; i < pointsAmount; i++){
             const scalePoint:HTMLDivElement = document.createElement('div');
             scalePoint.classList.add('slider__scale-point');
-            if (options.vertical) {
+            if (this.options.vertical) {
                 scalePoint.classList.add('slider__scale-point_vertical');
             } else{
                 scalePoint.classList.add('slider__scale-point_horisontal');
             }
             slider.append(scalePoint);
         }
-        let scalePoints:NodeListOf<HTMLDivElement> = slider.querySelectorAll('.slider__scale-point');
-        // if (options.scaleLegend){
-        //     this.addScaleLegend(scalePoints, slider);
-        // }
-        return scalePoints;
+        this.scalePoints = slider.querySelectorAll('.slider__scale-point');
+        this.scalePointsArray = Array.from(this.scalePoints);
+        this.getScalePosition();
+        if (this.options.scaleLegend){
+            this.addScaleLegend();
+            this.getScaleLegendValues();
+        }
     }
 
-    addScaleLegend = (scalePoints:NodeListOf<HTMLDivElement>, slider:HTMLDivElement) => {
-        scalePoints.forEach(
+    getScalePosition = (): void => {
+        for(let i = 0; i < this.values.length; i++){
+            if (this.options.vertical) {
+                this.scalePointsArray[i].style.top = 100 - this.values[i].percent +'%';
+            }
+            else {
+                this.scalePointsArray[i].style.left = this.values[i].percent +'%'; 
+            }
+        }
+    }
+
+    addScaleLegend = () => {
+        this.scalePoints.forEach(
             scalePoint => {
                 let legend: HTMLDivElement = document.createElement('div');
                 legend.classList.add('slider__scale-legend');
@@ -36,8 +59,23 @@ export default class SubViewScale  {
                 scalePoint.append(legend);
             }
         )
-        let scaleLegend: NodeListOf<HTMLDivElement> = slider.querySelectorAll('.slider__scale-legend');
-        return scaleLegend;
+        this.scaleLegend = this.slider.querySelectorAll('.slider__scale-legend');
+        this.scaleLegendArray = Array.from(this.scaleLegend);
+    }
+
+    getScaleLegendValues = () => {
+        for(let i = 0; i < this.values.length; i++){
+            this.scaleLegendArray[i].innerText = String(this.values[i].val);
+            if (this.options.vertical) {
+                let shift = this.scaleLegendArray[i].getBoundingClientRect().height / 2;
+                this.scaleLegendArray[i].style.top = -shift + 'px';
+            }
+            else {
+                let shift = this.scaleLegendArray[i].getBoundingClientRect().width / 2;
+                this.scaleLegendArray[i].style.left = -shift + 'px';
+            }
+        }
+
     }
 
 

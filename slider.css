@@ -107,7 +107,7 @@
     font-weight: bold;
 }
 
-.slider__icon{
+.slider__icon {
     margin: 0;
     padding: 2px;
     height: 15px;
@@ -127,13 +127,9 @@
 }
 
 .slider__icon_horisontal {
-    top: -22px;
-    left: -10px;
 }
 
 .slider__icon_vertical {
-    left: -28px;
-    top: -7.5px;
 }
 
 .slider__inputsContainer {
@@ -176,8 +172,6 @@
     size: 10;
     border-radius: 2px;
 }
-
-
 
 .slider__range{
     margin: 0;

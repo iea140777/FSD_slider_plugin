@@ -117,7 +117,7 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   }
 
   return newRequire;
-})({"src/model1.ts":[function(require,module,exports) {
+})({"src/model.ts":[function(require,module,exports) {
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -130,11 +130,57 @@ function () {
   function Model(options) {
     var _this = this;
 
+    this.getCustomValues = function () {
+      if (_this.options.customValuesList == '') {
+        console.log('Slider: customValuesList should contain values');
+        return;
+      } else {
+        var list = _this.options.customValuesList;
+        var valArr = list.split(', ');
+
+        if (valArr == '' || valArr == undefined) {
+          _this.customValueType = 'none';
+        }
+
+        for (var i = 0; i < valArr.length; i++) {
+          if (isNaN(Number(valArr[i]))) {
+            _this.customValueType = 'string';
+            break;
+          } else {
+            _this.customValueType = 'number';
+          }
+        }
+
+        if (_this.customValueType == 'number') {
+          for (var i = 0; i < valArr.length; i++) {
+            valArr[i] = Number(valArr[i]);
+          }
+        }
+
+        _this.customValuesList = valArr;
+        _this.customStepsAmount = valArr.length;
+
+        _this.getCustomValuesOptions(valArr);
+      }
+    };
+
+    this.getCustomValuesOptions = function (arr) {
+      _this.options.minValue = arr[0];
+      _this.options.maxValue = arr[arr.length - 1];
+      _this.notifyChangedOptions;
+    };
+
     this.getInitialCurrentValue = function () {
       _this.currentValue = [];
 
       for (var i = 0; i < _this.options.handlersAmount; i++) {
-        _this.currentValue[i] = _this.options.startingValue[i];
+        if (_this.options.customValues) {
+          var _index = _this.options.startingValue[i];
+          var _val = _this.allValues[_index].val;
+          _this.currentValue[i] = _val;
+        } else {
+          _this.currentValue[i] = _this.options.startingValue[i];
+        }
       }
     };
 
@@ -143,11 +189,19 @@ function () {
     };
 
     this.getStepsAmount = function () {
-      _this.stepsAmount = Math.ceil(_this.valueRange / _this.options.step);
+      if (_this.options.customValues) {
+        _this.stepsAmount = _this.customStepsAmount;
+      } else {
+        _this.stepsAmount = Math.ceil(_this.valueRange / _this.options.step);
+      }
     };
 
     this.getStepPercent = function () {
-      _this.stepPercent = _this.options.step / _this.valueRange * 100;
+      if (_this.options.customValues) {
+        _this.stepPercent = 100 / (_this.stepsAmount - 1);
+      } else {
+        _this.stepPercent = _this.options.step / _this.valueRange * 100;
+      }
     };
 
     this.getValuePercent = function () {
@@ -161,23 +215,41 @@ function () {
     this.getAllValues = function () {
       _this.allValues = [];
 
-      for (var i = 0; i <= _this.stepsAmount; i++) {
-        var _value = {};
-        _value.val = _this.options.minValue + _this.options.step * i;
-        _value.percent = _this.stepPercent * i;
+      if (_this.options.customValues) {
+        _this.getAllCustomValues();
+      } else {
+        for (var i = 0; i <= _this.stepsAmount; i++) {
+          var _value = {};
+          _value.val = _this.options.minValue + _this.options.step * i;
+          _value.percent = _this.stepPercent * i;
 
-        if (_value.percent >= 100) {
-          _value.percent = 100;
-          _value.val = _this.options.maxValue;
+          if (_value.percent >= 100) {
+            _value.percent = 100;
+            _value.val = _this.options.maxValue;
+          }
+
+          _this.allValues.push(_value);
         }
+      }
+    };
+
+    this.getAllCustomValues = function () {
+      for (var i = 0; i < _this.stepsAmount; i++) {
+        var _value = {};
+        _value.val = _this.customValuesList[i];
+        _value.percent = _this.stepPercent * i;
 
         _this.allValues.push(_value);
       }
-
-      console.log(_this.allValues);
     };
 
-    this.options = options, this.getValueRange(), this.getStepsAmount(), this.getStepPercent(), this.getValuePercent(), this.getAllValues(), this.getInitialCurrentValue(), this.getRangeValue();
+    this.options = options;
+
+    if (this.options.customValues) {
+      this.getCustomValues();
+    }
+
+    this.getValueRange(), this.getStepsAmount(), this.getStepPercent(), this.getValuePercent(), this.getAllValues(), this.getInitialCurrentValue(), this.getRangeValue();
   }
 
   return Model;
@@ -283,9 +355,29 @@ Object.defineProperty(exports, "__esModule", {
 var SubViewIcons =
 /** @class */
 function () {
-  function SubViewIcons() {}
+  function SubViewIcons() {
+    var _this = this;
+
+    this.getIconsShift = function () {
+      _this.icons.forEach(function (icon) {
+        if (_this.options.vertical) {
+          var shiftX = icon.getBoundingClientRect().height / 2;
+          icon.style.top = -shiftX + 'px';
+          var shiftY = icon.getBoundingClientRect().width;
+          icon.style.left = -shiftY - 10 + 'px';
+        } else {
+          var shiftX = icon.getBoundingClientRect().width / 2;
+          icon.style.left = -shiftX + 'px';
+          var shiftY = icon.getBoundingClientRect().height;
+          icon.style.top = -shiftY - 8 + 'px';
+        }
+      });
+    };
+  }
 
   SubViewIcons.prototype.createIcons = function (options, handlers, slider) {
+    this.options = options;
+
     for (var i = 0; i < handlers.length; i++) {
       var icon = document.createElement('div');
       icon.classList.add('slider__icon');
@@ -300,6 +392,7 @@ function () {
     }
 
     var icons = slider.querySelectorAll('.slider__icon');
+    this.icons = icons;
     return icons;
   };
 
@@ -411,15 +504,17 @@ function () {
   function SubViewScale() {
     var _this = this;
 
-    this.createScale = function (options, slider) {
+    this.createScale = function (options, slider, values) {
       _this.options = options;
-      var pointsAmount = Math.ceil((options.maxValue - options.minValue) / options.step) + 1;
+      _this.values = values;
+      _this.slider = slider;
+      var pointsAmount = _this.values.length;
 
       for (var i = 0; i < pointsAmount; i++) {
         var scalePoint = document.createElement('div');
         scalePoint.classList.add('slider__scale-point');
 
-        if (options.vertical) {
+        if (_this.options.vertical) {
           scalePoint.classList.add('slider__scale-point_vertical');
         } else {
           scalePoint.classList.add('slider__scale-point_horisontal');
@@ -428,15 +523,30 @@ function () {
         slider.append(scalePoint);
       }
 
-      var scalePoints = slider.querySelectorAll('.slider__scale-point'); // if (options.scaleLegend){
-      //     this.addScaleLegend(scalePoints, slider);
-      // }
+      _this.scalePoints = slider.querySelectorAll('.slider__scale-point');
+      _this.scalePointsArray = Array.from(_this.scalePoints);
 
-      return scalePoints;
+      _this.getScalePosition();
+
+      if (_this.options.scaleLegend) {
+        _this.addScaleLegend();
+
+        _this.getScaleLegendValues();
+      }
     };
 
-    this.addScaleLegend = function (scalePoints, slider) {
-      scalePoints.forEach(function (scalePoint) {
+    this.getScalePosition = function () {
+      for (var i = 0; i < _this.values.length; i++) {
+        if (_this.options.vertical) {
+          _this.scalePointsArray[i].style.top = 100 - _this.values[i].percent + '%';
+        } else {
+          _this.scalePointsArray[i].style.left = _this.values[i].percent + '%';
+        }
+      }
+    };
+
+    this.addScaleLegend = function () {
+      _this.scalePoints.forEach(function (scalePoint) {
         var legend = document.createElement('div');
         legend.classList.add('slider__scale-legend');
 
@@ -448,8 +558,23 @@ function () {
 
         scalePoint.append(legend);
       });
-      var scaleLegend = slider.querySelectorAll('.slider__scale-legend');
-      return scaleLegend;
+
+      _this.scaleLegend = _this.slider.querySelectorAll('.slider__scale-legend');
+      _this.scaleLegendArray = Array.from(_this.scaleLegend);
+    };
+
+    this.getScaleLegendValues = function () {
+      for (var i = 0; i < _this.values.length; i++) {
+        _this.scaleLegendArray[i].innerText = String(_this.values[i].val);
+
+        if (_this.options.vertical) {
+          var shift = _this.scaleLegendArray[i].getBoundingClientRect().height / 2;
+          _this.scaleLegendArray[i].style.top = -shift + 'px';
+        } else {
+          var shift = _this.scaleLegendArray[i].getBoundingClientRect().width / 2;
+          _this.scaleLegendArray[i].style.left = -shift + 'px';
+        }
+      }
     }; // addScaleListener = (scalePoints:NodeListOf<HTMLDivElement>):void => {
     //     scalePoints.forEach(point => {
     //         point.onclick = (e):void => {
@@ -491,7 +616,7 @@ var subViewScale_1 = __importDefault(require("./subView/subViewScale"));
 var View =
 /** @class */
 function () {
-  function View(options, container) {
+  function View(options, container, values) {
     var _this = this;
 
     this.createSlider = function (options, container) {
@@ -500,11 +625,7 @@ function () {
       _this.handlers = _this.subViewHandlers.createHandlers(options, _this.slider);
 
       if (_this.options.scale) {
-        _this.scale = _this.subViewScale.createScale(options, _this.slider);
-      }
-
-      if (_this.options.scaleLegend) {
-        _this.scaleLegend = _this.subViewScale.addScaleLegend(_this.scale, _this.slider);
+        _this.scale = _this.subViewScale.createScale(options, _this.slider, _this.values);
       }
 
       if (_this.options.icon) {
@@ -606,56 +727,6 @@ function () {
       }
 
       _this.positionRange = Math.abs(_this.minPosition - _this.maxPosition);
-    };
-
-    this.getScalePosition = function () {
-      var posToVal = _this.positionRange / Math.abs(_this.options.maxValue - _this.options.minValue);
-      var percentPosToVal = posToVal / _this.positionRange * 100;
-
-      for (var i = 0; i < _this.scale.length; i++) {
-        if (_this.options.vertical) {
-          if (i == 0) {
-            // this.scale[i].style.top = this.positionRange + 'px';
-            _this.scale[i].style.top = '100%';
-          } else if (i == _this.scale.length - 1) {
-            _this.scale[i].style.top = '0%';
-          } else {
-            _this.scale[i].style.top = 100 - i * percentPosToVal * _this.options.step + '%';
-          }
-        } else {
-          if (i == 0) {
-            _this.scale[i].style.left = '0%';
-          } else if (i == _this.scale.length - 1) {
-            _this.scale[i].style.left = '100%';
-          } else {
-            _this.scale[i].style.left = i * percentPosToVal * _this.options.step + '%';
-          }
-        }
-      }
-
-      if (_this.options.scaleLegend) {
-        _this.getScaleLegendValues();
-      }
-    };
-
-    this.getScaleLegendValues = function () {
-      _this.scaleLegend.forEach(function (scaleLegend) {
-        if (_this.options.vertical) {
-          var position = scaleLegend.parentElement.style.top;
-          var value = (100 - Number(position.slice(0, -1))) / 100 * Math.abs(_this.options.maxValue - _this.options.minValue);
-          var legValue = Math.round(_this.options.minValue + value);
-          scaleLegend.innerHTML = legValue.toString();
-          var shift = scaleLegend.getBoundingClientRect().height / 2;
-          scaleLegend.style.top = -shift + 'px';
-        } else {
-          var position = scaleLegend.parentElement.style.left;
-          var value = Number(position.slice(0, -1)) / 100 * Math.abs(_this.options.maxValue - _this.options.minValue);
-          var legValue = Math.round(_this.options.minValue + value);
-          scaleLegend.innerHTML = legValue.toString();
-          var shift = scaleLegend.getBoundingClientRect().width / 2;
-          scaleLegend.style.left = -shift + 'px';
-        }
-      });
     };
 
     this.showRange = function () {
@@ -863,11 +934,11 @@ function () {
         } else {
           _this.handlers[i].style.left = newPos + '%';
         }
-      } // console.log('update');
-
+      }
     };
 
     this.options = options;
+    this.values = values;
     this.subViewSliderLine = new subViewSliderLine_1.default();
     this.subViewHandlers = new subViewHandlers_1.default();
     this.subViewScale = new subViewScale_1.default();
@@ -877,11 +948,6 @@ function () {
     this.handlersPositionPerc = [];
     this.createSlider(options, container);
     this.getSliderData();
-
-    if (this.options.scale) {
-      this.getScalePosition();
-    }
-
     this.resizeListener();
 
     this.subViewHandlers.handlerMouseDown = function (e, handler, num) {
@@ -916,7 +982,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var model1_1 = __importDefault(require("./model1"));
+var model_1 = __importDefault(require("./model"));
 
 var view_1 = require("./view");
 
@@ -972,16 +1038,38 @@ function () {
         _this.options.scaleLegend = false;
         console.log('Slider: scaleLegend option cannot be applied without scale option');
       }
+
+      if (_this.options.customValues) {
+        _this.options.moveBySteps = true;
+      }
     };
 
     this.setInitialHandlersPosition = function () {
-      _this.getPositionFromValue();
+      if (_this.options.customValues) {
+        for (var i = 0; i < _this.view.handlers.length; i++) {
+          var _index = _this.options.startingValue[i];
+          var _pos = _this.model.allValues[_index].percent;
+          _this.view.handlersPositionPerc[i] = _pos;
+
+          if (_this.options.vertical) {
+            _this.view.handlersPositionPerc[i] = 100 - _pos;
+            _this.view.handlers[i].style.top = 100 - _pos - _this.view.handlerSizePerc + '%';
+          } else {
+            _this.view.handlersPositionPerc[i] = _pos;
+            _this.view.handlers[i].style.left = _pos - _this.view.handlerSizePerc + '%';
+          }
+        }
+      } else {
+        _this.getPositionFromValue();
+      }
 
       if (_this.options.range) {
         _this.model.getRangeValue();
 
         _this.view.getSliderRangePosition();
       }
+
+      _this.setInputIconsValues();
     };
 
     this.setHandlersToInputValue = function (inputValue, num) {
@@ -1022,26 +1110,14 @@ function () {
 
         if (_this.options.icon) {
           _this.view.icons[i].innerHTML = String(_this.model.currentValue[i]);
+
+          _this.view.subViewIcons.getIconsShift();
         }
       }
 
       _this.model.getRangeValue();
 
-      if (_this.options.rangeInput && _this.options.range && _this.options.handlersAmount > 1) {
-        _this.view.rangeInput.value = String(_this.model.rangeValue);
-      }
-
-      if (_this.options.rangeInput && !_this.options.range && _this.options.handlersAmount > 1) {
-        _this.view.rangeInput.value = _this.model.currentValue[0] + "; " + _this.model.currentValue[1];
-      }
-
-      if (_this.options.valueInputs) {
-        for (var i = 0; i < _this.options.handlersAmount; i++) {
-          _this.view.valueInputs[i].value = "" + _this.model.currentValue[i];
-        }
-      }
-
-      return _this.model.currentValue;
+      _this.setInputIconsValues();
     };
 
     this.getNearestStepPos = function () {
@@ -1057,7 +1133,7 @@ function () {
         var _ratio = _this.model.stepPercent / 2;
 
         var curStep = _this.model.allValues.filter(function (step) {
-          return Math.abs(pos - step.percent) < _ratio;
+          return Math.abs(pos - step.percent) <= _ratio;
         });
 
         if (curStep.length > 1 && curStep.length <= 2) {
@@ -1153,22 +1229,32 @@ function () {
 
           _this.view.handlers[i].style.left = newPos + '%';
         }
-
-        if (_this.options.icon) {
-          _this.view.icons[i].innerHTML = String(_this.model.currentValue[i]);
-        }
       }
 
       _this.model.getRangeValue();
 
-      if (_this.options.rangeInput && _this.options.range && _this.options.handlersAmount > 1) {
-        _this.view.showRange();
+      _this.setInputIconsValues();
+    };
 
-        _this.view.rangeInput.value = String(_this.model.rangeValue);
+    this.setInputIconsValues = function () {
+      if (_this.options.icon) {
+        for (var i = 0; i < _this.options.handlersAmount; i++) {
+          _this.view.icons[i].innerHTML = String(_this.model.currentValue[i]);
+
+          _this.view.subViewIcons.getIconsShift();
+        }
       }
 
-      if (_this.options.rangeInput && !_this.options.range && _this.options.handlersAmount > 1) {
-        _this.view.rangeInput.value = _this.model.currentValue[0] + "; " + _this.model.currentValue[1];
+      if (_this.options.rangeInput) {
+        if (_this.options.range) {
+          if (_this.options.customValues) {
+            _this.view.rangeInput.value = _this.model.currentValue[0] + " - " + _this.model.currentValue[1];
+          } else {
+            _this.view.rangeInput.value = String(_this.model.rangeValue);
+          }
+        } else {
+          _this.view.rangeInput.value = _this.model.currentValue[0] + "; " + _this.model.currentValue[1];
+        }
       }
 
       if (_this.options.valueInputs) {
@@ -1179,8 +1265,17 @@ function () {
     };
 
     this.checkOptions(options);
-    this.model = new model1_1.default(this.options);
-    this.view = new view_1.View(this.options, container);
+    this.model = new model_1.default(this.options);
+
+    if (this.options.customValues) {
+      this.model.notifyChangedOptions = function () {
+        _this.options = _this.model.options;
+      };
+    }
+
+    this.view = new view_1.View(this.options, container, this.model.allValues);
+    console.log(this.view);
+    console.log(this.model);
     this.setInitialHandlersPosition();
 
     this.view.notifyChangedHandlerPosition = function () {
@@ -1193,16 +1288,14 @@ function () {
 
     this.view.notifyChangedWindow = function () {
       _this.getPositionFromValue();
-    }; // console.log (this.view);
-    // console.log (this.model);
-
+    };
   }
 
   return Presenter;
 }();
 
 exports.Presenter = Presenter;
-},{"./model1":"src/model1.ts","./view":"src/view.ts"}],"slider.ts":[function(require,module,exports) {
+},{"./model":"src/model.ts","./view":"src/view.ts"}],"slider.ts":[function(require,module,exports) {
 'use strict';
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
@@ -1229,7 +1322,10 @@ var presenter_1 = require("./src/presenter"); // var jquery = require("jquery");
     handlersAmount: 2,
     scale: true,
     scaleLegend: true,
-    icon: true
+    icon: true,
+    customValues: false,
+    customValuesList: '' //any items, separated by comma + whitespace (', '); treated as string values, spread at equal interval along slider
+
   };
   var methods = {
     init: function init(options) {
@@ -1288,7 +1384,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "60922" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "53920" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

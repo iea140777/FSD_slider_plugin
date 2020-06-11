@@ -9,7 +9,7 @@ import{IOptions} from './src/presenter';
     const defaults:IOptions = {
         minValue: -100,
         maxValue: 100,
-        startingValue: [-50, 20],
+        startingValue: [-50, 20], //if customValues: startingValue should be defined as indexes of required customValuesList items
         vertical:false,
         step: 10,
         moveBySteps: true,
@@ -19,7 +19,9 @@ import{IOptions} from './src/presenter';
         handlersAmount: 2, 
         scale: true,
         scaleLegend: true,
-        icon: true
+        icon: true,
+        customValues: false,
+        customValuesList: '' //any items, separated by comma + whitespace (', '); treated as string values, spread at equal interval along slider
     };
    
     const methods = {

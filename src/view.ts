@@ -6,8 +6,13 @@ import SubViewInput from './subView/subViewInput';
 import {IOptions} from './presenter';
 import SubViewScale from './subView/subViewScale';
 
+export interface IObj {
+    val: number,
+    percent: number
+}
 export class View {
     options: IOptions;
+    values:IObj[];
     subViewSliderLine: SubViewSliderLine;
     subViewHandlers: SubViewHandlers;
     subViewScale: SubViewScale;
@@ -37,8 +42,9 @@ export class View {
     rangeBlock: HTMLDivElement;
 
 
-    constructor (options:IOptions, container:HTMLDivElement){
+    constructor (options:IOptions, container:HTMLDivElement, values:IObj[]){
         this.options = options;
+        this.values = values;
         this.subViewSliderLine = new SubViewSliderLine;
         this.subViewHandlers = new SubViewHandlers;
         this.subViewScale = new SubViewScale;
@@ -48,9 +54,6 @@ export class View {
         this.handlersPositionPerc = [];
         this.createSlider(options, container);
         this.getSliderData();
-        if (this.options.scale){
-            this.getScalePosition();
-        }
         this.resizeListener();
         this.subViewHandlers.handlerMouseDown = (e:MouseEvent, handler:HTMLDivElement, num:number):void => {
             this.moveByMouse(e, handler, num);
@@ -64,16 +67,12 @@ export class View {
             }
         }
     }
-    
     createSlider = (options:IOptions, container:HTMLDivElement):void => {
         this.sliderContainer = this.createContainer(options, container);
         this.slider = this.subViewSliderLine.createSliderLine(this.sliderContainer, options);
         this.handlers = this.subViewHandlers.createHandlers(options, this.slider);
         if (this.options.scale) {
-            this.scale = this.subViewScale.createScale(options, this.slider);
-        }
-        if (this.options.scaleLegend){
-            this.scaleLegend = this.subViewScale.addScaleLegend(this.scale, this.slider);
+            this.scale = this.subViewScale.createScale(options, this.slider, this.values);
         }
         if (this.options.icon) {
             this.icons = this.subViewIcons.createIcons(options, this.handlers, this.slider);
@@ -145,7 +144,6 @@ export class View {
         if (this.options.vertical){
             this.handlerSizePerc = (this.handlers[0].offsetHeight / 2) / this.sliderLength * 100;
             this.handlerSizePx = this.handlers[0].offsetHeight;
-
         }
         else {
             this.handlerSizePerc = (this.handlers[0].offsetWidth / 2) / this.sliderLength * 100;
@@ -169,62 +167,6 @@ export class View {
         }
         this.positionRange = Math.abs(this.minPosition - this.maxPosition);
     }
-
-
-    getScalePosition = (): void => {
-        const posToVal: number = this.positionRange / Math.abs((this.options.maxValue - this.options.minValue));
-        const percentPosToVal = (posToVal/this.positionRange) * 100
-        for (let i = 0; i < this.scale.length; i++){
-            if (this.options.vertical) {
-                if (i == 0) {
-                    // this.scale[i].style.top = this.positionRange + 'px';
-                    this.scale[i].style.top = '100%';
-                }
-                else if (i == this.scale.length - 1){
-                    this.scale[i].style.top = '0%';
-                }
-                else {
-                    this.scale[i].style.top = 100 - (i * percentPosToVal * this.options.step)  + '%';
-                }    
-            } else {
-                if (i == 0) {
-                    this.scale[i].style.left = '0%';
-                }
-                else if (i == this.scale.length - 1){
-                    this.scale[i].style.left = '100%';
-                }
-                else {
-                    this.scale[i].style.left = (i * percentPosToVal * this.options.step)  + '%';
-                }    
-            }
-        }
-        if (this.options.scaleLegend){
-            this.getScaleLegendValues();
-        }
-    }
-
-    getScaleLegendValues = () => {
-        this.scaleLegend.forEach(
-            scaleLegend => {
-                if (this.options.vertical){
-                    let position = scaleLegend.parentElement.style.top;
-                    let value = (100 -Number(position.slice(0, -1))) / 100 * Math.abs((this.options.maxValue - this.options.minValue));
-                    let legValue = Math.round(this.options.minValue + value);
-                    scaleLegend.innerHTML = legValue.toString();
-                    let shift = scaleLegend.getBoundingClientRect().height / 2;
-                    scaleLegend.style.top = -shift + 'px';
-                }
-                else {
-                    let position = scaleLegend.parentElement.style.left;
-                    let value = Number(position.slice(0, -1)) / 100 * Math.abs((this.options.maxValue - this.options.minValue));
-                    let legValue = Math.round(this.options.minValue + value);
-                    scaleLegend.innerHTML = legValue.toString();
-                    let shift = scaleLegend.getBoundingClientRect().width / 2;
-                    scaleLegend.style.left = -shift + 'px';
-                }
-            }
-        )
-    };
 
     showRange = ():HTMLDivElement => {
         let rangeBlock:HTMLDivElement = document.createElement('div');
@@ -403,6 +345,5 @@ export class View {
                 this.handlers[i].style.left = newPos + '%';
             }
         }
-        // console.log('update');
     }
 }

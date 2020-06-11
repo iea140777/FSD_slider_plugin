@@ -34,7 +34,8 @@
     margin-left: 4px;
 }
 
-.form-options input[type = 'number']{
+.form-options input[type = 'number'],
+.form-options input[type = 'text'] {
     padding: 2px;
     margin: 0;
     height: 18px;
@@ -47,6 +48,11 @@
     font-size: 14px; 
     outline: none;
 }
+
+.form-options input[type = 'text']{
+    width: 150px;
+}
+
 .form-options input[type = 'checkbox'] {
     /* margin: 0;
     padding: 0;

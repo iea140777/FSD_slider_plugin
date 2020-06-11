@@ -28,6 +28,10 @@ class NewOptions implements IOptions {
     scale: boolean;
     scaleLegend: boolean;
     icon: boolean;
+    customValues: boolean;
+    customValuesList: string;
+    
+
     constructor(block:HTMLDivElement) {
         this.getOptions(block);
     }
@@ -51,6 +55,8 @@ class NewOptions implements IOptions {
         this.scale = form.scale.checked;
         this.scaleLegend = form.scaleLegend.checked;
         this.icon = form.icon.checked; 
+        this.customValues = form.customValues.checked;
+        this.customValuesList = form.customValuesList.value;
     }
 }
 

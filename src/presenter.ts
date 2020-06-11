@@ -1,10 +1,10 @@
-import Model from "./model1";
+import Model from "./model";
 import {View} from  "./view";
 
-export interface IOptions{
-    minValue: number;
-    maxValue: number;
-    startingValue: [number, number];
+export interface IOptions {
+    minValue: number|string;
+    maxValue: number|string;
+    startingValue: [number, number]; //if customValues: startingValue should be defined as indexes of required customValuesList items
     vertical:boolean;
     step: number;
     moveBySteps: boolean;
@@ -15,6 +15,8 @@ export interface IOptions{
     scale: boolean;
     scaleLegend: boolean;
     icon: boolean;
+    customValues: boolean,
+    customValuesList: string
 }
 
 export class Presenter {
@@ -25,7 +27,14 @@ export class Presenter {
     constructor(options:IOptions, container:HTMLDivElement){
         this.checkOptions(options);
         this.model = new Model(this.options);
-        this.view = new View (this.options, container);
+        if (this.options.customValues) {
+            this.model.notifyChangedOptions = ():void => {
+                this.options = this.model.options;
+            }
+        }
+        this.view = new View (this.options, container, this.model.allValues);
+        console.log (this.view);
+        console.log (this.model);
         this.setInitialHandlersPosition();
         this.view.notifyChangedHandlerPosition = ():void => {
             this.getValueFromPosition();
@@ -37,8 +46,6 @@ export class Presenter {
         this.view.notifyChangedWindow = () => {
             this.getPositionFromValue();
         }
-        // console.log (this.view);
-        // console.log (this.model);
     }
 
     checkOptions = (options:IOptions) => {
@@ -61,7 +68,6 @@ export class Presenter {
                 this.options.startingValue[i] = this.options.minValue;
             }
         }
-
         if (this.options.handlersAmount < 1){
             this.options.handlersAmount = 1;
             console.log ('Slider: handlers amount should be equal either 1 or 2');
@@ -88,14 +94,35 @@ export class Presenter {
             this.options.scaleLegend = false;
             console.log('Slider: scaleLegend option cannot be applied without scale option')
         }
+        if (this.options.customValues){
+            this.options.moveBySteps = true;
+        }
     }
     
     setInitialHandlersPosition = ():void => {
-        this.getPositionFromValue();
+        if (this.options.customValues) {
+            for (let i = 0; i < this.view.handlers.length; i++){
+                let _index:number = this.options.startingValue[i];
+                let _pos:number = this.model.allValues[_index].percent;
+                this.view.handlersPositionPerc[i] = _pos;
+                if(this.options.vertical){
+                    this.view.handlersPositionPerc[i] = 100 -_pos;
+                    this.view.handlers[i].style.top = (100 - _pos) - this.view.handlerSizePerc + '%';
+                }
+                else {
+                    this.view.handlersPositionPerc[i] = _pos;
+                    this.view.handlers[i].style.left = _pos - this.view.handlerSizePerc + '%';
+                }
+            }
+        }
+        else {
+            this.getPositionFromValue();
+        }
         if (this.options.range) {
             this.model.getRangeValue();
-            this.view.getSliderRangePosition();
+            this.view.getSliderRangePosition();   
         }
+        this.setInputIconsValues();
     }
 
     setHandlersToInputValue = (inputValue:number, num: number): void => {
@@ -113,7 +140,7 @@ export class Presenter {
         this.getPositionFromValue();
     }
 
-    getValueFromPosition =  ():number[] => {
+    getValueFromPosition =  ():void => {
         for (let i = 0; i < this.view.handlers.length; i++){
             let computedValue:number;
             if(this.options.vertical) {
@@ -133,24 +160,12 @@ export class Presenter {
             }
             if (this.options.icon) {
                 this.view.icons[i].innerHTML = String(this.model.currentValue[i]);
+                this.view.subViewIcons.getIconsShift();
             }
         
         }
         this.model.getRangeValue();
-        if (this.options.rangeInput && this.options.range && this.options.handlersAmount > 1){
-            this.view.rangeInput.value = String(this.model.rangeValue);  
-        }
-
-        if (this.options.rangeInput && !this.options.range && this.options.handlersAmount > 1){
-            this.view.rangeInput.value = `${this.model.currentValue[0]}; ${this.model.currentValue[1]}`;  
-        } 
-
-        if (this.options.valueInputs) {
-            for (let i = 0; i < this.options.handlersAmount; i++){
-                this.view.valueInputs[i].value = `${this.model.currentValue[i]}`;
-            }
-        } 
-        return this.model.currentValue;
+        this.setInputIconsValues();
     }
     
     getNearestStepPos = () => {
@@ -163,7 +178,7 @@ export class Presenter {
                 pos = this.view.handlersPositionPerc[i];
             }
             let _ratio = this.model.stepPercent/2;
-            let curStep = this.model.allValues.filter(step => Math.abs(pos - step.percent) < _ratio);
+            let curStep = this.model.allValues.filter(step => Math.abs(pos - step.percent) <= _ratio);
             if (curStep.length > 1 && curStep.length <= 2){
                 let delta1 = Math.abs(pos - curStep[0].percent);
                 let delta2 = Math.abs(pos - curStep[1].percent);
@@ -237,27 +252,37 @@ export class Presenter {
                 }   
                 this.view.handlers[i].style.left = newPos + '%';
             }
-
-            if (this.options.icon) {
-                this.view.icons[i].innerHTML = String(this.model.currentValue[i]);
-            }
         }
         this.model.getRangeValue();
-        if (this.options.rangeInput && this.options.range && this.options.handlersAmount > 1){
-            this.view.showRange();
-            this.view.rangeInput.value = String(this.model.rangeValue);  
-        }
+        this.setInputIconsValues();
+    } 
 
-        if (this.options.rangeInput && !this.options.range && this.options.handlersAmount > 1){
-            this.view.rangeInput.value = `${this.model.currentValue[0]}; ${this.model.currentValue[1]}`;  
-        } 
-                
+    setInputIconsValues = () => {
+        if (this.options.icon) {
+            for (let i = 0; i < this.options.handlersAmount; i++){
+                this.view.icons[i].innerHTML = String(this.model.currentValue[i]);
+                this.view.subViewIcons.getIconsShift();
+            }
+        }
+        if (this.options.rangeInput) {
+            if (this.options.range){
+                if (this.options.customValues){
+                    this.view.rangeInput.value = `${this.model.currentValue[0]} - ${this.model.currentValue[1]}`; 
+                }
+                else {
+                this.view.rangeInput.value = String(this.model.rangeValue); 
+                } 
+            }
+            else {
+                this.view.rangeInput.value = `${this.model.currentValue[0]}; ${this.model.currentValue[1]}`;
+            }
+        }
         if (this.options.valueInputs) {
             for (let i = 0; i < this.options.handlersAmount; i++){
-                this.view.valueInputs[i].value = `${this.model.currentValue[i]}`; 
+                this.view.valueInputs[i].value = `${this.model.currentValue[i]}`;
             }
         } 
-    } 
+    }
 
 }
   
