@@ -110,7 +110,7 @@
 .slider__icon {
     margin: 0;
     padding: 2px;
-    height: 15px;
+    height: auto;
     width: auto;
     box-sizing: border-box;
     position: absolute;

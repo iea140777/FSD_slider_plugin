@@ -345,5 +345,8 @@ export class View {
                 this.handlers[i].style.left = newPos + '%';
             }
         }
+        if (this.options.range){
+            this.getSliderRangePosition();
+        }
     }
 }

@@ -67,6 +67,9 @@ export default class Model  {
     getCustomValuesOptions = (arr:any[]) => {
         this.options.minValue = arr[0];
         this.options.maxValue = arr[arr.length-1];
+        if(this.options.startingValue[0] > arr.length ||this.options.startingValue[1] > arr.length){
+            this.options.startingValue = [0, (arr.length-1)];
+        }
         this.notifyChangedOptions;
     }
   

@@ -167,6 +167,11 @@ function () {
     this.getCustomValuesOptions = function (arr) {
       _this.options.minValue = arr[0];
       _this.options.maxValue = arr[arr.length - 1];
+
+      if (_this.options.startingValue[0] > arr.length || _this.options.startingValue[1] > arr.length) {
+        _this.options.startingValue = [0, arr.length - 1];
+      }
+
       _this.notifyChangedOptions;
     };
 
@@ -935,6 +940,10 @@ function () {
           _this.handlers[i].style.left = newPos + '%';
         }
       }
+
+      if (_this.options.range) {
+        _this.getSliderRangePosition();
+      }
     };
 
     this.options = options;
@@ -969,31 +978,20 @@ function () {
 }();
 
 exports.View = View;
-},{"./subView/subViewSliderLine":"src/subView/subViewSliderLine.ts","./subView/subViewHandlers":"src/subView/subViewHandlers.ts","./subView/subViewIcons":"src/subView/subViewIcons.ts","./subView/subViewInput":"src/subView/subViewInput.ts","./subView/subViewScale":"src/subView/subViewScale.ts"}],"src/presenter.ts":[function(require,module,exports) {
+},{"./subView/subViewSliderLine":"src/subView/subViewSliderLine.ts","./subView/subViewHandlers":"src/subView/subViewHandlers.ts","./subView/subViewIcons":"src/subView/subViewIcons.ts","./subView/subViewInput":"src/subView/subViewInput.ts","./subView/subViewScale":"src/subView/subViewScale.ts"}],"src/options.ts":[function(require,module,exports) {
 "use strict";
-
-var __importDefault = this && this.__importDefault || function (mod) {
-  return mod && mod.__esModule ? mod : {
-    "default": mod
-  };
-};
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var model_1 = __importDefault(require("./model"));
-
-var view_1 = require("./view");
-
-var Presenter =
+var Options =
 /** @class */
 function () {
-  function Presenter(options, container) {
+  function Options(options) {
     var _this = this;
 
     this.checkOptions = function (options) {
-      _this.options = options;
       _this.options.minValue = Number(options.minValue);
       _this.options.maxValue = Number(options.maxValue);
       _this.options.startingValue = [Number(options.startingValue[0]), Number(options.startingValue[1])];
@@ -1043,6 +1041,39 @@ function () {
         _this.options.moveBySteps = true;
       }
     };
+
+    this.options = options;
+    this.checkOptions(options);
+  }
+
+  return Options;
+}();
+
+exports.Options = Options;
+},{}],"src/presenter.ts":[function(require,module,exports) {
+"use strict";
+
+var __importDefault = this && this.__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var model_1 = __importDefault(require("./model"));
+
+var view_1 = require("./view");
+
+var options_1 = require("./options");
+
+var Presenter =
+/** @class */
+function () {
+  function Presenter(options, container) {
+    var _this = this;
 
     this.setInitialHandlersPosition = function () {
       if (_this.options.customValues) {
@@ -1115,7 +1146,11 @@ function () {
         }
       }
 
-      _this.model.getRangeValue();
+      if (_this.options.range) {
+        _this.model.getRangeValue();
+
+        _this.view.getSliderRangePosition();
+      }
 
       _this.setInputIconsValues();
     };
@@ -1231,7 +1266,11 @@ function () {
         }
       }
 
-      _this.model.getRangeValue();
+      if (_this.options.range) {
+        _this.model.getRangeValue();
+
+        _this.view.getSliderRangePosition();
+      }
 
       _this.setInputIconsValues();
     };
@@ -1253,7 +1292,9 @@ function () {
             _this.view.rangeInput.value = String(_this.model.rangeValue);
           }
         } else {
-          _this.view.rangeInput.value = _this.model.currentValue[0] + "; " + _this.model.currentValue[1];
+          if (_this.options.handlersAmount == 2) {
+            _this.view.rangeInput.value = _this.model.currentValue[0] + "; " + _this.model.currentValue[1];
+          }
         }
       }
 
@@ -1264,7 +1305,8 @@ function () {
       }
     };
 
-    this.checkOptions(options);
+    this.options = new options_1.Options(options).options;
+    console.log(this.options);
     this.model = new model_1.default(this.options);
 
     if (this.options.customValues) {
@@ -1295,7 +1337,7 @@ function () {
 }();
 
 exports.Presenter = Presenter;
-},{"./model":"src/model.ts","./view":"src/view.ts"}],"slider.ts":[function(require,module,exports) {
+},{"./model":"src/model.ts","./view":"src/view.ts","./options":"src/options.ts"}],"slider.ts":[function(require,module,exports) {
 'use strict';
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
@@ -1384,7 +1426,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "53920" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "55204" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
