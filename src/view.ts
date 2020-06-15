@@ -262,7 +262,7 @@ export class View {
     }
 
     moveByTouch = (e:TouchEvent, handler:HTMLDivElement, num:number) => {
-        // e.preventDefault();
+        e.preventDefault();
         this.getMinMaxPosition();
         let shift:number;
         let shiftXPerc: number;
