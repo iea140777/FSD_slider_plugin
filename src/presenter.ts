@@ -27,7 +27,6 @@ export class Presenter {
 
     constructor(options:IOptions, container:HTMLDivElement){
         this.options = new Options(options).options;
-        console.log(this.options);
         this.model = new Model(this.options);
         if (this.options.customValues) {
             this.model.notifyChangedOptions = ():void => {
@@ -156,12 +155,14 @@ export class Presenter {
 
     getNearestStepVal = () => {
         for (let i = 0; i < this.view.handlers.length; i++){
-            let val:number = this.model.currentValue[i];
+            let _val:number = this.model.currentValue[i];
             let _ratio = this.options.step / 2;
-            let curVal = this.model.allValues.filter(step => Math.abs(step.val - val) <= _ratio);
+            let curVal = this.model.allValues.filter(step => Math.abs(step.val - _val) <= _ratio);
+            // console.log(curVal);
             if (curVal.length > 1 && curVal.length <= 2) {
-                let delta1 = Math.abs(val - curVal[0].val);
-                let delta2 = Math.abs(val - curVal[1].val);
+                let delta1 = Math.abs(_val - curVal[0].val);
+                let delta2 = Math.abs(_val - curVal[1].val);
+                
                 if(delta1 < delta2) {
                     curVal.splice(1,1);
                 }
@@ -218,8 +219,9 @@ export class Presenter {
         if (this.options.icon) {
             for (let i = 0; i < this.options.handlersAmount; i++){
                 this.view.icons[i].innerHTML = String(this.model.currentValue[i]);
-                this.view.subViewIcons.getIconsShift();
             }
+            this.view.subViewIcons.getIconsShift();
+            // console.log('icons pos');
         }
         if (this.options.rangeInput) {
             if (this.options.range){

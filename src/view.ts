@@ -58,6 +58,9 @@ export class View {
         this.subViewHandlers.handlerMouseDown = (e:MouseEvent, handler:HTMLDivElement, num:number):void => {
             this.moveByMouse(e, handler, num);
         }
+        this.subViewHandlers.handlerTouchStart = (e:TouchEvent, handler:HTMLDivElement, num:number):void =>{
+            this.moveByTouch(e, handler, num);
+        }
         this.subViewInput.newInputValue = (newInputValue:number, num:number):void => {
             this.notifyChangedInputValue(newInputValue, num);
         }
@@ -214,6 +217,7 @@ export class View {
         let shiftXPerc: number;
         if(this.options.vertical){
             shift = e.clientY  - this.handlers[num].getBoundingClientRect().y ;
+            
         }
         else {
             shift = e.clientX - this.handlers[num].getBoundingClientRect().x + pageXOffset;
@@ -256,6 +260,57 @@ export class View {
             document.onmousemove = null;
           };
     }
+
+    moveByTouch = (e:TouchEvent, handler:HTMLDivElement, num:number) => {
+        // e.preventDefault();
+        this.getMinMaxPosition();
+        let shift:number;
+        let shiftXPerc: number;
+        if(this.options.vertical){
+            shift = e.changedTouches[0].clientY  - this.handlers[num].getBoundingClientRect().y ;
+        }
+        else {
+            shift = e.changedTouches[0].clientX - this.handlers[num].getBoundingClientRect().x + pageXOffset;
+        }
+        shiftXPerc = (shift / this.sliderLength) * 100;
+        handler.classList.add('slider__handler_active');
+        document.ontouchmove = (e:TouchEvent):void => {
+            e.preventDefault;
+            let touchPos:number;
+            let mouseposPerc: number;
+            if(this.options.vertical){
+                touchPos = e.changedTouches[0].clientY ;
+                mouseposPerc = ((touchPos - this.slider.getBoundingClientRect().y) / this.slider.getBoundingClientRect().height)*100;
+                let newTop: number = mouseposPerc  - shiftXPerc;
+                if (newTop <= this.maxPositionPerc) {
+                    newTop = this.maxPositionPerc;
+                }
+                if (newTop >= this.minPositionPerc) {
+                    newTop = this.minPositionPerc;
+                }
+                handler.style.top = newTop  + '%';
+                this.writeNewPosition(handler, num, newTop);
+            }
+            else {
+                touchPos = e.changedTouches[0].clientX ;
+                mouseposPerc = ((touchPos - this.slider.getBoundingClientRect().x) / this.slider.getBoundingClientRect().width)*100;
+                let newLeft:number = mouseposPerc  - shiftXPerc;
+                if (newLeft <= this.minPositionPerc) {
+                    newLeft = this.minPositionPerc;
+                }
+                if (newLeft >= this.maxPositionPerc) {
+                    newLeft = this.maxPositionPerc;
+                }
+                handler.style.left = newLeft + '%';
+                this.writeNewPosition(handler, num, newLeft);
+            }
+        }
+        document.ontouchend = ():void => {
+            handler.classList.remove('slider__handler_active');
+            document.ontouchmove = null;
+          };
+    }
+
     
     writeNewPosition = (handler:HTMLDivElement, num: number, newPos: number):void => {
         this.handlersPositionPerc[num] = newPos + this.handlerSizePerc;

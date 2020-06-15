@@ -10,19 +10,68 @@
 </head>
 
 body
+    include src/config-block/config-block.pug
     div.demo-container 
         div.demo-block
-            include src/config-block/config-block.pug
+            +configPanel({
+                _maxValue: '100', 
+                _minValue: '-100', 
+                _startValue1: '-50', 
+                _startValue2: '50', 
+                _vertical: false, 
+                _step: '10', 
+                _moveBySteps: true, 
+                _range: true, 
+                _rangeInput: true, 
+                _valueInputs: true, 
+                _scale: true, 
+                _scaleLegend: true, 
+                _icons: true, 
+                _customValues: false, 
+                _customValuesList: ''
+            })
             div.slider
         div.demo-block
-            include src/config-block/config-block.pug
+            +configPanel({
+                _maxValue: '100', 
+                _minValue: '-100', 
+                _startValue1: '1', 
+                _startValue2: '3', 
+                _vertical: false, 
+                _step: '10', 
+                _moveBySteps: true, 
+                _range: true, 
+                _rangeInput: true, 
+                _valueInputs: true, 
+                _scale: true, 
+                _scaleLegend: true, 
+                _icons: true, 
+                _customValues: true, 
+                _customValuesList: 'the smallest, very small, small, medium, larger, very large, the largest'
+            })
             div.slider 
         div.demo-block 
-            include src/config-block/config-block.pug
+            +configPanel({
+                _maxValue: '589', 
+                _minValue: '-613', 
+                _startValue1: '-300', 
+                _startValue2: '250', 
+                _vertical: true, 
+                _step: '112', 
+                _moveBySteps: true, 
+                _range: true, 
+                _rangeInput: true, 
+                _valueInputs: true, 
+                _scale: true, 
+                _scaleLegend: true, 
+                _icons: true, 
+                _customValues: false, 
+                _customValuesList: ''
+            })
             div.slider
     script(src="jquery-3.4.1.js")
-    script(src="slider.ts")
-    //- script(src="/docs/slider/slider.js")
+    //- script(src="slider.ts")
+    script(src="/docs/slider/slider.js")
     script(src="index.ts")
 
 

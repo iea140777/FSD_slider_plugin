@@ -1,46 +1,63 @@
-form.form-options(name= 'options1')
-    label Max Value 
-        input.form-options__maxValue(type = 'number'  name = 'maxValue' value = 250) 
-    label Min Value 
-        input.form-options__minValue(type = 'number'  name = 'minValue' value = -250 ) 
-    label Starting value 
-        input.form-options__startValue__1(type = 'number'  name = 'startValue1' value = -200)
-        input.form-options__startValue__2(type = 'number'   name = 'startValue2' value = 250)
-    label 
-        input.form-options__vertical(type = 'checkbox'  name = 'vertical' unchecked) 
-        span Vertical
-    label Step
-        input.form-options__step(type = 'number'   name = 'step' value = 40)
-    label 
-        input.form-options__moveBySteps(type = 'checkbox' name = 'moveBySteps' checked class = 'checkbox')
-        span Move by steps 
-    label 
-        input.form-options__range(type = 'checkbox'  name = 'range' checked) 
-        span Range
-    label 
-        input.form-options__rangeInput(type = 'checkbox'  name = 'rangeInput' checked) 
-        span Range Input
-    label
-        input.form-options__valueInputs(type = 'checkbox'  name = 'valueInputs' checked) 
-        span Value Inputs
-    label  Handlers Amount 
+mixin configPanel(params)
+    -
+        const {_maxValue, 
+                _minValue, 
+                _startValue1, 
+                _startValue2, 
+                _vertical, 
+                _step, 
+                _moveBySteps, 
+                _range, 
+                _rangeInput, 
+                _valueInputs, 
+                _scale, 
+                _scaleLegend, 
+                _icons, 
+                _customValues, 
+                _customValuesList} = params;
+    form.form-options(name= 'options1')
+        label Max Value 
+            input.form-options__maxValue(type = 'number'  name = 'maxValue' value = `${_maxValue}`) 
+        label Min Value 
+            input.form-options__minValue(type = 'number'  name = 'minValue' value = `${_minValue}`) 
+        label Starting value 
+            input.form-options__startValue__1(type = 'number'  name = 'startValue1' value = `${_startValue1}`)
+            input.form-options__startValue__2(type = 'number'   name = 'startValue2' value = `${_startValue2}`)
+        label 
+            input.form-options__vertical(type = 'checkbox'  name = 'vertical' checked = _vertical) 
+            span Vertical
+        label Step
+            input.form-options__step(type = 'number'   name = 'step' value = `${_step}`)
+        label 
+            input.form-options__moveBySteps(type = 'checkbox' name = 'moveBySteps' class = 'checkbox' checked = _moveBySteps)
+            span Move by steps 
+        label 
+            input.form-options__range(type = 'checkbox'  name = 'range' checked =_range) 
+            span Range
+        label 
+            input.form-options__rangeInput(type = 'checkbox'  name = 'rangeInput' checked = _rangeInput) 
+            span Range Input
         label
-            input.form-options__handlers(type = 'radio'  name = 'handlers')
-            span 1
-        label
-            input.form-options__handlers(type = 'radio'  name = 'handlers' checked) 
-            span 2
-    label 
-        input.form-options__scale(type = 'checkbox'  name = 'scale' checked) 
-        span Scale
-    label 
-        input.form-options__scale(type = 'checkbox'  name = 'scaleLegend' checked) 
-        span Scale Legend
-    label 
-        input.form-options__icon(type = 'checkbox'  name = 'icon'  checked)
-        span Icons 
-    label 
-        input.form-options__customValues(type = 'checkbox'  name = 'customValues'  unchecked)
-        span Custom Values 
-    label Custom Values 
-        input.form-options__customValuesList(type = 'text'  name = 'customValuesList') 
+            input.form-options__valueInputs(type = 'checkbox'  name = 'valueInputs' checked = _valueInputs) 
+            span Value Inputs
+        label  Handlers Amount 
+            label
+                input.form-options__handlers(type = 'radio'  name = 'handlers')
+                span 1
+            label
+                input.form-options__handlers(type = 'radio'  name = 'handlers' checked) 
+                span 2
+        label 
+            input.form-options__scale(type = 'checkbox'  name = 'scale' checked = _scale) 
+            span Scale
+        label 
+            input.form-options__scale(type = 'checkbox'  name = 'scaleLegend' checked =_scaleLegend) 
+            span Scale Legend
+        label 
+            input.form-options__icon(type = 'checkbox'  name = 'icon'  checked = _icons)
+            span Icons 
+        label 
+            input.form-options__customValues(type = 'checkbox'  name = 'customValues' checked =_customValues)
+            span Custom Values 
+        label Custom Values List
+            input.form-options__customValuesList(type = 'text'  name = 'customValuesList' value = `${_customValuesList}`) 

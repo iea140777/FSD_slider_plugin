@@ -117,7 +117,33 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   }
 
   return newRequire;
-})({"src/model.ts":[function(require,module,exports) {
+})({"node_modules/@babel/runtime/helpers/interopRequireDefault.js":[function(require,module,exports) {
+function _interopRequireDefault(obj) {
+  return obj && obj.__esModule ? obj : {
+    "default": obj
+  };
+}
+
+module.exports = _interopRequireDefault;
+},{}],"node_modules/@babel/runtime/helpers/typeof.js":[function(require,module,exports) {
+function _typeof(obj) {
+  "@babel/helpers - typeof";
+
+  if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
+    module.exports = _typeof = function _typeof(obj) {
+      return typeof obj;
+    };
+  } else {
+    module.exports = _typeof = function _typeof(obj) {
+      return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+    };
+  }
+
+  return _typeof(obj);
+}
+
+module.exports = _typeof;
+},{}],"src/model.ts":[function(require,module,exports) {
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -260,7 +286,7 @@ function () {
   return Model;
 }();
 
-exports.default = Model;
+exports["default"] = Model;
 },{}],"src/subView/subViewSliderLine.ts":[function(require,module,exports) {
 "use strict";
 
@@ -300,7 +326,7 @@ function () {
   return SubViewSliderLine;
 }();
 
-exports.default = SubViewSliderLine;
+exports["default"] = SubViewSliderLine;
 },{}],"src/subView/subViewHandlers.ts":[function(require,module,exports) {
 "use strict";
 
@@ -315,14 +341,20 @@ function () {
     var _this = this;
 
     this.addHandlerListeners = function (handlers) {
-      handlers[0].onmousedown = function (e) {
+      handlers[0].addEventListener('mousedown', function (e) {
         _this.handlerMouseDown(e, handlers[0], 0);
-      };
+      });
+      handlers[0].addEventListener('touchstart', function (e) {
+        _this.handlerTouchStart(e, handlers[0], 0);
+      });
 
       if (handlers[1]) {
-        handlers[1].onmousedown = function (e) {
+        handlers[1].addEventListener('mousedown', function (e) {
           _this.handlerMouseDown(e, handlers[1], 1);
-        };
+        });
+        handlers[1].addEventListener('touchstart', function (e) {
+          _this.handlerTouchStart(e, handlers[1], 1);
+        });
       }
     };
   }
@@ -349,7 +381,7 @@ function () {
   return SubViewHandlers;
 }();
 
-exports.default = SubViewHandlers;
+exports["default"] = SubViewHandlers;
 },{}],"src/subView/subViewIcons.ts":[function(require,module,exports) {
 "use strict";
 
@@ -404,7 +436,7 @@ function () {
   return SubViewIcons;
 }();
 
-exports.default = SubViewIcons;
+exports["default"] = SubViewIcons;
 },{}],"src/subView/subViewInput.ts":[function(require,module,exports) {
 "use strict";
 
@@ -467,7 +499,7 @@ function () {
     var rangeInput = document.createElement('input');
     rangeInput.setAttribute('type', 'text');
     rangeInput.setAttribute('readonly', 'true');
-    rangeInput.setAttribute('size', '8');
+    rangeInput.setAttribute('size', 'auto');
     rangeInput.classList.add('slider__input', 'slider__input_range');
     inputLabel.append(rangeInput);
     var input = inputsContainer.querySelector('.slider__input_range');
@@ -482,7 +514,7 @@ function () {
       inputsContainer.append(inputLabel);
       var valueInput = document.createElement('input');
       valueInput.setAttribute('type', 'text');
-      valueInput.setAttribute('size', '8');
+      valueInput.setAttribute('size', 'auto');
       valueInput.classList.add('slider__input', 'slider__input_value');
       inputLabel.append(valueInput);
     }
@@ -495,7 +527,7 @@ function () {
   return SubViewInput;
 }();
 
-exports.default = SubViewInput;
+exports["default"] = SubViewInput;
 },{}],"src/subView/subViewScale.ts":[function(require,module,exports) {
 "use strict";
 
@@ -594,11 +626,11 @@ function () {
   return SubViewScale;
 }();
 
-exports.default = SubViewScale;
+exports["default"] = SubViewScale;
 },{}],"src/view.ts":[function(require,module,exports) {
 'use strict';
 
-var __importDefault = this && this.__importDefault || function (mod) {
+var __importDefault = void 0 && (void 0).__importDefault || function (mod) {
   return mod && mod.__esModule ? mod : {
     "default": mod
   };
@@ -840,6 +872,68 @@ function () {
       };
     };
 
+    this.moveByTouch = function (e, handler, num) {
+      // e.preventDefault();
+      _this.getMinMaxPosition();
+
+      var shift;
+      var shiftXPerc;
+
+      if (_this.options.vertical) {
+        shift = e.changedTouches[0].clientY - _this.handlers[num].getBoundingClientRect().y;
+      } else {
+        shift = e.changedTouches[0].clientX - _this.handlers[num].getBoundingClientRect().x + pageXOffset;
+      }
+
+      shiftXPerc = shift / _this.sliderLength * 100;
+      handler.classList.add('slider__handler_active');
+
+      document.ontouchmove = function (e) {
+        e.preventDefault;
+        var touchPos;
+        var mouseposPerc;
+
+        if (_this.options.vertical) {
+          touchPos = e.changedTouches[0].clientY;
+          mouseposPerc = (touchPos - _this.slider.getBoundingClientRect().y) / _this.slider.getBoundingClientRect().height * 100;
+          var newTop = mouseposPerc - shiftXPerc;
+
+          if (newTop <= _this.maxPositionPerc) {
+            newTop = _this.maxPositionPerc;
+          }
+
+          if (newTop >= _this.minPositionPerc) {
+            newTop = _this.minPositionPerc;
+          }
+
+          handler.style.top = newTop + '%';
+
+          _this.writeNewPosition(handler, num, newTop);
+        } else {
+          touchPos = e.changedTouches[0].clientX;
+          mouseposPerc = (touchPos - _this.slider.getBoundingClientRect().x) / _this.slider.getBoundingClientRect().width * 100;
+          var newLeft = mouseposPerc - shiftXPerc;
+
+          if (newLeft <= _this.minPositionPerc) {
+            newLeft = _this.minPositionPerc;
+          }
+
+          if (newLeft >= _this.maxPositionPerc) {
+            newLeft = _this.maxPositionPerc;
+          }
+
+          handler.style.left = newLeft + '%';
+
+          _this.writeNewPosition(handler, num, newLeft);
+        }
+      };
+
+      document.ontouchend = function () {
+        handler.classList.remove('slider__handler_active');
+        document.ontouchmove = null;
+      };
+    };
+
     this.writeNewPosition = function (handler, num, newPos) {
       _this.handlersPositionPerc[num] = newPos + _this.handlerSizePerc;
 
@@ -948,11 +1042,11 @@ function () {
 
     this.options = options;
     this.values = values;
-    this.subViewSliderLine = new subViewSliderLine_1.default();
-    this.subViewHandlers = new subViewHandlers_1.default();
-    this.subViewScale = new subViewScale_1.default();
-    this.subViewIcons = new subViewIcons_1.default();
-    this.subViewInput = new subViewInput_1.default();
+    this.subViewSliderLine = new subViewSliderLine_1["default"]();
+    this.subViewHandlers = new subViewHandlers_1["default"]();
+    this.subViewScale = new subViewScale_1["default"]();
+    this.subViewIcons = new subViewIcons_1["default"]();
+    this.subViewInput = new subViewInput_1["default"]();
     this.handlersPosition = [];
     this.handlersPositionPerc = [];
     this.createSlider(options, container);
@@ -961,6 +1055,10 @@ function () {
 
     this.subViewHandlers.handlerMouseDown = function (e, handler, num) {
       _this.moveByMouse(e, handler, num);
+    };
+
+    this.subViewHandlers.handlerTouchStart = function (e, handler, num) {
+      _this.moveByTouch(e, handler, num);
     };
 
     this.subViewInput.newInputValue = function (newInputValue, num) {
@@ -1053,7 +1151,7 @@ exports.Options = Options;
 },{}],"src/presenter.ts":[function(require,module,exports) {
 "use strict";
 
-var __importDefault = this && this.__importDefault || function (mod) {
+var __importDefault = void 0 && (void 0).__importDefault || function (mod) {
   return mod && mod.__esModule ? mod : {
     "default": mod
   };
@@ -1200,17 +1298,18 @@ function () {
 
     this.getNearestStepVal = function () {
       var _loop_2 = function _loop_2(i) {
-        var val = _this.model.currentValue[i];
+        var _val = _this.model.currentValue[i];
 
         var _ratio = _this.options.step / 2;
 
         var curVal = _this.model.allValues.filter(function (step) {
-          return Math.abs(step.val - val) <= _ratio;
-        });
+          return Math.abs(step.val - _val) <= _ratio;
+        }); // console.log(curVal);
+
 
         if (curVal.length > 1 && curVal.length <= 2) {
-          var delta1 = Math.abs(val - curVal[0].val);
-          var delta2 = Math.abs(val - curVal[1].val);
+          var delta1 = Math.abs(_val - curVal[0].val);
+          var delta2 = Math.abs(_val - curVal[1].val);
 
           if (delta1 < delta2) {
             curVal.splice(1, 1);
@@ -1279,9 +1378,10 @@ function () {
       if (_this.options.icon) {
         for (var i = 0; i < _this.options.handlersAmount; i++) {
           _this.view.icons[i].innerHTML = String(_this.model.currentValue[i]);
-
-          _this.view.subViewIcons.getIconsShift();
         }
+
+        _this.view.subViewIcons.getIconsShift(); // console.log('icons pos');
+
       }
 
       if (_this.options.rangeInput) {
@@ -1306,8 +1406,7 @@ function () {
     };
 
     this.options = new options_1.Options(options).options;
-    console.log(this.options);
-    this.model = new model_1.default(this.options);
+    this.model = new model_1["default"](this.options);
 
     if (this.options.customValues) {
       this.model.notifyChangedOptions = function () {
@@ -1340,7 +1439,9 @@ exports.Presenter = Presenter;
 },{"./model":"src/model.ts","./view":"src/view.ts","./options":"src/options.ts"}],"slider.ts":[function(require,module,exports) {
 'use strict';
 
-function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+var _typeof2 = _interopRequireDefault(require("@babel/runtime/helpers/typeof"));
 
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -1391,14 +1492,14 @@ var presenter_1 = require("./src/presenter"); // var jquery = require("jquery");
   $.fn.slider = function (method) {
     if (methods[method]) {
       return methods[method].apply(this, Array.prototype.slice.call(arguments, 1));
-    } else if (_typeof(method) === 'object' || !method) {
+    } else if ((0, _typeof2["default"])(method) === 'object' || !method) {
       return methods.init.apply(this, arguments);
     } else {
       $.error('Метод с именем ' + method + ' не существует для jQuery.slider');
     }
   };
 })(jQuery);
-},{"./src/presenter":"src/presenter.ts"}],"../../Users/alexi/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"@babel/runtime/helpers/interopRequireDefault":"node_modules/@babel/runtime/helpers/interopRequireDefault.js","@babel/runtime/helpers/typeof":"node_modules/@babel/runtime/helpers/typeof.js","./src/presenter":"src/presenter.ts"}],"../../Users/alexi/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -1426,7 +1527,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "55204" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "60870" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

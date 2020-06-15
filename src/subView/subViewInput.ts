@@ -18,7 +18,7 @@ export  default class SubViewInput  {
         let rangeInput:HTMLInputElement = document.createElement('input');
         rangeInput.setAttribute('type', 'text');
         rangeInput.setAttribute ('readonly', 'true');
-        rangeInput.setAttribute ('size', '8');
+        rangeInput.setAttribute ('size', 'auto');
         rangeInput.classList.add('slider__input', 'slider__input_range');
         inputLabel.append(rangeInput);
         
@@ -34,7 +34,7 @@ export  default class SubViewInput  {
             inputsContainer.append(inputLabel);
             let valueInput:HTMLInputElement = document.createElement('input');
             valueInput.setAttribute('type', 'text');
-            valueInput.setAttribute ('size', '8');
+            valueInput.setAttribute ('size', 'auto');
             valueInput.classList.add('slider__input', 'slider__input_value');
             inputLabel.append(valueInput);
             

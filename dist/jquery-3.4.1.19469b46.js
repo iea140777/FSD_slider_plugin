@@ -117,7 +117,33 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   }
 
   return newRequire;
-})({"../../Users/alexi/AppData/Roaming/npm/node_modules/parcel-bundler/node_modules/process/browser.js":[function(require,module,exports) {
+})({"node_modules/@babel/runtime/helpers/interopRequireDefault.js":[function(require,module,exports) {
+function _interopRequireDefault(obj) {
+  return obj && obj.__esModule ? obj : {
+    "default": obj
+  };
+}
+
+module.exports = _interopRequireDefault;
+},{}],"node_modules/@babel/runtime/helpers/typeof.js":[function(require,module,exports) {
+function _typeof(obj) {
+  "@babel/helpers - typeof";
+
+  if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
+    module.exports = _typeof = function _typeof(obj) {
+      return typeof obj;
+    };
+  } else {
+    module.exports = _typeof = function _typeof(obj) {
+      return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+    };
+  }
+
+  return _typeof(obj);
+}
+
+module.exports = _typeof;
+},{}],"../../Users/alexi/AppData/Roaming/npm/node_modules/parcel-bundler/node_modules/process/browser.js":[function(require,module,exports) {
 
 // shim for using process in browser
 var process = module.exports = {}; // cached from whatever global is present so that test runners that stub it
@@ -330,7 +356,11 @@ process.umask = function () {
 var global = arguments[3];
 var process = require("process");
 var define;
-function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+var _typeof2 = _interopRequireDefault(require("@babel/runtime/helpers/typeof"));
 
 /*!
  * jQuery JavaScript Library v3.4.1
@@ -348,7 +378,7 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
 (function (global, factory) {
   "use strict";
 
-  if ((typeof module === "undefined" ? "undefined" : _typeof(module)) === "object" && _typeof(module.exports) === "object") {
+  if ((typeof module === "undefined" ? "undefined" : (0, _typeof2["default"])(module)) === "object" && (0, _typeof2["default"])(module.exports) === "object") {
     // For CommonJS and CommonJS-like environments where a proper `window`
     // is present, execute the factory and get jQuery.
     // For environments that do not have a `window` with a `document`
@@ -367,7 +397,7 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
     factory(global);
   } // Pass this if window is not defined yet
 
-})(typeof window !== "undefined" ? window : this, function (window, noGlobal) {
+})(typeof window !== "undefined" ? window : void 0, function (window, noGlobal) {
   // Edge <= 12 - 13+, Firefox <=18 - 45+, IE 10 - 11, Safari 5.1 - 9+, iOS 6 - 9.1
   // throw exceptions when non-strict code (e.g., ASP.NET 4.5) accesses strict mode
   // arguments.callee.caller (trac-13335). But as of jQuery 3.0 (2016), strict mode should be common
@@ -443,7 +473,7 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
     } // Support: Android <=2.3 only (functionish RegExp)
 
 
-    return _typeof(obj) === "object" || typeof obj === "function" ? class2type[toString.call(obj)] || "object" : _typeof(obj);
+    return (0, _typeof2["default"])(obj) === "object" || typeof obj === "function" ? class2type[toString.call(obj)] || "object" : (0, _typeof2["default"])(obj);
   }
   /* global Symbol */
   // Defining this global in .eslintrc.json would create a danger of using the global
@@ -544,7 +574,7 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
     } // Handle case when target is a string or something (possible in deep copy)
 
 
-    if (_typeof(target) !== "object" && !isFunction(target)) {
+    if ((0, _typeof2["default"])(target) !== "object" && !isFunction(target)) {
       target = {};
     } // Extend jQuery itself if only one argument is passed
 
@@ -3483,7 +3513,7 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
                 then = returned && ( // Support: Promises/A+ section 2.3.4
                 // https://promisesaplus.com/#point-64
                 // Only check objects and functions for thenability
-                _typeof(returned) === "object" || typeof returned === "function") && returned.then; // Handle a returned thenable
+                (0, _typeof2["default"])(returned) === "object" || typeof returned === "function") && returned.then; // Handle a returned thenable
 
                 if (isFunction(then)) {
                   // Special processors (notify) just wait for resolution
@@ -3683,7 +3713,7 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
     readyList.then(fn) // Wrap jQuery.readyException in a function so that the lookup
     // happens at the time of error handling instead of callback
     // registration.
-    .catch(function (error) {
+    ["catch"](function (error) {
       jQuery.readyException(error);
     });
     return this;
@@ -4057,7 +4087,7 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
       } // Sets multiple values
 
 
-      if (_typeof(key) === "object") {
+      if ((0, _typeof2["default"])(key) === "object") {
         return this.each(function () {
           dataUser.set(this, key);
         });
@@ -4629,7 +4659,7 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
   function _on(elem, types, selector, data, fn, one) {
     var origFn, type; // Types can be a map of types/handlers
 
-    if (_typeof(types) === "object") {
+    if ((0, _typeof2["default"])(types) === "object") {
       // ( types-Object, selector, data )
       if (typeof selector !== "string") {
         // ( types-Object, data )
@@ -5360,7 +5390,7 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
         return this;
       }
 
-      if (_typeof(types) === "object") {
+      if ((0, _typeof2["default"])(types) === "object") {
         // ( types-object [, selector] )
         for (type in types) {
           this.off(type, selector, types[type]);
@@ -6177,7 +6207,7 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
       hooks = jQuery.cssHooks[name] || jQuery.cssHooks[origName]; // Check if we're setting a value
 
       if (value !== undefined) {
-        type = _typeof(value); // Convert "+=" or "-=" to relative numbers (#7345)
+        type = (0, _typeof2["default"])(value); // Convert "+=" or "-=" to relative numbers (#7345)
 
         if (type === "string" && (ret = rcssNum.exec(value)) && ret[1]) {
           value = adjustCSS(elem, name, ret); // Fixes bug #9237
@@ -6899,7 +6929,7 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
   });
 
   jQuery.speed = function (speed, easing, fn) {
-    var opt = speed && _typeof(speed) === "object" ? jQuery.extend({}, speed) : {
+    var opt = speed && (0, _typeof2["default"])(speed) === "object" ? jQuery.extend({}, speed) : {
       complete: fn || !fn && easing || isFunction(speed) && speed,
       duration: speed,
       easing: fn && easing || easing && !isFunction(easing) && easing
@@ -7504,7 +7534,7 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
       return this;
     },
     toggleClass: function toggleClass(value, stateVal) {
-      var type = _typeof(value),
+      var type = (0, _typeof2["default"])(value),
           isValidValue = type === "string" || Array.isArray(value);
 
       if (typeof stateVal === "boolean" && isValidValue) {
@@ -7765,7 +7795,7 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
 
       ontype = type.indexOf(":") < 0 && "on" + type; // Caller can pass in a jQuery.Event object, Object, or just an event type string
 
-      event = event[jQuery.expando] ? event : new jQuery.Event(type, _typeof(event) === "object" && event); // Trigger bitmask: & 1 for native handlers; & 2 for jQuery (always true)
+      event = event[jQuery.expando] ? event : new jQuery.Event(type, (0, _typeof2["default"])(event) === "object" && event); // Trigger bitmask: & 1 for native handlers; & 2 for jQuery (always true)
 
       event.isTrigger = onlyHandlers ? 2 : 3;
       event.namespace = namespaces.join(".");
@@ -7979,7 +8009,7 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
           add(prefix, v);
         } else {
           // Item is non-scalar (array or object), encode its numeric index.
-          buildParams(prefix + "[" + (_typeof(v) === "object" && v != null ? i : "") + "]", v, traditional, add);
+          buildParams(prefix + "[" + ((0, _typeof2["default"])(v) === "object" && v != null ? i : "") + "]", v, traditional, add);
         }
       });
     } else if (!traditional && toType(obj) === "object") {
@@ -8300,7 +8330,7 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
 
           if (conv !== true) {
             // Unless errors are allowed to bubble, catch and return them
-            if (conv && s.throws) {
+            if (conv && s["throws"]) {
               response = conv(response);
             } else {
               try {
@@ -8400,7 +8430,7 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
     // Main method
     ajax: function ajax(url, options) {
       // If url is an object, simulate pre-1.5 signature
-      if (_typeof(url) === "object") {
+      if ((0, _typeof2["default"])(url) === "object") {
         options = url;
         url = undefined;
       } // Force options to be an object
@@ -9238,7 +9268,7 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
       // We assume that it's the callback
       callback = params;
       params = undefined; // Otherwise, build a param string
-    } else if (params && _typeof(params) === "object") {
+    } else if (params && (0, _typeof2["default"])(params) === "object") {
       type = "POST";
     } // If we have elements to modify, make the request
 
@@ -9649,7 +9679,7 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
 
   return jQuery;
 });
-},{"process":"../../Users/alexi/AppData/Roaming/npm/node_modules/parcel-bundler/node_modules/process/browser.js"}],"../../Users/alexi/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"@babel/runtime/helpers/interopRequireDefault":"node_modules/@babel/runtime/helpers/interopRequireDefault.js","@babel/runtime/helpers/typeof":"node_modules/@babel/runtime/helpers/typeof.js","process":"../../Users/alexi/AppData/Roaming/npm/node_modules/parcel-bundler/node_modules/process/browser.js"}],"../../Users/alexi/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -9677,7 +9707,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "55204" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "60870" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
