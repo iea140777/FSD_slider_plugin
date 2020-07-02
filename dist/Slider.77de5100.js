@@ -163,8 +163,8 @@ var _loop_1 = function _loop_1(block) {
   var slider = block.querySelector('.slider');
   $(slider).slider(options);
   form.addEventListener('change', function () {
-    options = new NewOptions(block);
     $(slider).slider('destroy');
+    options = new NewOptions(block);
     $(slider).slider(options);
   });
 };
@@ -202,7 +202,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "52199" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "53452" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

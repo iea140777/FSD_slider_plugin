@@ -34,8 +34,6 @@ export class Presenter {
             }
         }
         this.view = new View (this.options, container, this.model.allValues);
-        console.log (this.view);
-        console.log (this.model);
         this.setInitialHandlersPosition();
         this.view.notifyChangedHandlerPosition = ():void => {
             this.getValueFromPosition();
@@ -44,7 +42,7 @@ export class Presenter {
             this.setHandlersToInputValue (newInputValue, num);
         }
 
-        this.view.notifyChangedWindow = () => {
+        this.view.notifyChangedSliderData = () => {
             this.getPositionFromValue();
         }
     }
@@ -130,53 +128,63 @@ export class Presenter {
             else {
                 pos = this.view.handlersPositionPerc[i];
             }
-            let _ratio = this.model.stepPercent/2;
-            let curStep = this.model.allValues.filter(step => Math.abs(pos - step.percent) <= _ratio);
-            if (curStep.length > 1 && curStep.length <= 2){
-                let delta1 = Math.abs(pos - curStep[0].percent);
-                let delta2 = Math.abs(pos - curStep[1].percent);
-                if(delta1 < delta2) {
-                    curStep.splice(1,1);
+            let n:number;
+            n = pos / this.model.stepPercent;
+            if (n > (this.model.allValues.length - 2)){
+                let _a1 = this.model.allValues.length-1,
+                    _a2 = this.model.allValues.length-2;
+                let _lastStepPerc = Math.abs(this.model.allValues[_a1].percent - this.model.allValues[_a2].percent);
+                if (Math.abs(pos - this.model.allValues[_a1].percent) <= (_lastStepPerc / 2)) {
+                    n = _a1;
                 }
                 else {
-                    curStep.splice(0,1);
+                    n = _a2;
                 }
             }
+            else {
+                n = Math.round(pos / this.model.stepPercent);
+            }
             if (this.options.vertical) {
-                this.view.handlersPositionPerc[i] = 100 - curStep[0].percent;
+                this.view.handlersPositionPerc[i] = 100 - this.model.allValues[n].percent;
             }
             else {
-                this.view.handlersPositionPerc[i] = curStep[0].percent;
+                this.view.handlersPositionPerc[i] = this.model.allValues[n].percent;
             }
             this.view.updatePosition();
-            this.model.currentValue[i] = curStep[0].val;
+            this.model.currentValue[i] = this.model.allValues[n].val;
         }
     }
 
     getNearestStepVal = () => {
         for (let i = 0; i < this.view.handlers.length; i++){
-            let _val:number = this.model.currentValue[i];
-            let _ratio = this.options.step / 2;
-            let curVal = this.model.allValues.filter(step => Math.abs(step.val - _val) <= _ratio);
-            // console.log(curVal);
-            if (curVal.length > 1 && curVal.length <= 2) {
-                let delta1 = Math.abs(_val - curVal[0].val);
-                let delta2 = Math.abs(_val - curVal[1].val);
-                
-                if(delta1 < delta2) {
-                    curVal.splice(1,1);
+            let _val:number|string;
+            _val = this.model.currentValue[i];
+            if (!this.options.customValues){
+                let n:number;
+                n = (_val - this.options.minValue) / this.options.step;
+
+                if (n > (this.model.allValues.length - 2)){
+                    let _a1 = this.model.allValues.length-1,
+                        _a2 = this.model.allValues.length-2;
+                    let _lastStepVal = Math.abs(this.model.allValues[_a1].val - this.model.allValues[_a2].val);
+                    if (Math.abs(_val - this.model.allValues[_a1].val) <= (_lastStepVal / 2)) {
+                        n = _a1;
+                    }
+                    else {
+                        n = _a2;
+                    }
+                }
+                else {                
+                    n = Math.round((_val - this.options.minValue) / this.options.step);
+                }            
+                if (this.options.vertical) {
+                    this.view.handlersPositionPerc[i] = 100 - this.model.allValues[n].percent;
                 }
                 else {
-                    curVal.splice(0,1);
+                    this.view.handlersPositionPerc[i] = this.model.allValues[n].percent;
                 }
+                this.model.currentValue[i] = this.model.allValues[n].val;
             }
-            if (this.options.vertical) {
-                this.view.handlersPositionPerc[i] = 100 - curVal[0].percent;
-            }
-            else {
-                this.view.handlersPositionPerc[i] = curVal[0].percent;
-            }
-            this.model.currentValue[i] = curVal[0].val;
         }
     }
 
@@ -246,5 +254,4 @@ export class Presenter {
     }
 
 }
-  
-
+ 

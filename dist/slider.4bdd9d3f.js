@@ -163,26 +163,6 @@ function () {
       } else {
         var list = _this.options.customValuesList;
         var valArr = list.split(', ');
-
-        if (valArr == '' || valArr == undefined) {
-          _this.customValueType = 'none';
-        }
-
-        for (var i = 0; i < valArr.length; i++) {
-          if (isNaN(Number(valArr[i]))) {
-            _this.customValueType = 'string';
-            break;
-          } else {
-            _this.customValueType = 'number';
-          }
-        }
-
-        if (_this.customValueType == 'number') {
-          for (var i = 0; i < valArr.length; i++) {
-            valArr[i] = Number(valArr[i]);
-          }
-        }
-
         _this.customValuesList = valArr;
         _this.customStepsAmount = valArr.length;
 
@@ -700,10 +680,16 @@ function () {
 
     this.resizeListener = function () {
       var resize = function resize() {
-        _this.notifyChangedWindow();
+        _this.changedWindow();
       };
 
       window.addEventListener('resize', resize);
+    };
+
+    this.changedWindow = function () {
+      _this.getSliderData();
+
+      _this.notifyChangedSliderData();
     };
 
     this.getSliderData = function () {
@@ -1255,8 +1241,8 @@ function () {
     };
 
     this.getNearestStepPos = function () {
-      var _loop_1 = function _loop_1(i) {
-        var pos;
+      for (var i = 0; i < _this.view.handlers.length; i++) {
+        var pos = void 0;
 
         if (_this.options.vertical) {
           pos = 100 - _this.view.handlersPositionPerc[i];
@@ -1264,72 +1250,69 @@ function () {
           pos = _this.view.handlersPositionPerc[i];
         }
 
-        var _ratio = _this.model.stepPercent / 2;
+        var n = void 0;
+        n = pos / _this.model.stepPercent;
 
-        var curStep = _this.model.allValues.filter(function (step) {
-          return Math.abs(pos - step.percent) <= _ratio;
-        });
+        if (n > _this.model.allValues.length - 2) {
+          var _a1 = _this.model.allValues.length - 1,
+              _a2 = _this.model.allValues.length - 2;
 
-        if (curStep.length > 1 && curStep.length <= 2) {
-          var delta1 = Math.abs(pos - curStep[0].percent);
-          var delta2 = Math.abs(pos - curStep[1].percent);
+          var _lastStepPerc = Math.abs(_this.model.allValues[_a1].percent - _this.model.allValues[_a2].percent);
 
-          if (delta1 < delta2) {
-            curStep.splice(1, 1);
+          if (Math.abs(pos - _this.model.allValues[_a1].percent) <= _lastStepPerc / 2) {
+            n = _a1;
           } else {
-            curStep.splice(0, 1);
+            n = _a2;
           }
+        } else {
+          n = Math.round(pos / _this.model.stepPercent);
         }
 
         if (_this.options.vertical) {
-          _this.view.handlersPositionPerc[i] = 100 - curStep[0].percent;
+          _this.view.handlersPositionPerc[i] = 100 - _this.model.allValues[n].percent;
         } else {
-          _this.view.handlersPositionPerc[i] = curStep[0].percent;
+          _this.view.handlersPositionPerc[i] = _this.model.allValues[n].percent;
         }
 
         _this.view.updatePosition();
 
-        _this.model.currentValue[i] = curStep[0].val;
-      };
-
-      for (var i = 0; i < _this.view.handlers.length; i++) {
-        _loop_1(i);
+        _this.model.currentValue[i] = _this.model.allValues[n].val;
       }
     };
 
     this.getNearestStepVal = function () {
-      var _loop_2 = function _loop_2(i) {
-        var _val = _this.model.currentValue[i];
-
-        var _ratio = _this.options.step / 2;
-
-        var curVal = _this.model.allValues.filter(function (step) {
-          return Math.abs(step.val - _val) <= _ratio;
-        }); // console.log(curVal);
-
-
-        if (curVal.length > 1 && curVal.length <= 2) {
-          var delta1 = Math.abs(_val - curVal[0].val);
-          var delta2 = Math.abs(_val - curVal[1].val);
-
-          if (delta1 < delta2) {
-            curVal.splice(1, 1);
-          } else {
-            curVal.splice(0, 1);
-          }
-        }
-
-        if (_this.options.vertical) {
-          _this.view.handlersPositionPerc[i] = 100 - curVal[0].percent;
-        } else {
-          _this.view.handlersPositionPerc[i] = curVal[0].percent;
-        }
-
-        _this.model.currentValue[i] = curVal[0].val;
-      };
-
       for (var i = 0; i < _this.view.handlers.length; i++) {
-        _loop_2(i);
+        var _val = void 0;
+
+        _val = _this.model.currentValue[i];
+
+        if (!_this.options.customValues) {
+          var n = void 0;
+          n = (_val - _this.options.minValue) / _this.options.step;
+
+          if (n > _this.model.allValues.length - 2) {
+            var _a1 = _this.model.allValues.length - 1,
+                _a2 = _this.model.allValues.length - 2;
+
+            var _lastStepVal = Math.abs(_this.model.allValues[_a1].val - _this.model.allValues[_a2].val);
+
+            if (Math.abs(_val - _this.model.allValues[_a1].val) <= _lastStepVal / 2) {
+              n = _a1;
+            } else {
+              n = _a2;
+            }
+          } else {
+            n = Math.round((_val - _this.options.minValue) / _this.options.step);
+          }
+
+          if (_this.options.vertical) {
+            _this.view.handlersPositionPerc[i] = 100 - _this.model.allValues[n].percent;
+          } else {
+            _this.view.handlersPositionPerc[i] = _this.model.allValues[n].percent;
+          }
+
+          _this.model.currentValue[i] = _this.model.allValues[n].val;
+        }
       }
     };
 
@@ -1416,8 +1399,6 @@ function () {
     }
 
     this.view = new view_1.View(this.options, container, this.model.allValues);
-    console.log(this.view);
-    console.log(this.model);
     this.setInitialHandlersPosition();
 
     this.view.notifyChangedHandlerPosition = function () {
@@ -1428,7 +1409,7 @@ function () {
       _this.setHandlersToInputValue(newInputValue, num);
     };
 
-    this.view.notifyChangedWindow = function () {
+    this.view.notifyChangedSliderData = function () {
       _this.getPositionFromValue();
     };
   }
@@ -1528,7 +1509,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "52199" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "53452" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

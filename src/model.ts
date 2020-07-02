@@ -11,7 +11,7 @@ export default class Model  {
     allValues: Array<IObj>;
     positionValueRate: number;
     currentValue: Array<number|string>;
-    customValuesList: Array<number|string>;
+    customValuesList: Array<string>;
     customStepsAmount: number;
     rangeValue: number;
     stepPercent: number;
@@ -40,31 +40,14 @@ export default class Model  {
         }
         else {
             let list = this.options.customValuesList;
-            let valArr:any[] = list.split(', ');
-            if (valArr == '' || valArr == undefined) {
-                this.customValueType = 'none';
-            }
-            for (let i = 0; i < valArr.length; i++){
-                if (isNaN(Number(valArr[i]))) {
-                    this.customValueType = 'string';
-                    break;
-                }
-                else {
-                    this.customValueType = 'number';
-                }
-            }
-            if (this.customValueType == 'number'){
-                for (let i = 0; i < valArr.length; i++){
-                    valArr[i] = Number(valArr[i]);
-                }
-            }  
+            let valArr:string[] = list.split(', ');
             this.customValuesList = valArr;
             this.customStepsAmount = valArr.length;     
             this.getCustomValuesOptions(valArr);
         }
     }
 
-    getCustomValuesOptions = (arr:any[]) => {
+    getCustomValuesOptions = (arr:string[]) => {
         this.options.minValue = arr[0];
         this.options.maxValue = arr[arr.length-1];
         if(this.options.startingValue[0] > arr.length ||this.options.startingValue[1] > arr.length){
@@ -79,7 +62,7 @@ export default class Model  {
         for (let i = 0; i < this.options.handlersAmount; i++){
             if (this.options.customValues){
                 let _index:number = this.options.startingValue[i];
-                let _val:number|string = this.allValues[_index].val;
+                let _val:string|number = this.allValues[_index].val;
                 this.currentValue[i] = _val;
             }
             else {

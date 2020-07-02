@@ -107,12 +107,17 @@ export class View {
 
     resizeListener = () => {
         let resize =  () =>  {
-            this.notifyChangedWindow();
+            this.changedWindow();
           }
           window.addEventListener('resize', resize);
     }
 
-    notifyChangedWindow: any;
+    changedWindow = () => {
+        this.getSliderData();
+        this.notifyChangedSliderData();
+    }
+
+    notifyChangedSliderData: any;
 
     getSliderData = ():void => {
         this.getSliderPosition();

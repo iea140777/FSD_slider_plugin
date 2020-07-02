@@ -9,10 +9,19 @@
 
 .slider__container_vertical {
     flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+    @media screen and (max-width: 625px){
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-around;
+    }
 }
 
 .slider__container_horisontal {
     flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 

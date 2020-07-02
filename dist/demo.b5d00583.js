@@ -184,21 +184,14 @@ function reloadCSS() {
 }
 
 module.exports = reloadCSS;
-},{"./bundle-url":"../../Users/alexi/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/bundle-url.js"}],"src/config-block/config-block.css":[function(require,module,exports) {
+},{"./bundle-url":"../../Users/alexi/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/bundle-url.js"}],"demo.scss":[function(require,module,exports) {
 "use strict";
 
 var reloadCSS = require('_css_loader');
 
 module.hot.dispose(reloadCSS);
 module.hot.accept(reloadCSS);
-},{"C:\\Projects\\Slider\\src\\config-block\\check1.png":[["check1.e183a2cd.png","src/config-block/check1.png"],"src/config-block/check1.png"],"_css_loader":"../../Users/alexi/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/css-loader.js"}],"demo.css":[function(require,module,exports) {
-"use strict";
-
-var reloadCSS = require('_css_loader');
-
-module.hot.dispose(reloadCSS);
-module.hot.accept(reloadCSS);
-},{"/src/config-block/config-block.css":"src/config-block/config-block.css","_css_loader":"../../Users/alexi/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/css-loader.js"}],"../../Users/alexi/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"C:\\Projects\\Slider\\src\\config-block\\check1.png":[["check1.e183a2cd.png","src/config-block/check1.png"],"src/config-block/check1.png"],"_css_loader":"../../Users/alexi/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/css-loader.js"}],"../../Users/alexi/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -226,7 +219,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "58973" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "53452" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
@@ -403,4 +396,4 @@ function hmrAcceptRun(bundle, id) {
   }
 }
 },{}]},{},["../../Users/alexi/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js"], null)
-//# sourceMappingURL=/demo.b3443d18.js.map
+//# sourceMappingURL=/demo.b5d00583.js.map

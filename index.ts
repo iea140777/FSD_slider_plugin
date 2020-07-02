@@ -56,7 +56,7 @@ class NewOptions implements IOptions {
         this.scaleLegend = form.scaleLegend.checked;
         this.icon = form.icon.checked; 
         this.customValues = form.customValues.checked;
-        this.customValuesList = form.customValuesList.value;
+        this.customValuesList = form.customValuesList.value
     }
 }
 
@@ -64,12 +64,12 @@ const blocks:NodeListOf<HTMLDivElement> = document.querySelectorAll('.demo-block
 
 for (let block of blocks) {
     const form:HTMLFormElement = block.querySelector('form');
-    let options: IOptions = new NewOptions(block);
+    let options = new NewOptions(block);
     const slider:HTMLDivElement = block.querySelector('.slider');
     $(slider).slider(options);
     form.addEventListener('change', () => {
-        options = new NewOptions(block);
         $(slider).slider('destroy');
+        options = new NewOptions(block);
         $(slider).slider(options);
     })
 }
