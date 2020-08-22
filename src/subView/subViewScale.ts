@@ -77,17 +77,4 @@ export default class SubViewScale  {
         }
 
     }
-
-
-
-    // addScaleListener = (scalePoints:NodeListOf<HTMLDivElement>):void => {
-    //     scalePoints.forEach(point => {
-    //         point.onclick = (e):void => {
-    //             this.scalePpointClick(e);
-    //         }
-    //     });
-        
-    // }
-
-    // scalePpointClick: any;
 }

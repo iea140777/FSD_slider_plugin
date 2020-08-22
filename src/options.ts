@@ -55,8 +55,6 @@ export class Options {
         }
         if (this.options.customValues){
             this.options.moveBySteps = true;
-        }
-       
+        }  
     }
-
-    }
+}

@@ -9,14 +9,14 @@ export default class Model  {
     stepsAmount: number;
     valueRange: number;
     allValues: Array<IObj>;
-    positionValueRate: number;
+    // positionValueRate: number;
     currentValue: Array<number|string>;
     customValuesList: Array<string>;
     customStepsAmount: number;
     rangeValue: number;
     stepPercent: number;
     valuePercent: number;
-    customValueType: string;
+    // customValueType: string;
     
 
     constructor (options:IOptions) {
@@ -61,9 +61,14 @@ export default class Model  {
         this.currentValue = [];
         for (let i = 0; i < this.options.handlersAmount; i++){
             if (this.options.customValues){
-                let _index:number = this.options.startingValue[i];
-                let _val:string|number = this.allValues[_index].val;
-                this.currentValue[i] = _val;
+                if (this.allValues.length == 0) {
+                    return;
+                }
+                else {
+                    let _index:number = this.options.startingValue[i];
+                    let _val:string|number = this.allValues[_index].val;
+                    this.currentValue[i] = _val;
+                }
             }
             else {
                 this.currentValue[i] = this.options.startingValue[i]; 
@@ -101,7 +106,7 @@ export default class Model  {
         this.rangeValue = Math.abs(this.currentValue[1] - this.currentValue[0]);
     }
 
-    getAllValues = ():void =>{
+    getAllValues = ():void => {
         this.allValues = [];
         if (this.options.customValues){
             this.getAllCustomValues();
@@ -118,6 +123,7 @@ export default class Model  {
                 this.allValues.push(_value);
             }
         }
+        // console.log(this.allValues);
     }
 
     getAllCustomValues = () => {

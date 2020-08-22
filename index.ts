@@ -1,4 +1,6 @@
 // $('.slider1').slider();
+// const jsdom = require("jsdom");
+// const { JSDOM } = jsdom;
 interface IOptions {
     minValue: number;
     maxValue: number;
@@ -74,6 +76,8 @@ for (let block of blocks) {
     })
 }
 
+// const dom = new JSDOM(`<!DOCTYPE html><p>Hello world</p>`);
+// console.log(dom.window.document.querySelector("p").textContent);
 
 
 

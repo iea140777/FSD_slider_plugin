@@ -29,6 +29,7 @@
     margin: 0;
     padding: 0;
     cursor: pointer;
+    outline: none;
     height: 2px;
     width: 100%;
     display: inline-block;
@@ -51,6 +52,7 @@
     cursor: pointer;
     background-color: rgb(148, 14, 14);
     position: absolute;
+    outline: none;
 }
 
 .slider__scale-point_vertical{
@@ -75,6 +77,7 @@
     font-size: 6px;
     font-family: Arial, Helvetica, sans-serif; 
     color: rgb(148, 14, 14);
+    outline: none;
 }
 
 .slider__scale-legend_vertical{

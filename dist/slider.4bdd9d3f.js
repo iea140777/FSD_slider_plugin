@@ -153,6 +153,7 @@ Object.defineProperty(exports, "__esModule", {
 var Model =
 /** @class */
 function () {
+  // customValueType: string;
   function Model(options) {
     var _this = this;
 
@@ -186,9 +187,13 @@ function () {
 
       for (var i = 0; i < _this.options.handlersAmount; i++) {
         if (_this.options.customValues) {
-          var _index = _this.options.startingValue[i];
-          var _val = _this.allValues[_index].val;
-          _this.currentValue[i] = _val;
+          if (_this.allValues.length == 0) {
+            return;
+          } else {
+            var _index = _this.options.startingValue[i];
+            var _val = _this.allValues[_index].val;
+            _this.currentValue[i] = _val;
+          }
         } else {
           _this.currentValue[i] = _this.options.startingValue[i];
         }
@@ -241,7 +246,8 @@ function () {
 
           _this.allValues.push(_value);
         }
-      }
+      } // console.log(this.allValues);
+
     };
 
     this.getAllCustomValues = function () {
@@ -298,7 +304,13 @@ function () {
 
     this.addSliderListener = function (slider) {
       slider.onclick = function (e) {
+        e.preventDefault();
+
         _this.sliderClick(e);
+      };
+
+      slider.ondblclick = function (e) {
+        e.preventDefault();
       };
     };
   }
@@ -322,17 +334,25 @@ function () {
 
     this.addHandlerListeners = function (handlers) {
       handlers[0].addEventListener('mousedown', function (e) {
+        e.preventDefault();
+
         _this.handlerMouseDown(e, handlers[0], 0);
       });
       handlers[0].addEventListener('touchstart', function (e) {
+        e.preventDefault();
+
         _this.handlerTouchStart(e, handlers[0], 0);
       });
 
       if (handlers[1]) {
         handlers[1].addEventListener('mousedown', function (e) {
+          e.preventDefault();
+
           _this.handlerMouseDown(e, handlers[1], 1);
         });
         handlers[1].addEventListener('touchstart', function (e) {
+          e.preventDefault();
+
           _this.handlerTouchStart(e, handlers[1], 1);
         });
       }
@@ -592,15 +612,7 @@ function () {
           _this.scaleLegendArray[i].style.left = -shift + 'px';
         }
       }
-    }; // addScaleListener = (scalePoints:NodeListOf<HTMLDivElement>):void => {
-    //     scalePoints.forEach(point => {
-    //         point.onclick = (e):void => {
-    //             this.scalePpointClick(e);
-    //         }
-    //     });
-    // }
-    // scalePpointClick: any;
-
+    };
   }
 
   return SubViewScale;
@@ -806,7 +818,7 @@ function () {
       if (_this.options.vertical) {
         shift = e.clientY - _this.handlers[num].getBoundingClientRect().y;
       } else {
-        shift = e.clientX - _this.handlers[num].getBoundingClientRect().x + pageXOffset;
+        shift = e.clientX - _this.handlers[num].getBoundingClientRect().x;
       }
 
       shiftXPerc = shift / _this.sliderLength * 100;
@@ -869,7 +881,7 @@ function () {
       if (_this.options.vertical) {
         shift = e.changedTouches[0].clientY - _this.handlers[num].getBoundingClientRect().y;
       } else {
-        shift = e.changedTouches[0].clientX - _this.handlers[num].getBoundingClientRect().x + pageXOffset;
+        shift = e.changedTouches[0].clientX - _this.handlers[num].getBoundingClientRect().x;
       }
 
       shiftXPerc = shift / _this.sliderLength * 100;
@@ -1398,6 +1410,7 @@ function () {
       };
     }
 
+    console.log(this.model);
     this.view = new view_1.View(this.options, container, this.model.allValues);
     this.setInitialHandlersPosition();
 
@@ -1509,7 +1522,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "53452" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "60666" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

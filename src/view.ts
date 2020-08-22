@@ -225,7 +225,7 @@ export class View {
             
         }
         else {
-            shift = e.clientX - this.handlers[num].getBoundingClientRect().x + pageXOffset;
+            shift = e.clientX - this.handlers[num].getBoundingClientRect().x ;
         }
         shiftXPerc = (shift / this.sliderLength) * 100;
         handler.classList.add('slider__handler_active');
@@ -275,7 +275,7 @@ export class View {
             shift = e.changedTouches[0].clientY  - this.handlers[num].getBoundingClientRect().y ;
         }
         else {
-            shift = e.changedTouches[0].clientX - this.handlers[num].getBoundingClientRect().x + pageXOffset;
+            shift = e.changedTouches[0].clientX - this.handlers[num].getBoundingClientRect().x ;
         }
         shiftXPerc = (shift / this.sliderLength) * 100;
         handler.classList.add('slider__handler_active');

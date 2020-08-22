@@ -19,16 +19,20 @@ export default class SubViewHandlers  {
 
     addHandlerListeners = (handlers:NodeListOf<HTMLDivElement>):void => {
         handlers[0].addEventListener('mousedown', (e) => {
+            e.preventDefault();
                 this.handlerMouseDown(e, handlers[0], 0);
             })
         handlers[0].addEventListener('touchstart', (e):void => {
+            e.preventDefault();
             this.handlerTouchStart(e, handlers[0], 0);
         })
         if(handlers[1]){
             handlers[1].addEventListener('mousedown', (e) => {
+                e.preventDefault();
                 this.handlerMouseDown(e, handlers[1], 1);
             })
             handlers[1].addEventListener('touchstart', (e):void => {
+                e.preventDefault();
                 this.handlerTouchStart(e, handlers[1], 1);
             })
         }

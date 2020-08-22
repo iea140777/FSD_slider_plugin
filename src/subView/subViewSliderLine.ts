@@ -15,7 +15,11 @@ export default class SubViewSliderLine  {
 
     addSliderListener = (slider:HTMLDivElement):void => {
         slider.onclick = (e):void => {
+            e.preventDefault();
             this.sliderClick(e);
+        }
+        slider.ondblclick = (e):void => {
+            e.preventDefault();
         }
     }
 

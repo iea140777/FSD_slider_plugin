@@ -33,7 +33,9 @@ export class Presenter {
                 this.options = this.model.options;
             }
         }
+        console.log(this.model);
         this.view = new View (this.options, container, this.model.allValues);
+
         this.setInitialHandlersPosition();
         this.view.notifyChangedHandlerPosition = ():void => {
             this.getValueFromPosition();

@@ -240,20 +240,6 @@ parcelRequire = function (e, r, t, n) {
         this.getCustomValues = function () {
           if ("" != e.options.customValuesList) {
             var t = e.options.customValuesList.split(", ");
-            "" != t && null != t || (e.customValueType = "none");
-
-            for (var s = 0; s < t.length; s++) {
-              if (isNaN(Number(t[s]))) {
-                e.customValueType = "string";
-                break;
-              }
-
-              e.customValueType = "number";
-            }
-
-            if ("number" == e.customValueType) for (s = 0; s < t.length; s++) {
-              t[s] = Number(t[s]);
-            }
             e.customValuesList = t, e.customStepsAmount = t.length, e.getCustomValuesOptions(t);
           } else console.log("Slider: customValuesList should contain values");
         }, this.getCustomValuesOptions = function (t) {
@@ -264,8 +250,8 @@ parcelRequire = function (e, r, t, n) {
           for (var t = 0; t < e.options.handlersAmount; t++) {
             if (e.options.customValues) {
               var s = e.options.startingValue[t],
-                  u = e.allValues[s].val;
-              e.currentValue[t] = u;
+                  n = e.allValues[s].val;
+              e.currentValue[t] = n;
             } else e.currentValue[t] = e.options.startingValue[t];
           }
         }, this.getValueRange = function () {
@@ -517,8 +503,10 @@ parcelRequire = function (e, r, t, n) {
           return n.classList.add("slider__container"), a.options.vertical ? n.classList.add("slider__container_vertical") : n.classList.add("slider__container_horisontal"), i.append(n), i.querySelector(".slider__container");
         }, this.resizeListener = function () {
           window.addEventListener("resize", function () {
-            a.notifyChangedWindow();
+            a.changedWindow();
           });
+        }, this.changedWindow = function () {
+          a.getSliderData(), a.notifyChangedSliderData();
         }, this.getSliderData = function () {
           a.getSliderPosition(), a.getSliderLength(), a.getHandlerSize(), a.getMinMaxPosition(), a.options.range && (a.rangeBlock = a.showRange());
         }, this.getSliderPosition = function () {
@@ -641,86 +629,94 @@ parcelRequire = function (e, r, t, n) {
       value: !0
     });
 
-    var n = e(require("./model")),
-        t = require("./view"),
-        i = require("./options"),
-        o = function () {
-      return function (e, o) {
-        var s = this;
+    var o = e(require("./model")),
+        n = require("./view"),
+        t = require("./options"),
+        i = function () {
+      return function (e, i) {
+        var l = this;
         this.setInitialHandlersPosition = function () {
-          if (s.options.customValues) for (var e = 0; e < s.view.handlers.length; e++) {
-            var n = s.options.startingValue[e],
-                t = s.model.allValues[n].percent;
-            s.view.handlersPositionPerc[e] = t, s.options.vertical ? (s.view.handlersPositionPerc[e] = 100 - t, s.view.handlers[e].style.top = 100 - t - s.view.handlerSizePerc + "%") : (s.view.handlersPositionPerc[e] = t, s.view.handlers[e].style.left = t - s.view.handlerSizePerc + "%");
-          } else s.getPositionFromValue();
-          s.options.range && (s.model.getRangeValue(), s.view.getSliderRangePosition()), s.setInputIconsValues();
-        }, this.setHandlersToInputValue = function (e, n) {
-          null != e ? (e > s.options.maxValue ? e = s.options.maxValue : e < s.options.minValue && (e = s.options.minValue), s.model.currentValue[n] = e, s.getPositionFromValue()) : s.getValueFromPosition();
+          if (l.options.customValues) for (var e = 0; e < l.view.handlers.length; e++) {
+            var o = l.options.startingValue[e],
+                n = l.model.allValues[o].percent;
+            l.view.handlersPositionPerc[e] = n, l.options.vertical ? (l.view.handlersPositionPerc[e] = 100 - n, l.view.handlers[e].style.top = 100 - n - l.view.handlerSizePerc + "%") : (l.view.handlersPositionPerc[e] = n, l.view.handlers[e].style.left = n - l.view.handlerSizePerc + "%");
+          } else l.getPositionFromValue();
+          l.options.range && (l.model.getRangeValue(), l.view.getSliderRangePosition()), l.setInputIconsValues();
+        }, this.setHandlersToInputValue = function (e, o) {
+          null != e ? (e > l.options.maxValue ? e = l.options.maxValue : e < l.options.minValue && (e = l.options.minValue), l.model.currentValue[o] = e, l.getPositionFromValue()) : l.getValueFromPosition();
         }, this.getValueFromPosition = function () {
-          for (var e = 0; e < s.view.handlers.length; e++) {
-            var n = void 0;
-            n = s.options.vertical ? (100 - s.view.handlersPositionPerc[e]) / s.model.valuePercent : s.view.handlersPositionPerc[e] / s.model.valuePercent, s.options.moveBySteps ? (s.getNearestStepPos(), s.options.range && s.view.getSliderRangePosition()) : s.model.currentValue[e] = s.options.minValue + Math.round(n), s.options.icon && (s.view.icons[e].innerHTML = String(s.model.currentValue[e]), s.view.subViewIcons.getIconsShift());
+          for (var e = 0; e < l.view.handlers.length; e++) {
+            var o = void 0;
+            o = l.options.vertical ? (100 - l.view.handlersPositionPerc[e]) / l.model.valuePercent : l.view.handlersPositionPerc[e] / l.model.valuePercent, l.options.moveBySteps ? (l.getNearestStepPos(), l.options.range && l.view.getSliderRangePosition()) : l.model.currentValue[e] = l.options.minValue + Math.round(o), l.options.icon && (l.view.icons[e].innerHTML = String(l.model.currentValue[e]), l.view.subViewIcons.getIconsShift());
           }
 
-          s.options.range && (s.model.getRangeValue(), s.view.getSliderRangePosition()), s.setInputIconsValues();
+          l.options.range && (l.model.getRangeValue(), l.view.getSliderRangePosition()), l.setInputIconsValues();
         }, this.getNearestStepPos = function () {
-          for (var e = function e(_e3) {
-            var n;
-            n = s.options.vertical ? 100 - s.view.handlersPositionPerc[_e3] : s.view.handlersPositionPerc[_e3];
-            var t = s.model.stepPercent / 2,
-                i = s.model.allValues.filter(function (e) {
-              return Math.abs(n - e.percent) <= t;
-            });
-            i.length > 1 && i.length <= 2 && (Math.abs(n - i[0].percent) < Math.abs(n - i[1].percent) ? i.splice(1, 1) : i.splice(0, 1)), s.options.vertical ? s.view.handlersPositionPerc[_e3] = 100 - i[0].percent : s.view.handlersPositionPerc[_e3] = i[0].percent, s.view.updatePosition(), s.model.currentValue[_e3] = i[0].val;
-          }, n = 0; n < s.view.handlers.length; n++) {
-            e(n);
+          for (var e = 0; e < l.view.handlers.length; e++) {
+            var o = void 0,
+                n = void 0;
+
+            if ((n = (o = l.options.vertical ? 100 - l.view.handlersPositionPerc[e] : l.view.handlersPositionPerc[e]) / l.model.stepPercent) > l.model.allValues.length - 2) {
+              var t = l.model.allValues.length - 1,
+                  i = l.model.allValues.length - 2,
+                  a = Math.abs(l.model.allValues[t].percent - l.model.allValues[i].percent);
+              n = Math.abs(o - l.model.allValues[t].percent) <= a / 2 ? t : i;
+            } else n = Math.round(o / l.model.stepPercent);
+
+            l.options.vertical ? l.view.handlersPositionPerc[e] = 100 - l.model.allValues[n].percent : l.view.handlersPositionPerc[e] = l.model.allValues[n].percent, l.view.updatePosition(), l.model.currentValue[e] = l.model.allValues[n].val;
           }
         }, this.getNearestStepVal = function () {
-          for (var e = function e(_e4) {
-            var n = s.model.currentValue[_e4],
-                t = s.options.step / 2,
-                i = s.model.allValues.filter(function (e) {
-              return Math.abs(e.val - n) <= t;
-            });
-            i.length > 1 && i.length <= 2 && (Math.abs(n - i[0].val) < Math.abs(n - i[1].val) ? i.splice(1, 1) : i.splice(0, 1)), s.options.vertical ? s.view.handlersPositionPerc[_e4] = 100 - i[0].percent : s.view.handlersPositionPerc[_e4] = i[0].percent, s.model.currentValue[_e4] = i[0].val;
-          }, n = 0; n < s.view.handlers.length; n++) {
-            e(n);
+          for (var e = 0; e < l.view.handlers.length; e++) {
+            var o;
+
+            if (o = l.model.currentValue[e], !l.options.customValues) {
+              var n = void 0;
+
+              if ((n = (o - l.options.minValue) / l.options.step) > l.model.allValues.length - 2) {
+                var t = l.model.allValues.length - 1,
+                    i = l.model.allValues.length - 2,
+                    a = Math.abs(l.model.allValues[t].val - l.model.allValues[i].val);
+                n = Math.abs(o - l.model.allValues[t].val) <= a / 2 ? t : i;
+              } else n = Math.round((o - l.options.minValue) / l.options.step);
+
+              l.options.vertical ? l.view.handlersPositionPerc[e] = 100 - l.model.allValues[n].percent : l.view.handlersPositionPerc[e] = l.model.allValues[n].percent, l.model.currentValue[e] = l.model.allValues[n].val;
+            }
           }
         }, this.getPositionFromValue = function () {
-          s.view.getMinMaxPosition();
+          l.view.getMinMaxPosition();
 
-          for (var e = 0; e < s.view.handlers.length; e++) {
-            var n = s.model.currentValue[e] - s.options.minValue,
-                t = void 0;
-            s.options.vertical ? (s.options.moveBySteps ? (s.getNearestStepVal(), t = s.view.handlersPositionPerc[e] - s.view.handlerSizePerc) : (t = 100 - n * s.model.valuePercent - s.view.handlerSizePerc, s.view.handlersPositionPerc[e] = t + s.view.handlerSizePerc), s.view.handlers[e].style.top = t + "%") : (s.options.moveBySteps ? (s.getNearestStepVal(), t = s.view.handlersPositionPerc[e] - s.view.handlerSizePerc) : (t = n * s.model.valuePercent - s.view.handlerSizePerc, s.view.handlersPositionPerc[e] = t + s.view.handlerSizePerc), s.view.handlers[e].style.left = t + "%");
+          for (var e = 0; e < l.view.handlers.length; e++) {
+            var o = l.model.currentValue[e] - l.options.minValue,
+                n = void 0;
+            l.options.vertical ? (l.options.moveBySteps ? (l.getNearestStepVal(), n = l.view.handlersPositionPerc[e] - l.view.handlerSizePerc) : (n = 100 - o * l.model.valuePercent - l.view.handlerSizePerc, l.view.handlersPositionPerc[e] = n + l.view.handlerSizePerc), l.view.handlers[e].style.top = n + "%") : (l.options.moveBySteps ? (l.getNearestStepVal(), n = l.view.handlersPositionPerc[e] - l.view.handlerSizePerc) : (n = o * l.model.valuePercent - l.view.handlerSizePerc, l.view.handlersPositionPerc[e] = n + l.view.handlerSizePerc), l.view.handlers[e].style.left = n + "%");
           }
 
-          s.options.range && (s.model.getRangeValue(), s.view.getSliderRangePosition()), s.setInputIconsValues();
+          l.options.range && (l.model.getRangeValue(), l.view.getSliderRangePosition()), l.setInputIconsValues();
         }, this.setInputIconsValues = function () {
-          if (s.options.icon) {
-            for (var e = 0; e < s.options.handlersAmount; e++) {
-              s.view.icons[e].innerHTML = String(s.model.currentValue[e]);
+          if (l.options.icon) {
+            for (var e = 0; e < l.options.handlersAmount; e++) {
+              l.view.icons[e].innerHTML = String(l.model.currentValue[e]);
             }
 
-            s.view.subViewIcons.getIconsShift();
+            l.view.subViewIcons.getIconsShift();
           }
 
-          if (s.options.rangeInput && (s.options.range ? s.options.customValues ? s.view.rangeInput.value = s.model.currentValue[0] + " - " + s.model.currentValue[1] : s.view.rangeInput.value = String(s.model.rangeValue) : 2 == s.options.handlersAmount && (s.view.rangeInput.value = s.model.currentValue[0] + "; " + s.model.currentValue[1])), s.options.valueInputs) for (e = 0; e < s.options.handlersAmount; e++) {
-            s.view.valueInputs[e].value = "" + s.model.currentValue[e];
+          if (l.options.rangeInput && (l.options.range ? l.options.customValues ? l.view.rangeInput.value = l.model.currentValue[0] + " - " + l.model.currentValue[1] : l.view.rangeInput.value = String(l.model.rangeValue) : 2 == l.options.handlersAmount && (l.view.rangeInput.value = l.model.currentValue[0] + "; " + l.model.currentValue[1])), l.options.valueInputs) for (e = 0; e < l.options.handlersAmount; e++) {
+            l.view.valueInputs[e].value = "" + l.model.currentValue[e];
           }
-        }, this.options = new i.Options(e).options, this.model = new n["default"](this.options), this.options.customValues && (this.model.notifyChangedOptions = function () {
-          s.options = s.model.options;
-        }), this.view = new t.View(this.options, o, this.model.allValues), console.log(this.view), console.log(this.model), this.setInitialHandlersPosition(), this.view.notifyChangedHandlerPosition = function () {
-          s.getValueFromPosition();
-        }, this.view.notifyChangedInputValue = function (e, n) {
-          s.setHandlersToInputValue(e, n);
-        }, this.view.notifyChangedWindow = function () {
-          s.getPositionFromValue();
+        }, this.options = new t.Options(e).options, this.model = new o["default"](this.options), this.options.customValues && (this.model.notifyChangedOptions = function () {
+          l.options = l.model.options;
+        }), this.view = new n.View(this.options, i, this.model.allValues), this.setInitialHandlersPosition(), this.view.notifyChangedHandlerPosition = function () {
+          l.getValueFromPosition();
+        }, this.view.notifyChangedInputValue = function (e, o) {
+          l.setHandlersToInputValue(e, o);
+        }, this.view.notifyChangedSliderData = function () {
+          l.getPositionFromValue();
         };
       };
     }();
 
-    exports.Presenter = o;
+    exports.Presenter = i;
   }, {
     "./model": "pjIr",
     "./view": "CBC0",
@@ -810,7 +806,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "63776" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "51470" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
