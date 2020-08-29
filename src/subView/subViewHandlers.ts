@@ -17,13 +17,13 @@ export default class SubViewHandlers  {
         return handlers;
     }
 
-    addHandlerListeners = (handlers:NodeListOf<HTMLDivElement>):void => {
+    private addHandlerListeners = (handlers:NodeListOf<HTMLDivElement>):void => {
         handlers[0].addEventListener('mousedown', (e) => {
             e.preventDefault();
                 this.handlerMouseDown(e, handlers[0], 0);
             })
         handlers[0].addEventListener('touchstart', (e):void => {
-            e.preventDefault();
+            // e.preventDefault();
             this.handlerTouchStart(e, handlers[0], 0);
         })
         if(handlers[1]){
@@ -38,7 +38,7 @@ export default class SubViewHandlers  {
         }
     }
 
-    handlerMouseDown: any;
-    handlerTouchStart: any;
+    handlerMouseDown: any; //listened by View (l.58), view.moveByMouse(l.219)  is assigned
+    handlerTouchStart: any; //listened by View (l.61), view.moveByTouch(l.270)  is assigned
     
 }   

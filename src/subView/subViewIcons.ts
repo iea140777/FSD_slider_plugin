@@ -17,7 +17,6 @@ export default class SubViewIcons  {
         }
         let icons:NodeListOf<HTMLDivElement> = slider.querySelectorAll('.slider__icon');
         this.icons = icons;
-        
         return icons;     
     }
     

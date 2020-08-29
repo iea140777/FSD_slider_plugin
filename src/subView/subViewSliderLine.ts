@@ -13,7 +13,7 @@ export default class SubViewSliderLine  {
         return slider;
     }
 
-    addSliderListener = (slider:HTMLDivElement):void => {
+    private addSliderListener = (slider:HTMLDivElement):void => {
         slider.onclick = (e):void => {
             e.preventDefault();
             this.sliderClick(e);
@@ -23,7 +23,7 @@ export default class SubViewSliderLine  {
         }
     }
 
-    sliderClick: any;
+    sliderClick: any; //listened by View (l.67), view.moveByClick(l.333)  is assigned
 } 
 
 

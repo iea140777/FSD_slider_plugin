@@ -3,8 +3,8 @@ import {View} from  "./view";
 import { Options } from "./options";
 
 export interface IOptions {
-    minValue: number|string;
-    maxValue: number|string;
+    minValue: number | string;
+    maxValue: number | string;
     startingValue: [number, number]; //if customValues: startingValue should be defined as indexes of required customValuesList items
     vertical:boolean;
     step: number;
@@ -49,7 +49,7 @@ export class Presenter {
         }
     }
     
-    setInitialHandlersPosition = ():void => {
+    private setInitialHandlersPosition = ():void => {
         if (this.options.customValues) {
             for (let i = 0; i < this.view.handlers.length; i++){
                 let _index:number = this.options.startingValue[i];
@@ -75,22 +75,22 @@ export class Presenter {
         this.setInputIconsValues();
     }
 
-    setHandlersToInputValue = (inputValue:number, num: number): void => {
+    private setHandlersToInputValue = (inputValue:number, num: number): void => {
         if (inputValue == undefined) {
             this.getValueFromPosition();
             return;
         }
-        else if (inputValue > this.options.maxValue) {
+        else if (typeof this.options.maxValue === 'number' && inputValue > this.options.maxValue ) {
             inputValue = this.options.maxValue;
         }
-        else if (inputValue < this.options.minValue) {
+        else if (typeof this.options.minValue === 'number' && inputValue < this.options.minValue) {
             inputValue = this.options.minValue;
         }
         this.model.currentValue[num] = inputValue;
         this.getPositionFromValue();
     }
 
-    getValueFromPosition =  ():void => {
+    private getValueFromPosition =  ():void => {
         for (let i = 0; i < this.view.handlers.length; i++){
             let computedValue:number;
             if(this.options.vertical) {
@@ -105,7 +105,7 @@ export class Presenter {
                     this.view.getSliderRangePosition();
                 }
             }
-            else {
+            else if (!this.options.moveBySteps && typeof this.options.minValue === 'number'){
                 this.model.currentValue[i] = this.options.minValue + Math.round(computedValue);
             }
             if (this.options.icon) {
@@ -121,7 +121,7 @@ export class Presenter {
         this.setInputIconsValues();
     }
     
-    getNearestStepPos = () => {
+    private getNearestStepPos = () => {
         for (let i = 0; i < this.view.handlers.length; i++){
             let pos:number;
             if (this.options.vertical) {
@@ -157,11 +157,15 @@ export class Presenter {
         }
     }
 
-    getNearestStepVal = () => {
+    private getNearestStepVal = () => {
         for (let i = 0; i < this.view.handlers.length; i++){
             let _val:number|string;
             _val = this.model.currentValue[i];
-            if (!this.options.customValues){
+            if (!this.options.customValues 
+                && typeof this.options.minValue === 'number' 
+                && typeof _val === 'number'
+                )
+                {
                 let n:number;
                 n = (_val - this.options.minValue) / this.options.step;
 
@@ -190,34 +194,37 @@ export class Presenter {
         }
     }
 
-    getPositionFromValue = ():void => {
+    private getPositionFromValue = ():void => {
         this.view.getMinMaxPosition();
-        for (let i = 0; i < this.view.handlers.length; i++){
-            let _value:number = this.model.currentValue[i] - this.options.minValue;
-            let newPos:number;
-            if (this.options.vertical){
-                if (!this.options.moveBySteps){
-                    newPos = (100 - (_value * this.model.valuePercent) - this.view.handlerSizePerc);
-                    this.view.handlersPositionPerc[i] = newPos + this.view.handlerSizePerc;
+        if (typeof this.model.currentValue[1] === 'number' && typeof this.model.currentValue[0] === 'number' && typeof this.options.minValue === 'number') {
+            for (let i = 0; i < this.view.handlers.length; i++){
+                let _value:number = this.model.currentValue[i] - this.options.minValue;
+                let newPos:number;
+                if (this.options.vertical){
+                    if (!this.options.moveBySteps){
+                        newPos = (100 - (_value * this.model.valuePercent) - this.view.handlerSizePerc);
+                        this.view.handlersPositionPerc[i] = newPos + this.view.handlerSizePerc;
+                    }
+                    else {
+                        this.getNearestStepVal();
+                        newPos = this.view.handlersPositionPerc[i] - this.view.handlerSizePerc; 
+                    } 
+                    this.view.handlers[i].style.top = newPos + '%';
                 }
                 else {
-                    this.getNearestStepVal();
-                    newPos = this.view.handlersPositionPerc[i] - this.view.handlerSizePerc; 
-                } 
-                this.view.handlers[i].style.top = newPos + '%';
-            }
-            else {
-                if (!this.options.moveBySteps){
-                    newPos = (_value * this.model.valuePercent) - this.view.handlerSizePerc;
-                    this.view.handlersPositionPerc[i] = newPos + this.view.handlerSizePerc;
+                    if (!this.options.moveBySteps){
+                        newPos = (_value * this.model.valuePercent) - this.view.handlerSizePerc;
+                        this.view.handlersPositionPerc[i] = newPos + this.view.handlerSizePerc;
+                    }
+                    else {
+                        this.getNearestStepVal();
+                        newPos =  this.view.handlersPositionPerc[i] - this.view.handlerSizePerc; 
+                    }   
+                    this.view.handlers[i].style.left = newPos + '%';
                 }
-                else {
-                    this.getNearestStepVal();
-                    newPos =  this.view.handlersPositionPerc[i] - this.view.handlerSizePerc; 
-                }   
-                this.view.handlers[i].style.left = newPos + '%';
+            
             }
-        }
+        }    
         if (this.options.range) {
             this.model.getRangeValue();
             this.view.getSliderRangePosition();   
@@ -225,7 +232,7 @@ export class Presenter {
         this.setInputIconsValues();
     } 
 
-    setInputIconsValues = () => {
+    private setInputIconsValues = () => {
         if (this.options.icon) {
             for (let i = 0; i < this.options.handlersAmount; i++){
                 this.view.icons[i].innerHTML = String(this.model.currentValue[i]);

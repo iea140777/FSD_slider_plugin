@@ -44,7 +44,7 @@ export  default class SubViewInput  {
         return inputs;
     }
 
-    addInputsListener = (inputs:NodeListOf<HTMLInputElement>):void => {
+    private addInputsListener = (inputs:NodeListOf<HTMLInputElement>):void => {
         inputs.forEach (
             input => {
                 input.onfocus = () => {
@@ -62,7 +62,7 @@ export  default class SubViewInput  {
         )      
     }
 
-    getInputValue = (input: HTMLInputElement, inputs:NodeListOf<HTMLInputElement>, e: FocusEvent | KeyboardEvent): void => {
+    private getInputValue = (input: HTMLInputElement, inputs:NodeListOf<HTMLInputElement>, e: FocusEvent | KeyboardEvent): void => {
         let newInputValue: number = Number(input.value);
             if (input.value == '' || isNaN(Number(input.value))) {
                 newInputValue = undefined;
@@ -74,5 +74,5 @@ export  default class SubViewInput  {
                 this.newInputValue(newInputValue, 1);
             }
     }
-    newInputValue:any;
+    newInputValue:any; //listened by View(View l.64), view.notifyChangedInputValue (View l.331) is assigned
 }

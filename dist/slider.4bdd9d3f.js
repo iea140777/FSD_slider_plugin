@@ -153,7 +153,6 @@ Object.defineProperty(exports, "__esModule", {
 var Model =
 /** @class */
 function () {
-  // customValueType: string;
   function Model(options) {
     var _this = this;
 
@@ -163,11 +162,13 @@ function () {
         return;
       } else {
         var list = _this.options.customValuesList;
-        var valArr = list.split(', ');
-        _this.customValuesList = valArr;
-        _this.customStepsAmount = valArr.length;
 
-        _this.getCustomValuesOptions(valArr);
+        var _valArr = list.split(', ');
+
+        _this.customValuesList = _valArr;
+        _this.customStepsAmount = _valArr.length;
+
+        _this.getCustomValuesOptions(_valArr);
       }
     };
 
@@ -201,7 +202,13 @@ function () {
     };
 
     this.getValueRange = function () {
-      _this.valueRange = Math.abs(_this.options.maxValue - _this.options.minValue);
+      if (typeof _this.options.maxValue === 'number' && typeof _this.options.minValue === 'number') {
+        _this.valueRange = Math.abs(_this.options.maxValue - _this.options.minValue);
+      } else {
+        return;
+      }
+
+      ;
     };
 
     this.getStepsAmount = function () {
@@ -225,7 +232,11 @@ function () {
     };
 
     this.getRangeValue = function () {
-      _this.rangeValue = Math.abs(_this.currentValue[1] - _this.currentValue[0]);
+      if (typeof _this.currentValue[1] === 'number' && typeof _this.currentValue[0] === 'number') {
+        _this.rangeValue = Math.abs(_this.currentValue[1] - _this.currentValue[0]);
+      } else {
+        return;
+      }
     };
 
     this.getAllValues = function () {
@@ -235,8 +246,15 @@ function () {
         _this.getAllCustomValues();
       } else {
         for (var i = 0; i <= _this.stepsAmount; i++) {
-          var _value = {};
-          _value.val = _this.options.minValue + _this.options.step * i;
+          var _value = {
+            val: 0,
+            percent: 0
+          };
+
+          if (typeof _this.options.minValue === 'number') {
+            _value.val = _this.options.minValue + _this.options.step * i;
+          }
+
           _value.percent = _this.stepPercent * i;
 
           if (_value.percent >= 100) {
@@ -252,7 +270,10 @@ function () {
 
     this.getAllCustomValues = function () {
       for (var i = 0; i < _this.stepsAmount; i++) {
-        var _value = {};
+        var _value = {
+          val: 0,
+          percent: 0
+        };
         _value.val = _this.customValuesList[i];
         _value.percent = _this.stepPercent * i;
 
@@ -339,8 +360,7 @@ function () {
         _this.handlerMouseDown(e, handlers[0], 0);
       });
       handlers[0].addEventListener('touchstart', function (e) {
-        e.preventDefault();
-
+        // e.preventDefault();
         _this.handlerTouchStart(e, handlers[0], 0);
       });
 
@@ -570,6 +590,8 @@ function () {
 
         _this.getScaleLegendValues();
       }
+
+      return _this.scalePoints;
     };
 
     this.getScalePosition = function () {
@@ -929,6 +951,7 @@ function () {
 
       document.ontouchend = function () {
         handler.classList.remove('slider__handler_active');
+        console.log('end moving');
         document.ontouchmove = null;
       };
     };
@@ -1205,9 +1228,9 @@ function () {
         _this.getValueFromPosition();
 
         return;
-      } else if (inputValue > _this.options.maxValue) {
+      } else if (typeof _this.options.maxValue === 'number' && inputValue > _this.options.maxValue) {
         inputValue = _this.options.maxValue;
-      } else if (inputValue < _this.options.minValue) {
+      } else if (typeof _this.options.minValue === 'number' && inputValue < _this.options.minValue) {
         inputValue = _this.options.minValue;
       }
 
@@ -1232,7 +1255,7 @@ function () {
           if (_this.options.range) {
             _this.view.getSliderRangePosition();
           }
-        } else {
+        } else if (!_this.options.moveBySteps && typeof _this.options.minValue === 'number') {
           _this.model.currentValue[i] = _this.options.minValue + Math.round(computedValue);
         }
 
@@ -1298,7 +1321,7 @@ function () {
 
         _val = _this.model.currentValue[i];
 
-        if (!_this.options.customValues) {
+        if (!_this.options.customValues && typeof _this.options.minValue === 'number' && typeof _val === 'number') {
           var n = void 0;
           n = (_val - _this.options.minValue) / _this.options.step;
 
@@ -1331,33 +1354,35 @@ function () {
     this.getPositionFromValue = function () {
       _this.view.getMinMaxPosition();
 
-      for (var i = 0; i < _this.view.handlers.length; i++) {
-        var _value = _this.model.currentValue[i] - _this.options.minValue;
+      if (typeof _this.model.currentValue[1] === 'number' && typeof _this.model.currentValue[0] === 'number' && typeof _this.options.minValue === 'number') {
+        for (var i = 0; i < _this.view.handlers.length; i++) {
+          var _value = _this.model.currentValue[i] - _this.options.minValue;
 
-        var newPos = void 0;
+          var newPos = void 0;
 
-        if (_this.options.vertical) {
-          if (!_this.options.moveBySteps) {
-            newPos = 100 - _value * _this.model.valuePercent - _this.view.handlerSizePerc;
-            _this.view.handlersPositionPerc[i] = newPos + _this.view.handlerSizePerc;
+          if (_this.options.vertical) {
+            if (!_this.options.moveBySteps) {
+              newPos = 100 - _value * _this.model.valuePercent - _this.view.handlerSizePerc;
+              _this.view.handlersPositionPerc[i] = newPos + _this.view.handlerSizePerc;
+            } else {
+              _this.getNearestStepVal();
+
+              newPos = _this.view.handlersPositionPerc[i] - _this.view.handlerSizePerc;
+            }
+
+            _this.view.handlers[i].style.top = newPos + '%';
           } else {
-            _this.getNearestStepVal();
+            if (!_this.options.moveBySteps) {
+              newPos = _value * _this.model.valuePercent - _this.view.handlerSizePerc;
+              _this.view.handlersPositionPerc[i] = newPos + _this.view.handlerSizePerc;
+            } else {
+              _this.getNearestStepVal();
 
-            newPos = _this.view.handlersPositionPerc[i] - _this.view.handlerSizePerc;
+              newPos = _this.view.handlersPositionPerc[i] - _this.view.handlerSizePerc;
+            }
+
+            _this.view.handlers[i].style.left = newPos + '%';
           }
-
-          _this.view.handlers[i].style.top = newPos + '%';
-        } else {
-          if (!_this.options.moveBySteps) {
-            newPos = _value * _this.model.valuePercent - _this.view.handlerSizePerc;
-            _this.view.handlersPositionPerc[i] = newPos + _this.view.handlerSizePerc;
-          } else {
-            _this.getNearestStepVal();
-
-            newPos = _this.view.handlersPositionPerc[i] - _this.view.handlerSizePerc;
-          }
-
-          _this.view.handlers[i].style.left = newPos + '%';
         }
       }
 
@@ -1522,7 +1547,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "60666" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "61080" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

@@ -1,7 +1,7 @@
 'use strict';
 import{IOptions} from './presenter';
 interface IObj {
-    val: number|string,
+    val: any,
     percent: number
 }
 export default class Model  {
@@ -9,14 +9,12 @@ export default class Model  {
     stepsAmount: number;
     valueRange: number;
     allValues: Array<IObj>;
-    // positionValueRate: number;
     currentValue: Array<number|string>;
     customValuesList: Array<string>;
     customStepsAmount: number;
     rangeValue: number;
     stepPercent: number;
     valuePercent: number;
-    // customValueType: string;
     
 
     constructor (options:IOptions) {
@@ -33,31 +31,31 @@ export default class Model  {
         this.getRangeValue();
     }
 
-    getCustomValues = () => {
+    private getCustomValues = () => {
         if(this.options.customValuesList == ''){
               console.log('Slider: customValuesList should contain values');
               return;  
         }
         else {
             let list = this.options.customValuesList;
-            let valArr:string[] = list.split(', ');
-            this.customValuesList = valArr;
-            this.customStepsAmount = valArr.length;     
-            this.getCustomValuesOptions(valArr);
+            let _valArr:  string[] = list.split(', ');
+            this.customValuesList = _valArr;
+            this.customStepsAmount = _valArr.length;     
+            this.getCustomValuesOptions(_valArr);
         }
     }
 
-    getCustomValuesOptions = (arr:string[]) => {
+    private getCustomValuesOptions = (arr:string[]) => {
         this.options.minValue = arr[0];
         this.options.maxValue = arr[arr.length-1];
         if(this.options.startingValue[0] > arr.length ||this.options.startingValue[1] > arr.length){
             this.options.startingValue = [0, (arr.length-1)];
         }
-        this.notifyChangedOptions;
+        this.notifyChangedOptions; 
     }
   
 
-    getInitialCurrentValue = ():void => {
+    private getInitialCurrentValue = ():void => {
         this.currentValue = [];
         for (let i = 0; i < this.options.handlersAmount; i++){
             if (this.options.customValues){
@@ -76,11 +74,15 @@ export default class Model  {
         }
     }
 
-    getValueRange = ():void => {
-        this.valueRange = Math.abs(this.options.maxValue - this.options.minValue);
+    private getValueRange = ():void => {
+        if (typeof this.options.maxValue === 'number' && typeof this.options.minValue === 'number'){
+            this.valueRange = Math.abs(this.options.maxValue - this.options.minValue);
+        }
+        else {return};
+
     }
 
-    getStepsAmount = ():void => {
+    private getStepsAmount = ():void => {
         if (this.options.customValues){
             this.stepsAmount = this.customStepsAmount;
         }
@@ -89,7 +91,7 @@ export default class Model  {
         }
     }
 
-    getStepPercent = ():void => {
+    private getStepPercent = ():void => {
         if (this.options.customValues){
             this.stepPercent = 100 / (this.stepsAmount - 1);
         }
@@ -98,23 +100,31 @@ export default class Model  {
         }
     }
 
-    getValuePercent = ():void => {
+    private getValuePercent = ():void => {
         this.valuePercent = 100 / this.valueRange;
     }
 
     getRangeValue = ():void => {
-        this.rangeValue = Math.abs(this.currentValue[1] - this.currentValue[0]);
+        if (typeof this.currentValue[1] === 'number' && typeof this.currentValue[0] === 'number'){
+            this.rangeValue = Math.abs(this.currentValue[1] - this.currentValue[0]);
+        }
+        else {return}
     }
 
-    getAllValues = ():void => {
+    private getAllValues = ():void => {
         this.allValues = [];
         if (this.options.customValues){
             this.getAllCustomValues();
         }
         else {
             for (let i = 0; i <= this.stepsAmount; i++){
-                let _value:IObj = {};
-                _value.val = this.options.minValue + this.options.step * i; 
+                let _value:IObj = {
+                    val: 0,
+                    percent: 0
+                };
+                if (typeof this.options.minValue === 'number' ){
+                    _value.val = this.options.minValue + this.options.step * i; 
+                }
                 _value.percent = this.stepPercent * i;
                 if (_value.percent >= 100){
                     _value.percent = 100;
@@ -126,14 +136,17 @@ export default class Model  {
         // console.log(this.allValues);
     }
 
-    getAllCustomValues = () => {
+    private getAllCustomValues = () => {
         for (let i = 0; i < this.stepsAmount; i++){
-            let _value:IObj = {};
+            let _value:IObj = {
+                val: 0,
+                percent: 0
+            };
             _value.val = this.customValuesList[i];
             _value.percent = this.stepPercent * i;
             this.allValues.push(_value);
         }
     }
 
-    notifyChangedOptions: any;
+    notifyChangedOptions: any; //listened by Presenter (l.32), new options object is created
 }

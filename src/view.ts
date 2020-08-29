@@ -7,7 +7,7 @@ import {IOptions} from './presenter';
 import SubViewScale from './subView/subViewScale';
 
 export interface IObj {
-    val: number,
+    val: number | string,
     percent: number
 }
 export class View {
@@ -70,7 +70,7 @@ export class View {
             }
         }
     }
-    createSlider = (options:IOptions, container:HTMLDivElement):void => {
+    private createSlider = (options:IOptions, container:HTMLDivElement):void => {
         this.sliderContainer = this.createContainer(options, container);
         this.slider = this.subViewSliderLine.createSliderLine(this.sliderContainer, options);
         this.handlers = this.subViewHandlers.createHandlers(options, this.slider);
@@ -91,7 +91,7 @@ export class View {
         }    
     }
 
-    createContainer = (options:IOptions, container:HTMLElement):HTMLDivElement => {
+    private createContainer = (options:IOptions, container:HTMLElement):HTMLDivElement => {
         const _cont:HTMLDivElement = document.createElement('div');
         _cont.classList.add('slider__container');
         if (this.options.vertical) {
@@ -105,21 +105,21 @@ export class View {
         return sliderContainer;
     }
 
-    resizeListener = () => {
+    private resizeListener = () => {
         let resize =  () =>  {
             this.changedWindow();
           }
           window.addEventListener('resize', resize);
     }
 
-    changedWindow = () => {
+    private changedWindow = () => {
         this.getSliderData();
         this.notifyChangedSliderData();
     }
 
-    notifyChangedSliderData: any;
+    notifyChangedSliderData: any; // listened by Presenter (l.47), presenter.getPositionFromValue() is assigned
 
-    getSliderData = ():void => {
+    private getSliderData = ():void => {
         this.getSliderPosition();
         this.getSliderLength();
         this.getHandlerSize();
@@ -129,7 +129,7 @@ export class View {
         }       
     }
 
-    getSliderPosition = ():void  => {
+    private getSliderPosition = ():void  => {
         if (this.options.vertical){
             this.sliderPosition = this.slider.getBoundingClientRect().y + pageYOffset;
         }
@@ -138,7 +138,7 @@ export class View {
         }
     }
 
-    getSliderLength = ():void => {
+    private getSliderLength = ():void => {
         if (this.options.vertical){
             this.sliderLength = this.slider.getBoundingClientRect().height;
         }
@@ -147,7 +147,7 @@ export class View {
         }
     }
 
-    getHandlerSize = ():void => {
+    private getHandlerSize = ():void => {
         this.getSliderLength();
         if (this.options.vertical){
             this.handlerSizePerc = (this.handlers[0].offsetHeight / 2) / this.sliderLength * 100;
@@ -176,7 +176,7 @@ export class View {
         this.positionRange = Math.abs(this.minPosition - this.maxPosition);
     }
 
-    showRange = ():HTMLDivElement => {
+    private showRange = ():HTMLDivElement => {
         let rangeBlock:HTMLDivElement = document.createElement('div');
         rangeBlock.classList.add('slider__range');
         if (this.options.vertical){
@@ -215,7 +215,7 @@ export class View {
        }
     }
   
-    moveByMouse = (e:MouseEvent, handler:HTMLDivElement, num:number): void => {
+    private moveByMouse = (e:MouseEvent, handler:HTMLDivElement, num:number): void => {
         e.preventDefault();
         this.getMinMaxPosition();
         let shift:number;
@@ -266,7 +266,7 @@ export class View {
           };
     }
 
-    moveByTouch = (e:TouchEvent, handler:HTMLDivElement, num:number) => {
+    private moveByTouch = (e:TouchEvent, handler:HTMLDivElement, num:number) => {
         e.preventDefault();
         this.getMinMaxPosition();
         let shift:number;
@@ -312,12 +312,13 @@ export class View {
         }
         document.ontouchend = ():void => {
             handler.classList.remove('slider__handler_active');
+            console.log('end moving');
             document.ontouchmove = null;
           };
     }
 
     
-    writeNewPosition = (handler:HTMLDivElement, num: number, newPos: number):void => {
+    private writeNewPosition = (handler:HTMLDivElement, num: number, newPos: number):void => {
         this.handlersPositionPerc[num] = newPos + this.handlerSizePerc;
         if(this.options.range){
             this.getSliderRangePosition();
@@ -325,11 +326,11 @@ export class View {
         this.notifyChangedHandlerPosition();
     }
 
-    notifyChangedHandlerPosition: any;
+    notifyChangedHandlerPosition: any; //listened by Presenter (l.41), presenter.getValueFromPosition (Presenter l.93) is assigned
 
-    notifyChangedInputValue: any; 
+    notifyChangedInputValue: any; //listened by Presenter (l.43), presenter.setHandlersToInputValue (Presenter l.78) is assigned
 
-    moveByClick = (e:MouseEvent) => {
+    private moveByClick = (e:MouseEvent) => {
         e.preventDefault();
         this.getMinMaxPosition();
         let clickPosition: number;
@@ -377,7 +378,7 @@ export class View {
         }
     }
 
-    getNearestHandler = (position: number): HTMLDivElement => {
+    private getNearestHandler = (position: number): HTMLDivElement => {
         let a: number,
             b: number;
         if (this.options.vertical){

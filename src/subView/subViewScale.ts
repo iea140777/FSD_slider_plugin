@@ -10,7 +10,7 @@ export default class SubViewScale  {
     scaleLegendArray: HTMLDivElement[];
     scaleLegend:NodeListOf<HTMLDivElement>;
 
-    createScale = (options:IOptions, slider:HTMLDivElement, values:IObj[]):NodeListOf<HTMLDivElement> => {
+    createScale = (options:IOptions, slider:HTMLDivElement, values:IObj[]): NodeListOf<HTMLDivElement> => {
         this.options = options;
         this.values = values;
         this.slider = slider;
@@ -32,9 +32,10 @@ export default class SubViewScale  {
             this.addScaleLegend();
             this.getScaleLegendValues();
         }
+        return this.scalePoints;
     }
 
-    getScalePosition = (): void => {
+    private getScalePosition = (): void => {
         for(let i = 0; i < this.values.length; i++){
             if (this.options.vertical) {
                 this.scalePointsArray[i].style.top = 100 - this.values[i].percent +'%';
@@ -45,7 +46,7 @@ export default class SubViewScale  {
         }
     }
 
-    addScaleLegend = () => {
+    private addScaleLegend = () => {
         this.scalePoints.forEach(
             scalePoint => {
                 let legend: HTMLDivElement = document.createElement('div');
@@ -63,7 +64,7 @@ export default class SubViewScale  {
         this.scaleLegendArray = Array.from(this.scaleLegend);
     }
 
-    getScaleLegendValues = () => {
+    private getScaleLegendValues = () => {
         for(let i = 0; i < this.values.length; i++){
             this.scaleLegendArray[i].innerText = String(this.values[i].val);
             if (this.options.vertical) {
